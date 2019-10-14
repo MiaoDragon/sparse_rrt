@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_PLANNER_HPP
@@ -24,17 +24,17 @@
 
 /**
  * @brief The base class for motion planners.
- * @details The base class for motion planners. This class provides 
+ * @details The base class for motion planners. This class provides
  * methods for visualizing the tree structures produced by motion
  * planners, in addition to initialization functions.
  */
 class planner_t
 {
-public: 
+public:
 	/**
 	 * @brief Planner Constructor
 	 * @details Planner Constructor
-	 * 
+	 *
 	 * @param in_start The start state.
 	 * @param in_goal The goal state
 	 * @param in_radius The radial size of the goal region centered at in_goal.
@@ -92,6 +92,7 @@ public:
 	 * @param max_time_steps Maximum number of control steps for the system
 	 * @param integration_step Integration step in seconds to integrate the system
 	 */
+	virtual void step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step) = 0;
 	virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step) = 0;
 
     /**

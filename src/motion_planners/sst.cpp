@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "motion_planners/sst.hpp"
@@ -93,7 +93,7 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 	if(best_goal==NULL)
 		return;
 	sst_node_t* nearest_path_node = best_goal;
-	
+
 	//now nearest_path_node should be the closest node to the goal state
 	std::deque<sst_node_t*> path;
 	while(nearest_path_node->get_parent()!=NULL)
@@ -124,6 +124,83 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
         costs.push_back(path[i]->get_parent_edge().get_duration());
 	}
 }
+
+
+void sst_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
+{
+    /* @Author: Yinglong Miao
+     * Given the random sample from some sampler
+     * Find the closest existing node
+     * Generate random control
+     * Propagate for random time with constant random control from the closest node
+     * If resulting state is valid, add a resulting state into the tree and perform sst-specific graph manipulations
+     */
+
+
+	//this->random_state(sample_state);
+  // sample a bunch of controls, and choose the one with the minimum distance to the sample_state
+  // remember the sample state by a temperate Variable
+  double* input_sample_state = new double[this->state_dimension];
+  for (unsigned i=0; i < this->state_dimension; i++)
+  {
+    input_sample_state[i] = sample_state[i];
+  }
+    sst_node_t* nearest = nearest_vertex(sample_state);
+  // init the minimum distance
+  double* min_sample_state = new double[this->state_dimension];
+  for (unsigned i=0; i < this->state_dimension; i++)
+  {
+    min_sample_state[i] = sample_state[i];
+  }
+  double min_distance = this->distance(nearest->get_point(), sample_state, this->state_dimension);
+
+	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
+    double duration = num_steps*integration_step;
+
+  double* sample_control = new double[this->control_dimension];
+
+  // sample for a maximum number of trials, and find the minimum distance
+  int max_trials = 100;
+  for (unsigned i=0; i < max_trials; i++)
+  {
+      // reset the goal to input
+      for (unsigned j=0; j < this->state_dimension; j++)
+      {
+        sample_state[j] = input_sample_state[j];
+      }
+      // randomly sample a control input
+      this->random_control(sample_control);
+    	 if(system->propagate(
+    	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
+    	    num_steps, sample_state, integration_step))
+        {
+          // compare with the minimum distance, and update
+          double distance = this->distance(sample_state, input_sample_state, this->state_dimension);
+          if (distance < min_distance)
+          {
+            // update the minimum distance, and the end point sample associated with it
+            min_distance = distance;
+            // update the sample state associated with the min distance
+            for (unsigned j=0; j < this->state_dimension; j++)
+            {
+              min_sample_state[j] = sample_state[j];
+            }
+          }
+        }
+  }
+  // here we assume all trials have successful propagation, this might not be true
+  add_to_tree(min_sample_state, sample_control, nearest, duration);
+
+  for (unsigned i=0;i<this->state_dimension;i++)
+  {
+      new_state[i] = min_sample_state[i];
+  }
+    delete input_sample_state;
+    delete min_sample_state;
+    delete sample_state;
+    delete sample_control;
+}
+
 
 void sst_t::step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step)
 {
@@ -222,14 +299,14 @@ void sst_t::add_to_tree(const double* sample_state, const double* sample_control
 	                sst_node_t* next = (sst_node_t*)iter->get_parent();
 	                remove_leaf(iter);
 	                iter = next;
-	            } 
+	            }
 
 			}
 			witness_sample->set_representative(new_node);
 			new_node->set_witness(witness_sample);
 			metric.add_node(new_node);
 		}
-	}	
+	}
 
 }
 
@@ -298,4 +375,3 @@ bool sst_t::is_best_goal(tree_node_t* v)
     return false;
 
 }
-

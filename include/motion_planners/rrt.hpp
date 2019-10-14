@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_PLANNER_RRT_HPP
@@ -103,6 +103,7 @@ public:
 	/**
 	 * @copydoc planner_t::step()
 	 */
+	virtual void step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
 	virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step);
 
 protected:

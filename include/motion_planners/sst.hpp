@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_PLANNER_SST_HPP
@@ -105,7 +105,7 @@ private:
 /**
  * @brief A special storage node for witness nodes in SST.
  * @details A special storage node for witness nodes in SST.
- * 
+ *
  */
 class sample_node_t : public state_point_t
 {
@@ -183,10 +183,11 @@ public:
 	 * @copydoc planner_t::get_solution(std::vector<std::pair<double*,double> >&)
 	 */
 	virtual void get_solution(std::vector<std::vector<double>>& solution_path, std::vector<std::vector<double>>& controls, std::vector<double>& costs);
-	
+
 	/**
 	 * @copydoc planner_t::step()
 	 */
+	 virtual void step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
 	 virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step);
 
 protected:
@@ -223,7 +224,7 @@ protected:
 	/**
 	 * @brief Checks if this node has any children.
 	 * @details Checks if this node has any children.
-	 * 
+	 *
 	 * @param node The node to examine.
 	 * @return True if no children, false if at least one child.
 	 */
@@ -232,7 +233,7 @@ protected:
 	/**
 	 * @brief Checks if this node is on the solution path.
 	 * @details Checks if this node is on the solution path.
-	 * 
+	 *
 	 * @param v The node to check
 	 * @return True if on the solution path, false if not.
 	 */
@@ -241,7 +242,7 @@ protected:
 	/**
 	 * @brief Removes a leaf node from the tree.
 	 * @details Removes a leaf node from the tree.
-	 * 
+	 *
 	 * @param node The node to remove.
 	 */
 	void remove_leaf(sst_node_t* node);

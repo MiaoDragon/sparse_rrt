@@ -109,6 +109,27 @@ public:
     /**
 	 * @copydoc planner_t::step()
 	 */
+   py::safe_array<double> step_with_sample(system_interface& system, py::safe_array<double>& sample_state_py, int min_time_steps, int max_time_steps, double integration_step)
+   {
+        auto init_sample_state = sample_state_py.unchecked<1>(); // need to be one dimension vector
+        // create a sample variable that holds the initial value from the one passed
+        int size = init_sample_state.shape(0);
+        double* sample_state = new double[size];
+        double* new_state = new double[size];
+        for (int i = 0; i < size; i++) {
+          sample_state[i] = init_sample_state(i);
+        }
+        planner->step_with_sample(&system, sample_state, new_state, min_time_steps, max_time_steps, integration_step);
+        // return the new sample
+        py::safe_array<double> new_state_py({size});
+        auto new_state_ref = new_state_py.mutable_unchecked<1>();
+        for (int i = 0; i < size; i++) {
+          new_state_ref(i) = new_state[i];
+        }
+        delete new_state;
+        return new_state_py;
+    }
+
     void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
@@ -510,6 +531,7 @@ PYBIND11_MODULE(_sst_module, m) {
    // Classes and interfaces for planners
    py::class_<PlannerWrapper> planner(m, "PlannerWrapper");
    planner
+        .def("step_with_sample", &PlannerWrapper::step_with_sample)
         .def("step", &PlannerWrapper::step)
         .def("visualize_tree", &PlannerWrapper::visualize_tree_wrapper,
             "system"_a,

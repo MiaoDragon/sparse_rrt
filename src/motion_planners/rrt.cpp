@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "motion_planners/rrt.hpp"
@@ -78,6 +78,46 @@ void rrt_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
         }
     }
 }
+
+void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
+{
+    /* @Author: Yinglong Miao
+     * Given the random sample from some sampler
+     * Find the closest existing node
+     * Generate random control
+     * Propagate for random time with constant random control from the closest node
+     * If resulting state is valid, add a resulting state into the tree and perform sst-specific graph manipulations
+     */
+
+    //double* sample_state = new double[this->state_dimension];
+    double* sample_control = new double[this->control_dimension];
+    //this->random_state(sample_state);
+    this->random_control(sample_control);
+
+    nearest = nearest_vertex(sample_state);
+    int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
+    double duration = num_steps*integration_step;
+    if(system->propagate(
+        nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
+        num_steps, sample_state, integration_step))
+    {
+        //create a new tree node
+        rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
+            sample_state, this->state_dimension, nearest,
+            tree_edge_t(sample_control, this->control_dimension, duration),
+            nearest->get_cost() + duration)
+        ));
+        metric.add_node(new_node);
+        number_of_nodes++;
+    }
+		for (unsigned i=0;i<this->state_dimension;i++)
+	  {
+	      new_state[i] = sample_state[i];
+	  }
+    delete sample_state;
+    delete sample_control;
+}
+
 void rrt_t::step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step)
 {
     double* sample_state = new double[this->state_dimension];
@@ -111,4 +151,3 @@ rrt_node_t* rrt_t::nearest_vertex(const double* state) const
     double distance;
     return (rrt_node_t*)(metric.find_closest(state, &distance)->get_state());
 }
-

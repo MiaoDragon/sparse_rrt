@@ -1,7 +1,7 @@
 # Python bindings for Sparse-RRT planner
 
 This package is based on Sparse-RRT project https://bitbucket.org/pracsys/sparse_rrt/.
-The main purpose of this work is to allow running Sparse-RRT planner in python environment. 
+The main purpose of this work is to allow running Sparse-RRT planner in python environment.
 Here are the main contributions:
  - C++ experiments from original package are executable from Python while preserving speed, SVG visualizations and statistics
  - Controllable systems for the planners can be completely written in Python, while planners are executed in C++. This is not so slow as it sounds - the average slowdown is only 2-3x for system propagation.
@@ -9,6 +9,13 @@ Here are the main contributions:
  - C++ implementation of planners, utilities and systems used to contain many memory leaks that prevent running planning multiple times. This was fixed in the current implementation.
 
 The original codebase or SST planner is small enough to be easily understood and customized as opposed to OMPL SST implementation.
+
+## load submodule
+To load the submodule (pybind11), run:
+```
+git submodule init
+git submodule update
+```
 
 ## INSTALLING
 To install the package just run pip:
@@ -25,8 +32,8 @@ run_standard_experiment('sst_car', visualization=False)
 ```
 
 This will run SST planner for non-holonomic car system, implemented in C++ and print out statistics.
-Right now, the reported statistics are the number of iterations 
-executed, the number of nodes stored, and the solution length in 
+Right now, the reported statistics are the number of iterations
+executed, the number of nodes stored, and the solution length in
 seconds.
 
 There are many more pre-packaged experiments. Run the following to get a list of them:
@@ -41,7 +48,7 @@ for exp in available_standard_experiments():
 When running experiments, in addition to the terminal output,
 visualization images can be displayed in the standalone window. This project inherits SVG-based visualization from original C++ codebase. There are few convenience functions
 to display SVG images, to convert them to RGB numpy arrays or to display them in a window.
-Visualization dependencies are not included in the package dependencies to ease installation. 
+Visualization dependencies are not included in the package dependencies to ease installation.
 Here are the packages that you may need to install to run visualization:
  - `PySide` or `cairosvg` - to render SVG in python. `PySide` is considerably faster (to install run `pip install pyside` or `pip install cairosvg`)
  - `PySide` or `python-opencv` - to open windows and display numpy images (`show_image` function). To install opencv, you can follow <href>https://www.learnopencv.com/install-opencv3-on-ubuntu/
@@ -157,7 +164,7 @@ from sparse_rrt.planners import SST
 
 # Create custom system
 system = FreePoint()
-# Create SST planner 
+# Create SST planner
 planner = SST(
     state_bounds=system.get_state_bounds(),
     control_bounds=system.get_control_bounds(),

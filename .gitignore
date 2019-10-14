@@ -47,4 +47,4 @@ venv
 doc/html/**
 
 # submodule
-deps/pybind11/**
+deps/**

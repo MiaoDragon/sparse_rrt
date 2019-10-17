@@ -152,7 +152,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   {
     min_sample_state[i] = sample_state[i];
   }
-  double min_distance = this->distance(nearest->get_point(), sample_state, this->state_dimension);
+  double min_distance = -1.0;
 
 	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
     double duration = num_steps*integration_step;
@@ -181,7 +181,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
           success = 1;
           // compare with the minimum distance, and update
           double distance = this->distance(sample_state, input_sample_state, this->state_dimension);
-          if (distance < min_distance)
+          if (min_distance < 0. || distance < min_distance)  // min_distance < 0 means hasn't been updated
           {
             // update the minimum distance, and the end point sample associated with it
             min_distance = distance;

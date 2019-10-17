@@ -163,6 +163,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 
   // sample for a maximum number of trials, and find the minimum distance
   int max_trials = 100;
+  int success = 0; // denote if the random sample has no collision
   for (unsigned i=0; i < max_trials; i++)
   {
       // reset the goal to input
@@ -176,6 +177,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
     	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
     	    num_steps, sample_state, integration_step))
         {
+          // succeed
+          success = 1;
           // compare with the minimum distance, and update
           double distance = this->distance(sample_state, input_sample_state, this->state_dimension);
           if (distance < min_distance)
@@ -196,11 +199,22 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
         }
   }
   // here we assume all trials have successful propagation, this might not be true
-  add_to_tree(min_sample_state, min_sample_control, nearest, duration);
-
-  for (unsigned i=0;i<this->state_dimension;i++)
+  if (success > 0)
   {
-      new_state[i] = min_sample_state[i];
+      add_to_tree(min_sample_state, min_sample_control, nearest, duration);
+      for (unsigned i=0;i<this->state_dimension;i++)
+      {
+          new_state[i] = min_sample_state[i];
+      }
+  }
+  else
+  {
+      std::cout << "In Collision\n";
+      for (unsigned i=0;i<this->state_dimension;i++)
+      {
+          // can't go to the new state because of collision, stay here
+          new_state[i] = nearest->get_point()[i];
+      }
   }
     delete input_sample_state;
     delete min_sample_state;

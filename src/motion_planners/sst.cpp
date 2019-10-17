@@ -181,7 +181,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
           success = 1;
           // compare with the minimum distance, and update
           double distance = this->distance(sample_state, input_sample_state, this->state_dimension);
-          std::cout << "min_distance:" << min_distance << std::endl;
+          //std::cout << "min_distance:" << min_distance << std::endl;
           if (min_distance < 0. || distance < min_distance)  // min_distance < 0 means hasn't been updated
           {
             // update the minimum distance, and the end point sample associated with it

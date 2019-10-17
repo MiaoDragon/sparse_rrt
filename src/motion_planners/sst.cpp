@@ -158,6 +158,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
     double duration = num_steps*integration_step;
 
   double* sample_control = new double[this->control_dimension];
+  // record the control associated with the min cost
+  double* min_sample_control = new double[this->control_dimension];
 
   // sample for a maximum number of trials, and find the minimum distance
   int max_trials = 100;
@@ -185,11 +187,16 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
             {
               min_sample_state[j] = sample_state[j];
             }
+            // update the control associated with the min distance
+            for (unsigned j=0; j < this->state_dimension; j++)
+            {
+              min_sample_control[j] = sample_control[j];
+            }
           }
         }
   }
   // here we assume all trials have successful propagation, this might not be true
-  add_to_tree(min_sample_state, sample_control, nearest, duration);
+  add_to_tree(min_sample_state, min_sample_control, nearest, duration);
 
   for (unsigned i=0;i<this->state_dimension;i++)
   {
@@ -199,6 +206,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
     delete min_sample_state;
     delete sample_state;
     delete sample_control;
+    delete min_sample_control;
 }
 
 

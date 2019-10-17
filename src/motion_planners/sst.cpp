@@ -188,7 +188,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
               min_sample_state[j] = sample_state[j];
             }
             // update the control associated with the min distance
-            for (unsigned j=0; j < this->state_dimension; j++)
+            for (unsigned j=0; j < this->control_dimension; j++)
             {
               min_sample_control[j] = sample_control[j];
             }

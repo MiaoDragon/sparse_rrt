@@ -162,7 +162,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   double* min_sample_control = new double[this->control_dimension];
 
   // sample for a maximum number of trials, and find the minimum distance
-  int max_trials = 10;
+  int max_trials = 50;
   int success = 0; // denote if the random sample has no collision
   for (unsigned i=0; i < max_trials; i++)
   {

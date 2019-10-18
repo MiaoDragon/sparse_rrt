@@ -535,7 +535,7 @@ public:
                  return distance_computer->distance(p0, p1, dims);
              };
          cart_pole_obs.reset(
-                 new cart_pole_obs_t(&obs_list, width)
+                 new cart_pole_obs_t(obs_list, width)
          );
      }
 
@@ -570,7 +570,7 @@ public:
         return cart_pole_obs->get_control_bounds();
     }
 
-    std::vector<bool> is_circular_topology() const override 
+    std::vector<bool> is_circular_topology() const override
     {
         return cart_pole_obs->is_circular_topology();
     }

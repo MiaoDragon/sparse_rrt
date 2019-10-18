@@ -53,8 +53,8 @@ public:
 	virtual ~cart_pole_obs_t(){
 	    delete temp_state;
 	    delete deriv;
-		delete obs_list;  // according to https://stackoverflow.com/questions/13771823/deallocation-of-a-vector-in-c
-						  // this will destroy all members as well
+		// clear the vector
+		obs_list.clear();
 	}
 
 	/**
@@ -102,7 +102,7 @@ protected:
 	std::vector<std::vector<double>> obs_list;
 	// collision checker
 	// from http://www.jeffreythompson.org/collision-detection/line-rect.php
-	boolean lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);
+	bool lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);
 };
 
 

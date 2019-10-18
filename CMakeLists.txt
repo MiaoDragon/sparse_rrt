@@ -49,6 +49,7 @@ set(SOURCE_FILES
         src/nearest_neighbors/graph_nearest_neighbors.cpp
         src/systems/car.cpp
         src/systems/cart_pole.cpp
+        src/systems/cart_pole_obs.cpp
         src/systems/pendulum.cpp
         src/systems/point.cpp
         src/systems/rally_car.cpp

@@ -526,14 +526,6 @@ public:
              obs_list[i][0] = py_obs_list(i, 0);
              obs_list[i][1] = py_obs_list(i, 1);
          }
-
-
-
-         distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
-         std::function<double(const double*, const double*, unsigned int)>  distance_f =
-             [distance_computer] (const double* p0, const double* p1, unsigned int dims) {
-                 return distance_computer->distance(p0, p1, dims);
-             };
          cart_pole_obs.reset(
                  new cart_pole_obs_t(obs_list, width)
          );

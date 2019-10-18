@@ -557,20 +557,20 @@ public:
     {
         return cart_pole_obs->valid_state();
     }
-    std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension)
+    std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension) const override
     {
         return cart_pole_obs->visualize_point(state, state_dimension);
     }
-    std::vector<std::pair<double, double>> get_state_bounds()
+    std::vector<std::pair<double, double>> get_state_bounds() const override
     {
         return cart_pole_obs->get_state_bounds();
     }
-    std::vector<std::pair<double, double>> get_control_bounds()
+    std::vector<std::pair<double, double>> get_control_bounds() const override
     {
         return cart_pole_obs->get_control_bounds();
     }
 
-    std::vector<bool> is_circular_topology()
+    std::vector<bool> is_circular_topology() const override 
     {
         return cart_pole_obs->is_circular_topology();
     }

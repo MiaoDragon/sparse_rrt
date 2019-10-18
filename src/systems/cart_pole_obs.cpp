@@ -63,7 +63,9 @@ bool cart_pole_obs_t::propagate(
                 temp_state[2] += integration_step*deriv[2];
                 temp_state[3] += integration_step*deriv[3];
                 enforce_bounds();
+                std::cout << "validity check\n";
                 validity = validity && valid_state();
+                std::cout << "validity: " << validity << "\n";
         }
         result_state[0] = temp_state[0];
         result_state[1] = temp_state[1];
@@ -104,9 +106,18 @@ bool cart_pole_obs_t::valid_state()
     double pole_y1 = H;
     double pole_x2 = temp_state[0] + L * sin(temp_state[2]);
     double pole_y2 = H + L * cos(temp_state[2]);
+    std::cout << "state:" << temp_state[0] << "\n";
+    std::cout << "pole point 1: " << "(" << pole_x1 << ", " << pole_y1 << ")\n";
+    std::cout << "pole point 2: " << "(" << pole_x2 << ", " << pole_y2 << ")\n";
     for(unsigned i = 0; i < obs_list.size(); i++)
     {
         // check if any obstacle has intersection with pole
+        std::cout << "obstacle " << i << "\n";
+        std::cout << "points: \n";
+        for (unsigned j = 0; i < 8; j+=2)
+        {
+            std::cout << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
+        }
         for (unsigned j = 0; i < 8; j+=2)
         {
             // check each line of the obstacle

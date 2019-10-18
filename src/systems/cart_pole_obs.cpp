@@ -76,10 +76,11 @@ bool cart_pole_obs_t::propagate(
 
 void cart_pole_obs_t::enforce_bounds()
 {
-        if(temp_state[0]<MIN_X)
-                temp_state[0]=MIN_X;
-        else if(temp_state[0]>MAX_X)
-                temp_state[0]=MAX_X;
+        // fpr the position, if it is outside of bound, we don't enforce it back
+        //if(temp_state[0]<MIN_X)
+        //        temp_state[0]=MIN_X;
+        //else if(temp_state[0]>MAX_X)
+        //        temp_state[0]=MAX_X;
 
         if(temp_state[1]<MIN_V)
                 temp_state[1]=MIN_V;
@@ -102,6 +103,11 @@ bool cart_pole_obs_t::valid_state()
 {
     // check the pole with the rectangle to see if in collision
     // calculate the pole state
+    // check if the position is within bound
+    if (temp_state[0] < MIN_X or temp_state[0] > MAX_X)
+    {
+        return false;
+    }
     double pole_x1 = temp_state[0];
     double pole_y1 = H;
     double pole_x2 = temp_state[0] + L * sin(temp_state[2]);

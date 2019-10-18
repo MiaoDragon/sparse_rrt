@@ -114,12 +114,12 @@ bool cart_pole_obs_t::valid_state()
         // check if any obstacle has intersection with pole
         std::cout << "obstacle " << i << "\n";
         std::cout << "points: \n";
-        for (unsigned int j = 0; i < 8; j+=2)
+        for (unsigned int j = 0; j < 8; j+=2)
         {
 
             std::cout << j << "-th point: " << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
         }
-        for (unsigned int j = 0; i < 8; j+=2)
+        for (unsigned int j = 0; j < 8; j+=2)
         {
             // check each line of the obstacle
             double x1 = obs_list[i][j];

@@ -21,6 +21,7 @@
 #include "systems/point.hpp"
 #include "systems/car.hpp"
 #include "systems/cart_pole.hpp"
+#include "systems/cart_pole_obs.hpp"
 #include "systems/pendulum.hpp"
 #include "systems/rally_car.hpp"
 #include "systems/two_link_acrobot.hpp"
@@ -488,6 +489,104 @@ public:
 
 
 /**
+ * @brief CartPole with Obstacle system Wrapper
+ * @details python interface using C++ implementation
+ *
+ */
+ class __attribute__ ((visibility ("hidden"))) CartPoleObsWrapper : public system_t
+ {
+ public:
+
+ 	/**
+ 	 * @brief Python wrapper of CartPoleObs constructor
+ 	 * @details Python wrapper of CartPoleObs constructor
+ 	 *
+ 	 * @param _obs_list: numpy array (N x 2) representing the middle point of the obstacles
+     * @param width: width of the rectangle obstacle
+ 	 */
+     CartPoleObsWrapper(
+             const py::safe_array<double> &_obs_list,
+             double width
+      )
+     {
+         if (_obs_list.shape()[0] == 0) {
+             throw std::runtime_error("Should contain at least one obstacles.");
+         }
+         if (_obs_list.shape()[1] != 2) {
+             throw std::runtime_error("Shape of the obstacle input should be (N,2).");
+         }
+         if (width <= 0.) {
+             throw std::runtime_error("obstacle width should be non-negative.");
+         }
+         auto py_obs_list = _obs_list.unchecked<2>();
+         // initialize the array
+         std::vector<std::vector<double>> obs_list(_obs_list.shape()[0], std::vector<double>(2, 0.0));
+         // copy from python array to this array
+         for (unsigned int i = 0; i < obs_list.size(); i++) {
+             obs_list[i][0] = py_obs_list(i, 0);
+             obs_list[i][1] = py_obs_list(i, 1);
+         }
+
+
+
+         distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
+         std::function<double(const double*, const double*, unsigned int)>  distance_f =
+             [distance_computer] (const double* p0, const double* p1, unsigned int dims) {
+                 return distance_computer->distance(p0, p1, dims);
+             };
+         cart_pole_obs.reset(
+                 new cart_pole_obs_t(&obs_list, width)
+         );
+     }
+
+    bool propagate(
+             const double* start_state, unsigned int state_dimension,
+             const double* control, unsigned int control_dimension,
+     	    int num_steps, double* result_state, double integration_step)
+    {
+        return cart_pole_obs->propagate(start_state, state_dimension, control, control_dimension,
+                                    num_steps, result_state, integration_step);
+    }
+
+    void enforce_bounds()
+    {
+        cart_pole_obs->enforce_bounds();
+    }
+
+    bool valid_state()
+    {
+        return cart_pole_obs->valid_state();
+    }
+    std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension)
+    {
+        return cart_pole_obs->visualize_point(state, state_dimension);
+    }
+    std::vector<std::pair<double, double>> get_state_bounds()
+    {
+        return cart_pole_obs->get_state_bounds();
+    }
+    std::vector<std::pair<double, double>> get_control_bounds()
+    {
+        return cart_pole_obs->get_control_bounds();
+    }
+
+    std::vector<bool> is_circular_topology()
+    {
+        return cart_pole_obs->is_circular_topology();
+    }
+
+ protected:
+ 	/**
+ 	 * @brief Created planner object
+ 	 */
+     std::unique_ptr<cart_pole_obs_t> cart_pole_obs;
+ };
+
+
+
+
+
+/**
  * @brief pybind module
  * @details pybind module for all planners, systems and interfaces
  *
@@ -520,6 +619,15 @@ PYBIND11_MODULE(_sst_module, m) {
 
    py::class_<car_t>(m, "Car", system).def(py::init<>());
    py::class_<cart_pole_t>(m, "CartPole", system).def(py::init<>());
+   // newly added cart_pole_obs
+   // TODO: add init parameters
+   py::class_<CartPoleObsWrapper>(m, "CartPoleObs", system)
+        .def(py::init<const py::safe_array<double> &,
+                      double>(),
+            "obstacle_list"_a,
+            "obstacle_width"_a
+        );
+
    py::class_<pendulum_t>(m, "Pendulum", system).def(py::init<>());
    py::class_<point_t>(m, "Point", system)
        .def(py::init<int>(),

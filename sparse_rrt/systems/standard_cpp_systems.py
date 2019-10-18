@@ -17,6 +17,8 @@ class Car(_sst_module.Car, WithEuclideanDistanceComputer):
 class CartPole(_sst_module.CartPole, WithEuclideanDistanceComputer):
     pass
 
+class CartPoleObs(_sst_module.CartPoleObs, WithEuclideanDistanceComputer):
+    pass
 
 class Pendulum(_sst_module.Pendulum, WithEuclideanDistanceComputer):
     pass

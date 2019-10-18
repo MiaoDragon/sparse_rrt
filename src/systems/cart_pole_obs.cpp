@@ -15,7 +15,7 @@
 
 #include "systems/cart_pole_obs.hpp"
 #include "utilities/random.hpp"
-
+#include <iostream>
 
 #define _USE_MATH_DEFINES
 

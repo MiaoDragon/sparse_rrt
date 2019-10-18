@@ -150,7 +150,7 @@ void cart_pole_obs_t::update_derivative(const double* control)
 }
 
 
-bool lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+bool cart_pole_obs_t::lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
 // compute whether two lines intersect with each other
 {
     // ref: http://www.jeffreythompson.org/collision-detection/line-rect.php

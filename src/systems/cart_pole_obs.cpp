@@ -109,16 +109,17 @@ bool cart_pole_obs_t::valid_state()
     std::cout << "state:" << temp_state[0] << "\n";
     std::cout << "pole point 1: " << "(" << pole_x1 << ", " << pole_y1 << ")\n";
     std::cout << "pole point 2: " << "(" << pole_x2 << ", " << pole_y2 << ")\n";
-    for(unsigned i = 0; i < obs_list.size(); i++)
+    for(unsigned int i = 0; i < obs_list.size(); i++)
     {
         // check if any obstacle has intersection with pole
         std::cout << "obstacle " << i << "\n";
         std::cout << "points: \n";
-        for (unsigned j = 0; i < 8; j+=2)
+        for (unsigned int j = 0; i < 8; j+=2)
         {
-            std::cout << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
+
+            std::cout << j << "-th point: " << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
         }
-        for (unsigned j = 0; i < 8; j+=2)
+        for (unsigned int j = 0; i < 8; j+=2)
         {
             // check each line of the obstacle
             double x1 = obs_list[i][j];

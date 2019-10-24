@@ -12,12 +12,17 @@
  *
  */
 
+//## TODO
+//  add eigen dependency to the package
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
+#include "bvp/sqp_bvp.hpp"
+#include <Eigen/Dense>
 
 #include <iostream>
 #include <deque>
 
+using namespace Eigen;
 
 sst_node_t::sst_node_t(const double* point, unsigned int state_dimension, sst_node_t* a_parent, tree_edge_t&& a_parent_edge, double a_cost)
     : tree_node_t(point, state_dimension, std::move(a_parent_edge), a_cost)
@@ -78,12 +83,19 @@ sst_t::sst_t(
     sample_node_t* first_witness_sample = new sample_node_t(static_cast<sst_node_t*>(root), start_state, this->state_dimension);
     samples.add_node(first_witness_sample);
     witness_nodes.push_back(first_witness_sample);
+    // initialize BVP solver
+    bvp_solver = NULL;
 }
 
 sst_t::~sst_t() {
     delete root;
     for (auto w: this->witness_nodes) {
         delete w;
+    }
+    if (bvp_solver)
+    {
+        // if bvp_solver pointer is not NULL
+        delete bvp_solver;
     }
 }
 
@@ -140,88 +152,52 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 	//this->random_state(sample_state);
   // sample a bunch of controls, and choose the one with the minimum distance to the sample_state
   // remember the sample state by a temperate Variable
-  double* input_sample_state = new double[this->state_dimension];
+  sst_node_t* nearest = nearest_vertex(sample_state);
+
+  // try to connect from nearest to input_sample_state
+  // convert from double array to VectorXd
+  VectorXd start_x(this->state_dimension);
+  VectorXd end_x(this->state_dimension);
   for (unsigned i=0; i < this->state_dimension; i++)
   {
-    input_sample_state[i] = sample_state[i];
+      start_x(i) = nearest->get_point()[i];
+      end_x(i) = sample_state[i];
   }
-    sst_node_t* nearest = nearest_vertex(sample_state);
-  // init the minimum distance
-  double* min_sample_state = new double[this->state_dimension];
-  for (unsigned i=0; i < this->state_dimension; i++)
+  //std::vector<std::vector<double>>
+  std::vector<double> solution;
+  int num_steps = 3*this->state_dimension
+  // initialize bvp pointer if it is nullptr
+  if (bvp_solver == NULL)
   {
-    min_sample_state[i] = sample_state[i];
+      bvp_solver = new SQPBVP(system, this->state_dimension, this->control_dimension, num_steps, integration_step);
   }
-  double min_distance = -1.0;
 
-	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-    double duration = num_steps*integration_step;
+  solution = bvp_solver->solve(start_x, end_x);
+  // from solution we can obtain the trajectory: state traj | action traj | time traj
+  std::vector<std::vector<double>> x_traj;
+  std::vector<std::vector<double>> u_traj;
+  std::vector<double> t_traj;
+  int control_start = num_steps*this->state_dimension;
+  int duration_start = control_start + (num_steps-1)*this->control_dimension;
+  for (unsigned i=0; i < num_steps-1; i++)
+  {
+      // states
+      int begin_idx = i*this->state_dimension;
+      int end_idx = (i+1)*this->state_dimension-1;
+      std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
+      x_traj.push_back(x);
+      // controls
+      begin_idx = i*this->control_dimension+control_start;
+      end_idx = (i+1)*this->control_dimension-1+control_start;
+      std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
+      u_traj.push_back(u);
+      // time
+      t_traj.push_back(solution[duration_start+i]);
+  }
+  //TODO: do something with the trajectories
 
-  double* sample_control = new double[this->control_dimension];
-  // record the control associated with the min cost
-  double* min_sample_control = new double[this->control_dimension];
 
-  // sample for a maximum number of trials, and find the minimum distance
-  int max_trials = 50;
-  int success = 0; // denote if the random sample has no collision
-  for (unsigned i=0; i < max_trials; i++)
-  {
-      // reset the goal to input
-      for (unsigned j=0; j < this->state_dimension; j++)
-      {
-        sample_state[j] = input_sample_state[j];
-      }
-      // randomly sample a control input
-      this->random_control(sample_control);
-    	 if(system->propagate(
-    	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
-    	    num_steps, sample_state, integration_step))
-        {
-          // succeed
-          success = 1;
-          // compare with the minimum distance, and update
-          double distance = this->distance(sample_state, input_sample_state, this->state_dimension);
-          //std::cout << "min_distance:" << min_distance << std::endl;
-          if (min_distance < 0. || distance < min_distance)  // min_distance < 0 means hasn't been updated
-          {
-            // update the minimum distance, and the end point sample associated with it
-            min_distance = distance;
-            // update the sample state associated with the min distance
-            for (unsigned j=0; j < this->state_dimension; j++)
-            {
-              min_sample_state[j] = sample_state[j];
-            }
-            // update the control associated with the min distance
-            for (unsigned j=0; j < this->control_dimension; j++)
-            {
-              min_sample_control[j] = sample_control[j];
-            }
-          }
-        }
-  }
-  // here we assume all trials have successful propagation, this might not be true
-  if (success > 0)
-  {
-      add_to_tree(min_sample_state, min_sample_control, nearest, duration);
-      for (unsigned i=0;i<this->state_dimension;i++)
-      {
-          new_state[i] = min_sample_state[i];
-      }
-  }
-  else
-  {
-      std::cout << "In Collision\n";
-      for (unsigned i=0;i<this->state_dimension;i++)
-      {
-          // can't go to the new state because of collision, stay here
-          new_state[i] = nearest->get_point()[i];
-      }
-  }
-    delete input_sample_state;
-    delete min_sample_state;
-    delete sample_state;
-    delete sample_control;
-    delete min_sample_control;
+
 }
 
 

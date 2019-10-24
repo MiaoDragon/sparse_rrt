@@ -24,14 +24,14 @@ using namespace Eigen;
 
 class SQPBVP {
 public:
-  SQPBVP(system_t* system, int n_steps, double integration_step);
+  SQPBVP(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step);
   ~SQPBVP();
-  vector<double> solve(const VectorXd& start, const VectorXd& goal) const = 0;
+  std::vector<double> solve(const VectorXd& start, const VectorXd& goal) const = 0;
 protected:
   CostWithSystem* costPtr;
   ConstraintWithSystem* constraintPtr;
   OptProbPtr probPtr;
-  system_t* _system;
+  system_interface* _system;
   int _n_steps;  // store how many intervals are needed
   int state_dim, action_dim;
   double _integration_step;

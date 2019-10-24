@@ -12,15 +12,17 @@
  using namespace Eigen;
 
  /* CostWithSystem class */
- CostWithSystem::CostWithSystem(system_t* system, int n_steps, double integration_step)
+ CostWithSystem::CostWithSystem(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
     : ScalarOfVector()
     , _system(system)
     , _n_steps(n_steps)
-    , state_dim(system->get_state_dimension())
-    , action_dim(system->get_control_dimension())
+    , state_dim(state_dim_in)
+    , action_dim(action_dim_in)
     , _integration_step(integration_step)
-    , start_x()
- {}
+ {
+     start_x = VectorXd::Zero(state_dim_in);
+     end_x = VectorXd::Zero(state_dim_in);
+ }
 
  CostWithSystem::~CostWithSystem()
  {}

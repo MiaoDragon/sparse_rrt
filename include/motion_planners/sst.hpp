@@ -17,6 +17,7 @@
 
 #include "systems/system.hpp"
 #include "motion_planners/planner.hpp"
+#include "bvp/sqp_bvp.hpp"
 
 class sample_node_t;
 
@@ -274,6 +275,12 @@ protected:
 	 * @brief Container for witness nodes (to avoid memory leaks)
 	 */
     std::vector<sample_node_t*> witness_nodes;
+
+	/**
+	 * BVP solver
+	 */
+	SQPBVP* bvp_solver;
+
 };
 
 #endif

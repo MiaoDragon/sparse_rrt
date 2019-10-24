@@ -15,11 +15,11 @@
 #include "sco/solver.hpp"
 using namespace Eigen;
 
-SQPBVP::SQPBVP(system_t* system, int n_steps, double integration_step)
+SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
 : _system(system)
 , _n_steps(n_steps)
-, state_dim(system->get_state_dimension())
-, action_dim(system->get_control_dimension())
+, state_dim(state_dim_in)
+, action_dim(action_dim_in)
 , _integration_step(integration_step)
 , start_x()
 , costPtr(new CostWithSystem(system, n_steps, integration_step))
@@ -35,7 +35,7 @@ SQPBVP::~SQPBVP()
     probPtr.reset();
 }
 
-vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) const
+std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) const
 {
     /**
     * Solve BVP problem from start to goal by constructing optimization problem.

@@ -68,9 +68,9 @@ setup(
             'src/image_creation/svg_image.cpp',
             'src/image_creation/planner_visualization.cpp',
             'src/systems/distance_functions.cpp',
-            'src/bvp/cost.hpp',
-            'src/bvp/constraint.hpp',
-            'src/bvp/sqp_bvp.hpp',
+            'src/bvp/cost.cpp',
+            'src/bvp/constraint.cpp',
+            'src/bvp/sqp_bvp.cpp',
             'src/python_wrapper.cpp'])
     ]
 )

@@ -40,6 +40,7 @@ include_directories(
         ${PYTHON_INCLUDE_DIRS}
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/deps/pybind11/include"
+        "${PROJECT_SOURCE_DIR}/deps/trajopt/src"
         )
 
 
@@ -58,7 +59,10 @@ set(SOURCE_FILES
         src/utilities/timer.cpp
         src/image_creation/svg_image.cpp
         src/image_creation/planner_visualization.cpp
-        src/systems/distance_functions.cpp)
+        src/systems/distance_functions.cpp
+        src/bvp/constraint.cpp
+        src/bvp/cost.cpp
+        src/bvp/sqp_bvp.cpp)
 
 add_library(${PROJECT_NAME} STATIC
     ${SOURCE_FILES})

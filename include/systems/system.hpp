@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_SYSTEM_HPP
@@ -43,6 +43,22 @@ struct system_interface {
         const double* control, unsigned int control_dimension,
         int num_steps, double* result_state, double integration_step) = 0;
     /**
+     * @brief Calculate the approximate time it needs to take to travel from start to goal.
+     * @details Calculate the approximate time it needs to take to travel from start to goal.
+     *
+     * @param start_state Start state.
+     * @param dims The size of the destination image.
+     *
+     * @return The approximate time.
+     *#########################
+     * @TODO: implement the python binding.
+
+    virtual double approx_time(
+        const double* start_state, const double* goal_state, unsigned int state_dimension) = 0;
+    */
+
+
+    /**
      * @brief Creates a point in image space corresponding to a given state.
      * @details Creates a point in image space corresponding to a given state.
      *
@@ -72,11 +88,11 @@ struct system_interface {
  * @details A base class for plannable systems. This class implements core functionality
  * related to creating state and control memory, propagations, obstacles, random states
  * and controls, and visualizing points.
- * 
+ *
  */
 class system_t: public system_interface
 {
-public: 
+public:
 	system_t(){}
 	virtual ~system_t(){}
 

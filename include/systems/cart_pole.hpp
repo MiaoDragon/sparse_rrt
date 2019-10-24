@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_CART_POLE_HPP
@@ -45,7 +45,7 @@ public:
 	 * @copydoc system_t::enforce_bounds()
 	 */
 	virtual void enforce_bounds();
-	
+
 	/**
 	 * @copydoc system_t::valid_state()
 	 */

@@ -14,6 +14,13 @@ IF(APPLE)
    set(CMAKE_MACOSX_RPATH 1)
 ENDIF(APPLE)
 
+# Add dependency of trajopt
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/deps/trajopt/cmake/modules")
+find_package(Eigen3 REQUIRED)
+find_package(Boost COMPONENTS system python thread program_options REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+
 # Instead of find_package(PythonLibs REQUIRED), we manually search for python to make sure we link to the active version
 # (as opposed to system python if brew python is installed)
 execute_process(

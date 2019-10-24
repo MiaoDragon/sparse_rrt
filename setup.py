@@ -50,7 +50,7 @@ setup(
         'sparse_rrt._sst_module',
         extra_compile_args=['-std=c++1y', '-O3'],
         include_dirs=['deps/pybind11/include',
-                      'deps/trajopt/src'
+                      'deps/trajopt/src',
                       'include'],
         sources=[
             'src/motion_planners/rrt.cpp',

@@ -24,9 +24,6 @@ setup(
     download_url='',
     license='BSD License 2.0',
     install_requires=['numpy>=1.13.3'],
-    package_dir={'trajopt': 'deps/trajopt/build/lib'},
-    package_data={'': ['input'],
-                  'trajopt': ['libsco.so', 'libutils.so']},
     include_package_data=True,
     extras_require={
         'tests': ['pytest>=2.7.2',
@@ -77,6 +74,7 @@ setup(
             'src/python_wrapper.cpp'],
         libraries=['sco', 'utils'],
         library_dirs=['deps/trajopt/build/lib'],
+        runtime_library_dirs=['deps/trajopt/build/lib'],
         )
     ]
 )

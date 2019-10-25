@@ -51,7 +51,8 @@ setup(
         extra_compile_args=['-std=c++1y', '-O3'],
         include_dirs=['deps/pybind11/include',
                       'deps/trajopt/src',
-                      'include'],
+                      'include',
+                      '/usr/include/eigen3'],
         sources=[
             'src/motion_planners/rrt.cpp',
             'src/motion_planners/sst.cpp',

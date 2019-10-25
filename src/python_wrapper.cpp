@@ -581,7 +581,7 @@ public:
 class BVPWrapper
 {
 public:
-    BVPWrapper(system_interface& system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
+    BVPWrapper(system_interface& system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
     : _n_steps(n_steps)
     , state_dim(state_dim_in)
     , control_dim(control_dim_in)
@@ -590,7 +590,7 @@ public:
         // create a new system
         _system.reset(&system);
         // _system = new system_interface(&system);
-        bvp_solver.reset(new SQPBVP(_system, state_dim_in, action_dim_in, n_steps, integration_step));
+        bvp_solver.reset(new SQPBVP(&system, state_dim_in, action_dim_in, n_steps, integration_step));
     }
     ~BVPWrapper()
     {
@@ -653,6 +653,9 @@ public:
 protected:
     std::unique_ptr<SQPBVP> bvp_solver;
     std::unique_ptr<system_interface> _system;
+    int state_dim, control_dim;
+    int _n_steps;
+    double _integration_step;
 };
 
 /**
@@ -777,7 +780,7 @@ PYBIND11_MODULE(_sst_module, m) {
                       double>(),
             "system"_a,
             "state_dim"_a,
-            "action_dim"_a,
+            "control_dim"_a,
             "n_steps"_a,
             "integration_step"_a
         )

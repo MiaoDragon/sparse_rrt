@@ -20,6 +20,11 @@ find_package(Eigen3 REQUIRED)
 find_package(Boost COMPONENTS system python thread program_options REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+list(APPEND CMAKE_PREFIX_PATH  "${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib")
+find_library(SCO_LIB sco)
+find_library(UTILS_LIB utils)
+
+
 
 # Instead of find_package(PythonLibs REQUIRED), we manually search for python to make sure we link to the active version
 # (as opposed to system python if brew python is installed)
@@ -77,11 +82,7 @@ add_library(${PROJECT_NAME} STATIC
 add_library(sst_module SHARED
     ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp)
 
-# add library for trajopt
-link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
-add_library(sco SHARED)
-add_library(utils SHARED)
-target_link_libraries(${PROJECT_NAME} sco utils)
+target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})
 
 

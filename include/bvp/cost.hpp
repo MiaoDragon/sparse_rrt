@@ -19,7 +19,7 @@ using namespace Eigen;
 
 class CostWithSystem : public ScalarOfVector {
 public:
-  CostWithSystem(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step);  // store pointer to the system for further usage
+  CostWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step);  // store pointer to the system for further usage
   double operator()(const VectorXd& x) const;  // const function: no modification of the class members is possible
   // void set_integration_var(const VectorXd& kx1, const VectorXd& kx2, const VectorXd& kx3, const VectorXd& kx4);
   ~CostWithSystem();
@@ -28,7 +28,7 @@ public:
 protected:
   system_interface* _system;  // pointer to the system interface
   int _n_steps;  // store how many intervals are needed
-  int state_dim, action_dim;
+  int state_dim, control_dim;
   double _integration_step;
   VectorXd start_x;  // to be set before calling operator, otherwise the end-point constraints might be wrong
   VectorXd end_x;

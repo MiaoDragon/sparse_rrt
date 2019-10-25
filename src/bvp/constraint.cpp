@@ -17,7 +17,7 @@ ConstraintWithSystem::ConstraintWithSystem(system_t* system, int n_steps, double
 , _system(system)
 , _n_steps(n_steps)
 , state_dim(system->get_state_dimension())
-, action_dim(system->get_control_dimension())
+, control_dim(system->get_control_dimension())
 , _integration_step(integration_step)
 {}
 
@@ -49,7 +49,7 @@ VetorXd ConstraintWithSystem::operator()(const VectorXd& x) const
       // eigen::seq returns [a,b]
       // handle Dynamic Constraints
       errs(i) = dynamic_constraint(x(seq(i*state_dim,(i+1)*state_dim-1)),
-                                   x(seq(control_start+i*action_dim, control_start+(i+1)*action_dim-1)),
+                                   x(seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
                                    x(duration_start+i),
                                    x(seq((i+1)*state_dim,(i+2)*state_dim-1)));
       // handle Time Constraint
@@ -86,7 +86,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     double* _x_k3 = new double[state_dim];
     double* _x_k4 = new double[state_dim];
 
-    _system->propogate(x.data, state_dim, u.data, control_dim,
+    _system->propagate(x.data(), state_dim, u.data(), control_dim,
                        1, _x_k1, _integration_step);
     // calculate x_k1 from _x_k1
     // formula: x_k1 = dt * _x_k1
@@ -96,7 +96,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     }
     // calculate _x_k2 from x_k1
     // formula: _x_k2 = f(x+x_k1/2, u)
-    _system->propogate((x+x_k1/2).data, state_dim, u.data, control_dim,
+    _system->propagate((x+x_k1/2).data(), state_dim, u.data(), control_dim,
                        1, _x_k2, _integration_step);
     // calculate x_k2 from _x_k2
     // formula: x_k2 = dt * _x_k2
@@ -106,7 +106,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     }
     //calculate _x_k3 from x_k2
     // formula: _x_k3 = f(x+x_k2/2, u)
-    _system->propogate((x+x_k2/2).data, state_dim, u.data, control_dim,
+    _system->propagate((x+x_k2/2).data(), state_dim, u.data(), control_dim,
                        1, _x_k3, _integration_step);
     // calculate x_k3 from _x_k3
     // formula: x_k3 = dt * _x_k3
@@ -116,7 +116,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     }
     // calculate _x_k4 from x_k3
     // formula: _x_k4 = f(x+x_k3, u)
-    _system->propogate((x+x_k3).data, state_dim, u.data, control_dim,
+    _system->propagate((x+x_k3).data(), state_dim, u.data(), control_dim,
                        1, _x_k4, _integration_step);
     // calculate x_k4 from _x_k4
     // formula: x_k4 = dt * _x_k4

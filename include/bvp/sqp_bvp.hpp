@@ -24,7 +24,7 @@ using namespace Eigen;
 
 class SQPBVP {
 public:
-  SQPBVP(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step);
+  SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step);
   ~SQPBVP();
   std::vector<double> solve(const VectorXd& start, const VectorXd& goal) const;
 protected:
@@ -33,7 +33,7 @@ protected:
   OptProbPtr probPtr;
   system_interface* _system;
   int _n_steps;  // store how many intervals are needed
-  int state_dim, action_dim;
+  int state_dim, control_dim;
   double _integration_step;
 };
 

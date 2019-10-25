@@ -12,12 +12,12 @@
  using namespace Eigen;
 
  /* CostWithSystem class */
- CostWithSystem::CostWithSystem(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
+ CostWithSystem::CostWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
     : ScalarOfVector()
     , _system(system)
     , _n_steps(n_steps)
     , state_dim(state_dim_in)
-    , action_dim(action_dim_in)
+    , control_dim(control_dim_in)
     , _integration_step(integration_step)
  {
      start_x = VectorXd::Zero(state_dim_in);
@@ -27,7 +27,7 @@
  CostWithSystem::~CostWithSystem()
  {}
 
- CostWithSystem::operator()(const VectorXd& x) const
+ double CostWithSystem::operator()(const VectorXd& x) const
  {
    // x: state (n_steps*state_dim) | control ((n_steps-1)*control_dim) | duration (n_steps-1)
    double sum_cost = 0.;
@@ -38,7 +38,7 @@
      // calculate single-step cost
      // eigen::seq returns [a,b]
      sum_cost += single_cost_dt(x(seq(i*state_dim,(i+1)*state_dim-1)),
-                                x(seq(control_start+i*action_dim, control_start+(i+1)*action_dim-1)),
+                                x(seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
                                 x(duration_start+i));
    }
    sum_cost += term_cost(x(seq(control_start-state_dim,control_start-1)));
@@ -68,7 +68,7 @@
      double* _x_k3 = new double[state_dim];
      double* _x_k4 = new double[state_dim];
 
-     _system->propogate(x.data, state_dim, u.data, control_dim,
+     _system->propagate(x.data(), state_dim, u.data(), control_dim,
                         1, _x_k1, _integration_step);
      // calculate x_k1 from _x_k1
      // formula: x_k1 = dt * _x_k1
@@ -78,7 +78,7 @@
      }
      // calculate _x_k2 from x_k1
      // formula: _x_k2 = f(x+x_k1/2, u)
-     _system->propogate((x+x_k1/2).data, state_dim, u.data, control_dim,
+     _system->propagate((x+x_k1/2).data(), state_dim, u.data(), control_dim,
                         1, _x_k2, _integration_step);
      // calculate x_k2 from _x_k2
      // formula: x_k2 = dt * _x_k2
@@ -88,7 +88,7 @@
      }
      //calculate _x_k3 from x_k2
      // formula: _x_k3 = f(x+x_k2/2, u)
-     _system->propogate((x+x_k2/2).data, state_dim, u.data, control_dim,
+     _system->propagate((x+x_k2/2).data(), state_dim, u.data(), control_dim,
                         1, _x_k3, _integration_step);
      // calculate x_k3 from _x_k3
      // formula: x_k3 = dt * _x_k3
@@ -98,7 +98,7 @@
      }
      // calculate _x_k4 from x_k3
      // formula: _x_k4 = f(x+x_k3, u)
-     _system->propogate((x+x_k3).data, state_dim, u.data, control_dim,
+     _system->propagate((x+x_k3).data(), state_dim, u.data(), control_dim,
                         1, _x_k4, _integration_step);
      // calculate x_k4 from _x_k4
      // formula: x_k4 = dt * _x_k4

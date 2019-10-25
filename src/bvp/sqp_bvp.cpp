@@ -15,11 +15,11 @@
 #include "sco/solver.hpp"
 using namespace Eigen;
 
-SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
+SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
 : _system(system)
 , _n_steps(n_steps)
 , state_dim(state_dim_in)
-, action_dim(action_dim_in)
+, control_dim(control_dim_in)
 , _integration_step(integration_step)
 , start_x()
 , costPtr(new CostWithSystem(system, n_steps, integration_step))
@@ -80,7 +80,7 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     {
         VectorXd x = start + i*dx;
         // append to init
-        init.insert(init.end(), x.data.begin(), x.data.end());
+        init.insert(init.end(), x.data().begin(), x.data().end());
     }
     // control: 0
     for (unsigned i=0; i < _n_steps-1; i++)

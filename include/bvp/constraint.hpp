@@ -31,11 +31,11 @@ protected:
   double _integration_step;
   VectorXd start_x;
   VectorXd end_x;
-  virtual double dynamic_constraint(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const = 0;
+  virtual double dynamic_constraint(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const;
   // x_ denotes the next state
-  virtual double start_constraint(const VectorXd& x) const = 0;
-  virtual double term_constraint(const VectorXd& x) const = 0;
-  virtual double time_min_constraint(const double dt) const = 0;
-  virtual double time_max_constraint(const double dt) const = 0;
+  virtual double start_constraint(const VectorXd& x) const;
+  virtual double term_constraint(const VectorXd& x) const;
+  virtual double time_min_constraint(const double dt) const;
+  virtual double time_max_constraint(const double dt) const;
 };
 #endif

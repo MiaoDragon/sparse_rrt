@@ -34,10 +34,10 @@ protected:
   VectorXd end_x;
   // for Punge-Kutta-4 integration
   // VectorXd _kx1, _kx2, _kx3, _kx4;  // can't be modified in operator()
-  virtual double single_cost_dt(const VectorXd& x, const VectorXd& u, const double dt) const = 0;
-  virtual double single_cost(const VectorXd& x, const VectorXd& u) const = 0;
-  virtual double start_cost(const VectorXd& x) const = 0; // useful if we want to enforce cost on start state instead of constraint
-  virtual double term_cost(const VectorXd& x) const = 0;  // useful if we want to enforce cost on terminal state instead of constraint
+  virtual double single_cost_dt(const VectorXd& x, const VectorXd& u, const double dt) const;
+  virtual double single_cost(const VectorXd& x, const VectorXd& u) const;
+  virtual double start_cost(const VectorXd& x) const; // useful if we want to enforce cost on start state instead of constraint
+  virtual double term_cost(const VectorXd& x) const;  // useful if we want to enforce cost on terminal state instead of constraint
 };
 
 #endif

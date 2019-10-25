@@ -13,7 +13,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include "sco/solver_interface.hpp"
-#include "sco/solver.hpp"
+#include "sco/optimizers.hpp"
 using namespace Eigen;
 
 SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)

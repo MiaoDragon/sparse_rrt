@@ -9,6 +9,7 @@
  */
  #include "bvp/cost.hpp"
  #include <Eigen/Dense>
+ #include <Eigen/Core>
  using namespace Eigen;
 
  /* CostWithSystem class */

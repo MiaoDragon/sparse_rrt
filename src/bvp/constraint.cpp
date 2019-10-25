@@ -10,6 +10,7 @@
 
 #include "bvp/constraint.hpp"
 #include <Eigen/Dense>
+#include <Eigen/Core>
 using namespace Eigen;
 
 ConstraintWithSystem::ConstraintWithSystem(system_t* system, int n_steps, double integration_step)

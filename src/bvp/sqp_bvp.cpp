@@ -11,6 +11,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/format.hpp>
 #include <Eigen/Dense>
+#include <Eigen/Core>
 #include "sco/solver_interface.hpp"
 #include "sco/solver.hpp"
 using namespace Eigen;

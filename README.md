@@ -10,6 +10,8 @@ Here are the main contributions:
 
 The original codebase or SST planner is small enough to be easily understood and customized as opposed to OMPL SST implementation.
 
+## Remember to change LD_PATH because we are using runtime library in the dependency.
+
 ## load submodule
 To load the submodule (pybind11), run:
 ```

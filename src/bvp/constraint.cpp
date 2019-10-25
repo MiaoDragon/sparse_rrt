@@ -13,7 +13,7 @@
 #include <Eigen/Core>
 using namespace Eigen;
 
-ConstraintWithSystem::ConstraintWithSystem(system_t* system, int n_steps, double integration_step)
+ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int n_steps, double integration_step)
 : VectorOfVector()
 , _system(system)
 , _n_steps(n_steps)
@@ -25,7 +25,7 @@ ConstraintWithSystem::ConstraintWithSystem(system_t* system, int n_steps, double
 ConstraintWithSystem::~ConstraintWithSystem()
 {}
 
-VetorXd ConstraintWithSystem::operator()(const VectorXd& x) const
+VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
 {
     /**
     * This returns how much the constraints are violated, i.e. the error for each constraint.

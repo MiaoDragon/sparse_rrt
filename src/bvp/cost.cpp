@@ -63,6 +63,7 @@
      VectorXd x_k2(state_dim);
      VectorXd x_k3(state_dim);
      VectorXd x_k4(state_dim);
+     VectorXd temp(state_dim);
      double* _x_k1 = new double[state_dim];
      double* _x_k2 = new double[state_dim];
      double* _x_k3 = new double[state_dim];
@@ -78,7 +79,8 @@
      }
      // calculate _x_k2 from x_k1
      // formula: _x_k2 = f(x+x_k1/2, u)
-     _system->propagate((x+x_k1/2).data(), state_dim, u.data(), control_dim,
+     temp = x+x_k1/2;
+     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                         1, _x_k2, _integration_step);
      // calculate x_k2 from _x_k2
      // formula: x_k2 = dt * _x_k2
@@ -88,7 +90,8 @@
      }
      //calculate _x_k3 from x_k2
      // formula: _x_k3 = f(x+x_k2/2, u)
-     _system->propagate((x+x_k2/2).data(), state_dim, u.data(), control_dim,
+     temp = x+x_k2/2;
+     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                         1, _x_k3, _integration_step);
      // calculate x_k3 from _x_k3
      // formula: x_k3 = dt * _x_k3
@@ -98,7 +101,8 @@
      }
      // calculate _x_k4 from x_k3
      // formula: _x_k4 = f(x+x_k3, u)
-     _system->propagate((x+x_k3).data(), state_dim, u.data(), control_dim,
+     temp = x+x_k3
+     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                         1, _x_k4, _integration_step);
      // calculate x_k4 from _x_k4
      // formula: x_k4 = dt * _x_k4

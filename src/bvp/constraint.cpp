@@ -49,18 +49,18 @@ VetorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     {
       // eigen::seq returns [a,b]
       // handle Dynamic Constraints
-      errs(i) = dynamic_constraint(x(Eigen::seq(i*state_dim,(i+1)*state_dim-1)),
-                                   x(Eigen::seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
+      errs(i) = dynamic_constraint(x(seq(i*state_dim,(i+1)*state_dim-1)),
+                                   x(seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
                                    x(duration_start+i),
-                                   x(Eigen::seq((i+1)*state_dim,(i+2)*state_dim-1)));
+                                   x(seq((i+1)*state_dim,(i+2)*state_dim-1)));
       // handle Time Constraint
       errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
       errs(2*_n_steps+i) = time_max_constraint(x(duration_start+i));
     }
     // handle start constraint
-    errs(_n_steps-1) = start_constraint(x(Eigen::seq(0,state_dim-1)));
+    errs(_n_steps-1) = start_constraint(x(seq(0,state_dim-1)));
     // handle terminal constraint
-    errs(_n_steps) = term_constraint(x(Eigen::seq(control_start-state_dim, control_start-1)));
+    errs(_n_steps) = term_constraint(x(seq(control_start-state_dim, control_start-1)));
     return errs;
 }
 

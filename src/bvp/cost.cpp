@@ -142,6 +142,12 @@
      return 1.0;
  }
 
+ double CostWithSystem::start_cost(const VectorXd& x) const
+ {
+     // we don't have any preference for the start state. It is enforced by constraint
+     return 0.;
+ }
+
  double CostWithSystem::term_cost(const VectorXd& x) const
  {
      // we don't have any preference for the terminal state. It is enforced by constraint

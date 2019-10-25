@@ -582,15 +582,20 @@ class BVPWrapper
 {
 public:
     BVPWrapper(system_interface& system, int state_dim_in, int action_dim_in, int n_steps, double integration_step)
+    : _n_steps(n_steps)
+    , state_dim(state_dim_in)
+    , control_dim(control_dim_in)
+    , _integration_step(integration_step)
     {
         // create a new system
-        _system = new system_interface(*system);
-        bvp_solver = new SQPBVP(_system, state_dim_in, action_dim_in, n_steps, integration_step);
+        _system.reset(&system);
+        // _system = new system_interface(&system);
+        bvp_solver.reset(new SQPBVP(_system, state_dim_in, action_dim_in, n_steps, integration_step));
     }
     ~BVPWrapper()
     {
-        delete _system;
-        delete bvp_solver;
+        _system.reset();
+        bvp_solver.reset();
     }
 
     py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py) {
@@ -601,24 +606,22 @@ public:
         VectorXd start(size);
         VectorXd goal(size);
         std::vector<double> solution = bvp_solver->solve(start, goal);
-        // convert from solution to py::object
-        solution = bvp_solver->solve(start_x, end_x);
         // from solution we can obtain the trajectory: state traj | action traj | time traj
         std::vector<std::vector<double>> x_traj;
         std::vector<std::vector<double>> u_traj;
         std::vector<double> t_traj;
-        int control_start = num_steps*this->state_dimension;
-        int duration_start = control_start + (num_steps-1)*this->control_dimension;
-        for (unsigned i=0; i < num_steps-1; i++)
+        int control_start = _n_steps*this->state_dim;
+        int duration_start = control_start + (_n_steps-1)*this->control_dim;
+        for (unsigned i=0; i < _n_steps-1; i++)
         {
             // states
-            int begin_idx = i*this->state_dimension;
-            int end_idx = (i+1)*this->state_dimension-1;
+            int begin_idx = i*this->state_dim;
+            int end_idx = (i+1)*this->state_dim-1;
             std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
             x_traj.push_back(x);
             // controls
-            begin_idx = i*this->control_dimension+control_start;
-            end_idx = (i+1)*this->control_dimension-1+control_start;
+            begin_idx = i*this->control_dim+control_start;
+            end_idx = (i+1)*this->control_dim-1+control_start;
             std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
             u_traj.push_back(u);
             // time
@@ -644,13 +647,13 @@ public:
             time_ref(i) = t_traj[i];
         }
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-            (state_array, controls_array, time_array));
+            (state_array, control_array, time_array));
     }
 
 protected:
     std::unique_ptr<SQPBVP> bvp_solver;
     std::unique_ptr<system_interface> _system;
-}
+};
 
 /**
  * @brief pybind module
@@ -778,7 +781,7 @@ PYBIND11_MODULE(_sst_module, m) {
             "n_steps"_a,
             "integration_step"_a
         )
-        .def("solve", &PlannerWrapper::step_with_sample,
+        .def("solve", &BVPWrapper::solve,
             "start"_a,
             "goal"_a)
     ;

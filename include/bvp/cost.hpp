@@ -12,7 +12,7 @@
 
 #include "sco/modeling.hpp"
 #include "sco/num_diff.hpp"
-#include "systems/system.h"
+#include "systems/system.hpp"
 #include <Eigen/Dense>
 using namespace sco;
 using namespace Eigen;

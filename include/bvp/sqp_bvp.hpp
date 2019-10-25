@@ -30,7 +30,6 @@ public:
 protected:
   CostWithSystem* costPtr;
   ConstraintWithSystem* constraintPtr;
-  OptProbPtr probPtr;
   system_interface* _system;
   int _n_steps;  // store how many intervals are needed
   int state_dim, control_dim;

@@ -23,17 +23,15 @@ SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, i
 , state_dim(state_dim_in)
 , control_dim(control_dim_in)
 , _integration_step(integration_step)
-, costPtr(new CostWithSystem(system, n_steps, integration_step))
-, constraintPtr(new ConstraintWithSystem(system, n_steps, integration_step))
+, costPtr(new CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step))
+, constraintPtr(new ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step))
 {
-    probPtr.reset();  // initialize: point to NULL
 }
 
 SQPBVP::~SQPBVP()
 {
     delete costPtr;
     delete constraintPtr;
-    probPtr.reset();
 }
 
 std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) const
@@ -47,7 +45,7 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     constraintPtr->set_start_state(start);
     constraintPtr->set_end_state(goal);
     // construct optimization problem
-    probPtr.reset(new OptProb());
+    OptProbPtr probPtr(new OptProb());
     vector<string> var_names;
     for (unsigned i=0; i < _n_steps; i++)
     {

@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include "sco/solver_interface.hpp"
 #include "sco/optimizers.hpp"
+#include "sco/modeling_utils.hpp"
 using namespace sco;
 using namespace Eigen;
 
@@ -79,7 +80,7 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     {
         VectorXd x = start + i*dx;
         // append to init
-        init.insert(init.end(), x.data().begin(), x.data().end());
+        init.insert(init.end(), x.data(), x.data() + state_dim);
     }
     // control: 0
     for (unsigned i=0; i < _n_steps-1; i++)

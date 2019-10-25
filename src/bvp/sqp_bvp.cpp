@@ -61,11 +61,11 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
         var_names.push_back( (boost::format("dt_%i")%i).str() );
     }
     probPtr->createVariables(var_names);
-    probPtr->addCost( CostPtr( new CostFromFunc(ScalarOfVectorPtr(costPtr), probPtr->getVars(), 'f') ) );
+    probPtr->addCost( CostPtr( new CostFromFunc(ScalarOfVectorPtr(costPtr), probPtr->getVars(), "f") ) );
     // Here ConstraintFromFunc actually specifies Constraint type (inequal or equal)
     // but we specified all constraints using inequal setup (equal becomes some norm <= 0)
     probPtr->addConstraint( (ConstraintPtr(
-                               new ConstraintFromFunc(VectorOfVectorPtr(constraintPtr), probPtr->getVars(), VectorXd(), INEQ, 'q') )) );
+                               new ConstraintFromFunc(VectorOfVectorPtr(constraintPtr), probPtr->getVars(), VectorXd(), INEQ, "q") )) );
     BasicTrustRegionSQP solver(probPtr);
     // set solver parameters
     //solver.max_iter_ = 1000;

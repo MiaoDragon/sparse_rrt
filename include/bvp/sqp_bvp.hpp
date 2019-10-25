@@ -14,7 +14,7 @@
 #include "sco/modeling.hpp"
 #include "sco/num_diff.hpp"
 #include "sco/sco_fwd.hpp"
-#include "systems/system.h"
+#include "systems/system.hpp"
 #include <Eigen/Dense>
 #include "bvp/cost.hpp"
 #include "bvp/constraint.hpp"

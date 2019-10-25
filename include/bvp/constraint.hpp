@@ -20,7 +20,7 @@ using namespace Eigen;
 class ConstraintWithSystem : public VectorOfVector {
 public:
   ConstraintWithSystem(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step);  // store pointer to the system for further usage
-  VetorXd operator()(const VectorXd& x) const;  // const function: no modification of the class members is possible
+  VectorXd operator()(const VectorXd& x) const;  // const function: no modification of the class members is possible
   ~ConstraintWithSystem();
   void set_start_state(const VectorXd& x);
   void set_end_state(const VectorXd& x);
@@ -38,3 +38,4 @@ protected:
   virtual double time_min_constraint(const double dt) const = 0;
   virtual double time_max_constraint(const double dt) const = 0;
 };
+#endif

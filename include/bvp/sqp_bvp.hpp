@@ -26,7 +26,7 @@ class SQPBVP {
 public:
   SQPBVP(system_interface* system, int state_dim_in, int action_dim_in, int n_steps, double integration_step);
   ~SQPBVP();
-  std::vector<double> solve(const VectorXd& start, const VectorXd& goal) const = 0;
+  std::vector<double> solve(const VectorXd& start, const VectorXd& goal) const;
 protected:
   CostWithSystem* costPtr;
   ConstraintWithSystem* constraintPtr;
@@ -35,6 +35,6 @@ protected:
   int _n_steps;  // store how many intervals are needed
   int state_dim, action_dim;
   double _integration_step;
-}
+};
 
 #endif

@@ -37,11 +37,11 @@
    {
      // calculate single-step cost
      // eigen::seq returns [a,b]
-     sum_cost += single_cost_dt(x(seq(i*state_dim,(i+1)*state_dim-1)),
-                                x(seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
+     sum_cost += single_cost_dt(x(Eigen::seq(i*state_dim,(i+1)*state_dim-1)),
+                                x(Eigen::seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
                                 x(duration_start+i));
    }
-   sum_cost += term_cost(x(seq(control_start-state_dim,control_start-1)));
+   sum_cost += term_cost(x(Eigen::seq(control_start-state_dim,control_start-1)));
    return sum_cost;
  }
 
@@ -101,7 +101,7 @@
      }
      // calculate _x_k4 from x_k3
      // formula: _x_k4 = f(x+x_k3, u)
-     temp = x+x_k3
+     temp = x+x_k3;
      _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                         1, _x_k4, _integration_step);
      // calculate x_k4 from _x_k4

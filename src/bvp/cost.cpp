@@ -38,11 +38,11 @@
    {
      // calculate single-step cost
      // eigen::seq returns [a,b]
-     sum_cost += single_cost_dt(x(seq(i*state_dim,(i+1)*state_dim-1)),
-                                x(seq(control_start+i*control_dim, control_start+(i+1)*control_dim-1)),
+     sum_cost += single_cost_dt(x.segment(i*state_dim,(i+1)*state_dim-1),
+                                x.segment(control_start+i*control_dim, control_start+(i+1)*control_dim-1),
                                 x(duration_start+i));
    }
-   sum_cost += term_cost(x(seq(control_start-state_dim,control_start-1)));
+   sum_cost += term_cost(x.segment(control_start-state_dim,control_start-1));
    return sum_cost;
  }
 

@@ -73,7 +73,7 @@ setup(
             'src/bvp/sqp_bvp.cpp',
             'src/python_wrapper.cpp'],
         libraries=['sco', 'utils'],
-        library_dirs=['deps/trajopt/build/lib/libsco.so','deps/trajopt/build/lib/libutils.so'],
+        library_dirs=['deps/trajopt/build/lib'],
         runtime_library_dirs=['deps/trajopt/build/lib'],
         )
     ]

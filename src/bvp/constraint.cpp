@@ -13,12 +13,12 @@
 #include <Eigen/Core>
 using namespace Eigen;
 
-ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int n_steps, double integration_step)
+ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
 : VectorOfVector()
 , _system(system)
 , _n_steps(n_steps)
-, state_dim(system->get_state_dimension())
-, control_dim(system->get_control_dimension())
+, state_dim(state_dim_in)
+, control_dim(control_dim_in)
 , _integration_step(integration_step)
 {}
 

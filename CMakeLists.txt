@@ -20,10 +20,10 @@ find_package(Eigen3 REQUIRED)
 find_package(Boost COMPONENTS system python thread program_options REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-# link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
-# list(APPEND CMAKE_PREFIX_PATH  "${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib")
-# find_library(SCO_LIB sco)
-# find_library(UTILS_LIB utils)
+link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
+list(APPEND CMAKE_PREFIX_PATH  "${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib")
+find_library(SCO_LIB sco)
+find_library(UTILS_LIB utils)
 
 
 
@@ -83,7 +83,7 @@ add_library(${PROJECT_NAME} STATIC
 add_library(sst_module SHARED
     ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp)
 
-target_link_libraries(${PROJECT_NAME} sco utils)
+target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})
 
 

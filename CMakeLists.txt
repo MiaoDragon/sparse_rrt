@@ -76,7 +76,14 @@ add_library(${PROJECT_NAME} STATIC
 
 add_library(sst_module SHARED
     ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp)
+
+# add library for trajopt
+link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
+add_library(sco SHARED)
+add_library(utils SHARED)
+target_link_libraries(${PROJECT_NAME} sco utils)
 target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})
+
 
 # Don't prepend wrapper library name with lib and add to Python libs.
 set_target_properties(sst_module PROPERTIES

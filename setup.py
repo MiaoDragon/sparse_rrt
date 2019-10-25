@@ -72,6 +72,9 @@ setup(
             'src/bvp/cost.cpp',
             'src/bvp/constraint.cpp',
             'src/bvp/sqp_bvp.cpp',
-            'src/python_wrapper.cpp'])
+            'src/python_wrapper.cpp'])],
+        libraries=['sco', 'utils'],
+        library_dirs=['deps/trajopt/build/lib'],
+        )
     ]
 )

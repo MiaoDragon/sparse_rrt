@@ -24,7 +24,6 @@ setup(
     download_url='',
     license='BSD License 2.0',
     install_requires=['numpy>=1.13.3'],
-    packages=['trajopt'],
     package_dir={'trajopt': 'deps/trajopt/build/lib'},
     package_data={'': ['input'],
                   'trajopt': ['libsco.so', 'libutils.so']},

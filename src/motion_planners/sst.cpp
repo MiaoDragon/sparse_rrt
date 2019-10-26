@@ -219,6 +219,12 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
        sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, num_steps*integration_step);
        std::cout << "after adding into tree" << std::endl;
        x_tree = new_x_tree;
+       // if the created tree node is nullptr, stop right there
+       if (!x_tree)
+       {
+           break;
+       }
+
   }
   std::cout << "after creating new nodes" << std::endl;
 }

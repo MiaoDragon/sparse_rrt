@@ -36,7 +36,7 @@ SQPBVP::~SQPBVP()
     constraintPtr.reset();
 }
 
-std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_iter) const
+OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_iter) const
 {
     /**
     * Solve BVP problem from start to goal by constructing optimization problem.
@@ -112,8 +112,7 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal, i
     }
     solver.initialize(init);
     OptStatus status = solver.optimize();
-    // copy over the result
-    std::vector<double> res(solver.x());
+    OptResults res(solver.results());
     // delete pointer to clean memory to avoid SEGFAULT
     probPtr.reset();
     return res;

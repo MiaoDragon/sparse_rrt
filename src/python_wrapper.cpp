@@ -611,7 +611,8 @@ public:
             start(i) = start_data_py(i);
             goal(i) = goal_data_py(i);
         }
-        std::vector<double> solution = bvp_solver->solve(start, goal, max_iter);
+        OptResults res = bvp_solver->solve(start, goal, max_iter);
+        std::vector<double> solution = res.x;  // optimziation solution
         // from solution we can obtain the trajectory: state traj | action traj | time traj
         std::vector<std::vector<double>> x_traj;
         std::vector<std::vector<double>> u_traj;
@@ -658,8 +659,10 @@ public:
         for (unsigned int i = 0; i < t_traj.size(); ++i) {
             time_ref(i) = t_traj[i];
         }
-        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-            (state_array, control_array, time_array));
+        // return flag, available flags, states, controls, time
+        return py::cast(std::tuple<std::string, py::safe_array(py::cast(OptStatus_strings)),
+                        py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (statusToString(res.status), OptStatus_strings, state_array, control_array, time_array));
     }
 
 protected:

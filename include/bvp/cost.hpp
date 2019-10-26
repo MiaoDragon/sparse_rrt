@@ -53,7 +53,7 @@ public:
     {}
 protected:
     double term_cost(const VectorXd& x) const override;
-}
+};
 
 
 

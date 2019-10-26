@@ -50,5 +50,5 @@ public:
     {}
 protected:
     double term_constraint(const VectorXd& x) const override;
-}
+};
 #endif

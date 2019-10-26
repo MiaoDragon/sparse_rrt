@@ -43,4 +43,18 @@ protected:
   virtual double term_cost(const VectorXd& x) const;  // useful if we want to enforce cost on terminal state instead of constraint
 };
 
+class CostWithSystemGoal : public CostWithSystem {
+    /**
+    * a cost class with terminal cost
+    */
+public:
+    CostWithSystemGoal(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
+        : CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step)
+    {}
+protected:
+    double term_cost(const VectorXd& x) const override;
+}
+
+
+
 #endif

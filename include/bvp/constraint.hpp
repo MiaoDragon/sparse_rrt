@@ -42,4 +42,13 @@ protected:
   virtual double time_min_constraint(const double dt) const;
   virtual double time_max_constraint(const double dt) const;
 };
+
+class ConstraintWithSystemGoalFree : public ConstraintWithSystem {
+public:
+    ConstraintWithSystemGoalFree(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
+        : ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step)
+    {}
+protected:
+    double term_constraint(const VectorXd& x) const override;
+}
 #endif

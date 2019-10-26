@@ -132,7 +132,7 @@
      double res = (l_k1 + 2*l_k2 + 2*l_k3 + l_k4) / 6;
      //*****
      // to delete array, use delete[]
-     // For debugging 
+     // For debugging
      //*****
      delete[] _x_k1;
      delete[] _x_k2;
@@ -175,4 +175,11 @@ void CostWithSystem::set_end_state(const VectorXd& x)
     {
         end_x(i) = x(i);
     }
+}
+
+
+/** CostWithSystemGoal class */
+double CostWithSystemGoal::term_cost(const VectorXd& x) const override
+{
+    return (x - end_x).squaredNorm();
 }

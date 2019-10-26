@@ -207,3 +207,9 @@ void ConstraintWithSystem::set_end_state(const VectorXd& x)
         end_x(i) = x(i);
     }
 }
+
+/** ConstraintWithSystemGoalFree class */
+double ConstraintWithSystemGoalFree::term_constraint(const VectorXd& x) const override
+{
+    return 0.;  // already satisfied
+}

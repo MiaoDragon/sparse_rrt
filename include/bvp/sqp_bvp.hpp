@@ -43,4 +43,12 @@ protected:
   double _integration_step;
 };
 
+class SQPBVP_forward : public SQPBVP {
+/**
+* SQPBVP solver with goal free in the constraint, but as cost
+*/
+public:
+    SQPBVP_forward(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step);
+}
+
 #endif

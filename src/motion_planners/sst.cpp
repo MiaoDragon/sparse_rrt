@@ -171,7 +171,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)
   {
-      bvp_solver = new SQPBVP(system, this->state_dimension, this->control_dimension, num_steps, integration_step);
+      bvp_solver = new SQPBVP_forward(system, this->state_dimension, this->control_dimension, num_steps, integration_step);
   }
 
   OptResults res = bvp_solver->solve(start_x, end_x, 100);

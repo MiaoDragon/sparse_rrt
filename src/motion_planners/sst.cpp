@@ -197,9 +197,24 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
       t_traj.push_back(solution[duration_start+i]);
   }
   //TODO: do something with the trajectories
+  // simulate forward using the action trajectory, regardless if the traj opt is successful or not
+  sst_node_t* x_tree = nearest;
+  // double* result_x = new double[this->state_dimension];
+  for (unsigned i=0; i < num_steps-1; i++)
+  {
+      if (t_traj[i] < integration_step / 2)
+      {
+          // the time step is too small, ignore this action
+          continue;
+      }
+      int num_steps = std::round(t_traj[i] / integration_step);
+      system.propagate(x_tree->get_point(), this->state_dimension, &(u_traj[0][0]), this->control_dimension,
+                       num_steps, new_state, integration_step);
 
-
-
+       // add the new state to tree
+       sst_node_t* new_x_tree = add_to_tree(new_state, sample_control, x_tree, num_steps*integration_step);
+       x_tree = new_x_tree;
+  }
 }
 
 
@@ -250,7 +265,7 @@ sst_node_t* sst_t::nearest_vertex(const double* sample_state)
     return nearest;
 }
 
-void sst_t::add_to_tree(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration)
+sst_node_t* sst_t::add_to_tree(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration)
 {
 	//check to see if a sample exists within the vicinity of the new node
     sample_node_t* witness_sample = find_witness(sample_state);
@@ -306,9 +321,12 @@ void sst_t::add_to_tree(const double* sample_state, const double* sample_control
 			witness_sample->set_representative(new_node);
 			new_node->set_witness(witness_sample);
 			metric.add_node(new_node);
+
+            // return the pointer to the new node
+            return new_node;
 		}
 	}
-
+    return NULL;
 }
 
 sample_node_t* sst_t::find_witness(const double* sample_state)

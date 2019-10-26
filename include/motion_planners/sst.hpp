@@ -213,8 +213,9 @@ protected:
 	/**
 	 * @brief If propagation was successful, add the new state to the tree.
 	 * @details If propagation was successful, add the new state to the tree.
+	 * @return: the newly added node pointer
 	 */
-	void add_to_tree(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration);
+	sst_node_t* add_to_tree(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration);
 
 	/**
 	 * @brief Check if the currently created state is close to a witness.

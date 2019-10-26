@@ -123,7 +123,6 @@ OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_it
 SQPBVP_forward::SQPBVP_forward(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
 : SQPBVP(system, state_dim_in, control_dim_in, n_steps, integration_step)
 {
-    _system.reset(system);
     costPtr.reset(new CostWithSystemGoal(system, state_dim_in, control_dim_in, n_steps, integration_step));
     constraintPtr.reset(new ConstraintWithSystemGoalFree(system, state_dim_in, control_dim_in, n_steps, integration_step));
 }

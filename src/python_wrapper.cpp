@@ -661,9 +661,8 @@ public:
             time_ref(i) = t_traj[i];
         }
         // return flag, available flags, states, controls, time
-        return py::cast(std::tuple<std::string, py::safe_array(py::cast(OptStatus_strings)),
-                        py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-            (statusToString(res.status), OptStatus_strings, state_array, control_array, time_array));
+        return py::cast(std::tuple<std::string, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (statusToString(res.status), state_array, control_array, time_array));
     }
 
 protected:

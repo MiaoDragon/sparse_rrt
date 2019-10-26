@@ -31,6 +31,7 @@ typedef boost::shared_ptr<system_interface> SystemPtr;
 
 class SQPBVP {
 public:
+  SQPBVP(){};
   SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step);
   ~SQPBVP();
   OptResults solve(const VectorXd& start, const VectorXd& goal, int max_iter) const;

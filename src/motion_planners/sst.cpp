@@ -166,7 +166,6 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
       end_x(i) = sample_state[i];
   }
   //std::vector<std::vector<double>>
-  std::vector<double> solution;
   int num_steps = 3*this->state_dimension;
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)

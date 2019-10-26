@@ -212,7 +212,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
                        num_steps, new_state, integration_step);
 
        // add the new state to tree
-       sst_node_t* new_x_tree = add_to_tree(new_state, sample_control, x_tree, num_steps*integration_step);
+       sst_node_t* new_x_tree = add_to_tree(new_state, &(u_traj[0][0]), x_tree, num_steps*integration_step);
        x_tree = new_x_tree;
   }
 }

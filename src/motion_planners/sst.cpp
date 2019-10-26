@@ -211,11 +211,13 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
           continue;
       }
       int num_steps = std::round(t_traj[i] / integration_step);
-      system->propagate(x_tree->get_point(), this->state_dimension, &(u_traj[0][0]), this->control_dimension,
+      double* control_ptr = u_traj[i].data();
+      system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                        num_steps, new_state, integration_step);
-
+        std::cout << "after propagation..." << std::endl;
        // add the new state to tree
-       sst_node_t* new_x_tree = add_to_tree(new_state, &(u_traj[0][0]), x_tree, num_steps*integration_step);
+       sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, num_steps*integration_step);
+       std::cout << "after adding into tree" << std::endl;
        x_tree = new_x_tree;
   }
   std::cout << "after creating new nodes" << std::endl;

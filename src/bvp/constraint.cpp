@@ -209,7 +209,7 @@ void ConstraintWithSystem::set_end_state(const VectorXd& x)
 }
 
 /** ConstraintWithSystemGoalFree class */
-double ConstraintWithSystemGoalFree::term_constraint(const VectorXd& x) const override
+double ConstraintWithSystemGoalFree::term_constraint(const VectorXd& x) const
 {
     return 0.;  // already satisfied
 }

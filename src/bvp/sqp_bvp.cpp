@@ -121,7 +121,8 @@ OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_it
 
 /** SQPBVP_forward class */
 SQPBVP_forward::SQPBVP_forward(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
-: _n_steps(n_steps)
+: SQPBVP()
+, _n_steps(n_steps)
 , state_dim(state_dim_in)
 , control_dim(control_dim_in)
 , _integration_step(integration_step)

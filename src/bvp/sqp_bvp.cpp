@@ -25,8 +25,8 @@ SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, i
 , _integration_step(integration_step)
 {
     _system.reset(system);
-    CostPtr.reset(new CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
-    ConstraintPtr.reset(new ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
+    costPtr.reset(new CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
+    constraintPtr.reset(new ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
 }
 
 SQPBVP::~SQPBVP()

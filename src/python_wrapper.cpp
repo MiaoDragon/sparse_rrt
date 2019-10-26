@@ -30,6 +30,7 @@
 #include "motion_planners/rrt.hpp"
 
 #include "bvp/sqp_bvp.hpp"
+#include <sco/optimizers.hpp>
 
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"

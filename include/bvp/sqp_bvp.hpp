@@ -14,11 +14,14 @@
 #include "sco/modeling.hpp"
 #include "sco/num_diff.hpp"
 #include "sco/sco_fwd.hpp"
+#include <sco/optimizers.hpp>
+
 #include "systems/system.hpp"
 #include <Eigen/Dense>
 #include "bvp/cost.hpp"
 #include "bvp/constraint.hpp"
 #include <boost/shared_ptr.hpp>
+
 using namespace sco;
 using namespace Eigen;
 

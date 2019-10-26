@@ -175,7 +175,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   }
 
   OptResults res = bvp_solver->solve(start_x, end_x, 100);
-  std::vector<double> solution = res.x;
+  std::vector<double> solution(res.x);
+  std::cout << "after creating solution variable" << std::endl;
   // from solution we can obtain the trajectory: state traj | action traj | time traj
   std::vector<std::vector<double>> x_traj;
   std::vector<std::vector<double>> u_traj;
@@ -186,17 +187,18 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   {
       // states
       int begin_idx = i*this->state_dimension;
-      int end_idx = (i+1)*this->state_dimension-1;
+      int end_idx = (i+1)*this->state_dimension;
       std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
       x_traj.push_back(x);
       // controls
       begin_idx = i*this->control_dimension+control_start;
-      end_idx = (i+1)*this->control_dimension-1+control_start;
+      end_idx = (i+1)*this->control_dimension+control_start;
       std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
       u_traj.push_back(u);
       // time
       t_traj.push_back(solution[duration_start+i]);
   }
+  std::cout << "after inserting into trajectory." << std::endl;
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
   sst_node_t* x_tree = nearest;
@@ -216,6 +218,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
        sst_node_t* new_x_tree = add_to_tree(new_state, &(u_traj[0][0]), x_tree, num_steps*integration_step);
        x_tree = new_x_tree;
   }
+  std::cout << "after creating new nodes" << std::endl;
 }
 
 

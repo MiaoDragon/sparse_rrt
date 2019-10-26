@@ -167,13 +167,14 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   }
   //std::vector<std::vector<double>>
   int num_steps = 3*this->state_dimension;
+  //int num_steps = 6*this->state_dimension;
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)
   {
       bvp_solver = new SQPBVP(system, this->state_dimension, this->control_dimension, num_steps, integration_step);
   }
 
-  OptResults res = bvp_solver->solve(start_x, end_x, 1000);
+  OptResults res = bvp_solver->solve(start_x, end_x, 100);
   std::vector<double> solution = res.x;
   // from solution we can obtain the trajectory: state traj | action traj | time traj
   std::vector<std::vector<double>> x_traj;

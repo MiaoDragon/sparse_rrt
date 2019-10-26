@@ -15,18 +15,20 @@
  /* CostWithSystem class */
  CostWithSystem::CostWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
     : ScalarOfVector()
-    , _system(system)
     , _n_steps(n_steps)
     , state_dim(state_dim_in)
     , control_dim(control_dim_in)
     , _integration_step(integration_step)
  {
+     _system.reset(system);
      start_x = VectorXd::Zero(state_dim_in);
      end_x = VectorXd::Zero(state_dim_in);
  }
 
  CostWithSystem::~CostWithSystem()
- {}
+ {
+     _system.reset();
+ }
 
  double CostWithSystem::operator()(const VectorXd& x) const
  {
@@ -38,11 +40,11 @@
    {
      // calculate single-step cost
      // eigen::seq returns [a,b]
-     sum_cost += single_cost_dt(x.segment(i*state_dim,(i+1)*state_dim-1),
-                                x.segment(control_start+i*control_dim, control_start+(i+1)*control_dim-1),
+     sum_cost += single_cost_dt(x.segment(i*state_dim,state_dim),
+                                x.segment(control_start+i*control_dim, control_dim),
                                 x(duration_start+i));
    }
-   sum_cost += term_cost(x.segment(control_start-state_dim,control_start-1));
+   sum_cost += term_cost(x.segment(control_start-state_dim,state_dim));
    return sum_cost;
  }
 
@@ -128,10 +130,14 @@
      // calculate l
      // formula: l = (l_k1 + 2*l_k2 + 2*l_k3 + l_k4) / 6
      double res = (l_k1 + 2*l_k2 + 2*l_k3 + l_k4) / 6;
-     delete _x_k1;
-     delete _x_k2;
-     delete _x_k3;
-     delete _x_k4;
+     //*****
+     // to delete array, use delete[]
+     // For debugging 
+     //*****
+     delete[] _x_k1;
+     delete[] _x_k2;
+     delete[] _x_k3;
+     delete[] _x_k4;
      return res;
  }
 

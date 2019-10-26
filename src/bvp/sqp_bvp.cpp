@@ -19,23 +19,24 @@ using namespace sco;
 using namespace Eigen;
 
 SQPBVP::SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
-: _system(system)
-, _n_steps(n_steps)
+: _n_steps(n_steps)
 , state_dim(state_dim_in)
 , control_dim(control_dim_in)
 , _integration_step(integration_step)
-, costPtr(new CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step))
-, constraintPtr(new ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step))
 {
+    _system.reset(system);
+    CostPtr.reset(new CostWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
+    ConstraintPtr.reset(new ConstraintWithSystem(system, state_dim_in, control_dim_in, n_steps, integration_step));
 }
 
 SQPBVP::~SQPBVP()
 {
-    delete costPtr;
-    delete constraintPtr;
+    _system.reset();
+    costPtr.reset();
+    constraintPtr.reset();
 }
 
-std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) const
+std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_iter) const
 {
     /**
     * Solve BVP problem from start to goal by constructing optimization problem.
@@ -50,11 +51,21 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     vector<string> var_names;
     for (unsigned i=0; i < _n_steps; i++)
     {
-        var_names.push_back( (boost::format("x_%i")%i).str() );
+        // each state is of length state_dim
+        for (unsigned j=0; j < state_dim; j++)
+        {
+            var_names.push_back( (boost::format("x_%1%_%2%")%i%j).str() );
+        }
+
     }
     for (unsigned i=0; i < _n_steps-1; i++)
     {
-        var_names.push_back( (boost::format("u_%i")%i).str() );
+        // each control is of length control_dim
+        for (unsigned j=0; j < control_dim; j++)
+        {
+            var_names.push_back( (boost::format("u_%1%_%2%")%i%j).str() );
+        }
+
     }
     for (unsigned i=0; i < _n_steps-1; i++)
     {
@@ -68,10 +79,11 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
                                new ConstraintFromFunc(VectorOfVectorPtr(constraintPtr), probPtr->getVars(), VectorXd(), INEQ, "q") )) );
     BasicTrustRegionSQP solver(probPtr);
     // set solver parameters
-    //solver.max_iter_ = 1000;
-    //solver.min_trust_box_size_ = 1e-5;
-    //solver.min_approx_improve_ = 1e-10;
-    //solver.merit_error_coeff_ = 1;
+    solver.max_iter_ = max_iter;
+    solver.trust_box_size_ = 1;
+    solver.min_trust_box_size_ = 1e-5;
+    solver.min_approx_improve_ = 1e-10;
+    solver.merit_error_coeff_ = 1;
     // initialize
     DblVec init;
     // state: straight line
@@ -85,7 +97,8 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     // control: 0
     for (unsigned i=0; i < _n_steps-1; i++)
     {
-        init.push_back(0.0);
+        VectorXd u = VectorXd::Zero(control_dim);
+        init.insert(init.end(), u.data(), u.data() + control_dim);
     }
     // time: if there is approximate function, then can calculate, but we don't know
     //       which vars indicate velocity
@@ -99,5 +112,9 @@ std::vector<double> SQPBVP::solve(const VectorXd& start, const VectorXd& goal) c
     }
     solver.initialize(init);
     OptStatus status = solver.optimize();
-    return solver.x();
+    // copy over the result
+    std::vector<double> res(solver.x());
+    // delete pointer to clean memory to avoid SEGFAULT
+    probPtr.reset();
+    return res;
 }

@@ -18,19 +18,23 @@
 #include <Eigen/Dense>
 #include "bvp/cost.hpp"
 #include "bvp/constraint.hpp"
+#include <boost/shared_ptr.hpp>
 using namespace sco;
 using namespace Eigen;
 
+typedef boost::shared_ptr<CostWithSystem> CostWithSystemPtr;
+typedef boost::shared_ptr<ConstraintWithSystem> ConstraintWithSystemPtr;
+typedef boost::shared_ptr<system_interface> SystemPtr;
 
 class SQPBVP {
 public:
   SQPBVP(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step);
   ~SQPBVP();
-  std::vector<double> solve(const VectorXd& start, const VectorXd& goal) const;
+  std::vector<double> solve(const VectorXd& start, const VectorXd& goal, int max_iter) const;
 protected:
-  CostWithSystem* costPtr;
-  ConstraintWithSystem* constraintPtr;
-  system_interface* _system;
+  CostWithSystemPtr costPtr;
+  ConstraintWithSystemPtr constraintPtr;
+  SystemPtr _system;
   int _n_steps;  // store how many intervals are needed
   int state_dim, control_dim;
   double _integration_step;

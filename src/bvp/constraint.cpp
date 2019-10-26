@@ -15,15 +15,20 @@ using namespace Eigen;
 
 ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
 : VectorOfVector()
-, _system(system)
 , _n_steps(n_steps)
 , state_dim(state_dim_in)
 , control_dim(control_dim_in)
 , _integration_step(integration_step)
-{}
+{
+    _system.reset(system);
+    start_x = VectorXd::Zero(state_dim_in);
+    end_x = VectorXd::Zero(state_dim_in);
+}
 
 ConstraintWithSystem::~ConstraintWithSystem()
-{}
+{
+    _system.reset();
+}
 
 VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
 {
@@ -49,18 +54,18 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     {
       // eigen::seq returns [a,b]
       // handle Dynamic Constraints
-      errs(i) = dynamic_constraint(x.segment(i*state_dim,(i+1)*state_dim-1),
-                                   x.segment(control_start+i*control_dim, control_start+(i+1)*control_dim-1),
+      errs(i) = dynamic_constraint(x.segment(i*state_dim,state_dim),
+                                   x.segment(control_start+i*control_dim, control_dim),
                                    x(duration_start+i),
-                                   x.segment((i+1)*state_dim,(i+2)*state_dim-1));
+                                   x.segment((i+1)*state_dim,state_dim));
       // handle Time Constraint
       errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
       errs(2*_n_steps+i) = time_max_constraint(x(duration_start+i));
     }
     // handle start constraint
-    errs(_n_steps-1) = start_constraint(x.segment(0,state_dim-1));
+    errs(_n_steps-1) = start_constraint(x.segment(0,state_dim));
     // handle terminal constraint
-    errs(_n_steps) = term_constraint(x.segment(control_start-state_dim, control_start-1));
+    errs(_n_steps) = term_constraint(x.segment(control_start-state_dim, state_dim));
     return errs;
 }
 
@@ -141,6 +146,11 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     /** TODO:
     *  May add small disturbance so that we don't strictly enforce the constraint
     */
+    delete[] _x_k1;
+    delete[] _x_k2;
+    delete[] _x_k3;
+    delete[] _x_k4;
+
     return (x_dynamics - x_).squaredNorm();
 }
 double ConstraintWithSystem::start_constraint(const VectorXd& x) const

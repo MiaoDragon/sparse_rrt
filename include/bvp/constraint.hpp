@@ -14,8 +14,12 @@
 #include "sco/num_diff.hpp"
 #include "systems/system.hpp"
 #include <Eigen/Dense>
+#include <boost/shared_ptr.hpp>
 using namespace sco;
 using namespace Eigen;
+
+typedef boost::shared_ptr<system_interface> SystemPtr;
+
 
 class ConstraintWithSystem : public VectorOfVector {
 public:
@@ -25,7 +29,7 @@ public:
   void set_start_state(const VectorXd& x);
   void set_end_state(const VectorXd& x);
 protected:
-  system_interface* _system;  // pointer to the system interface
+  SystemPtr _system;  // pointer to the system interface
   int _n_steps;  // store how many intervals are needed
   int state_dim, control_dim;
   double _integration_step;

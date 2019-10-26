@@ -129,7 +129,7 @@ public:
         for (int i = 0; i < size; i++) {
           new_state_ref(i) = new_state[i];
         }
-        delete new_state;
+        delete[] new_state;
         return new_state_py;
     }
 
@@ -598,14 +598,20 @@ public:
         bvp_solver.reset();
     }
 
-    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py) {
+    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter) {
 
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
         int size = start_data_py.shape(0);
         VectorXd start(size);
         VectorXd goal(size);
-        std::vector<double> solution = bvp_solver->solve(start, goal);
+        // copy from input to start and goal
+        for (unsigned i=0; i < size; i++)
+        {
+            start(i) = start_data_py(i);
+            goal(i) = goal_data_py(i);
+        }
+        std::vector<double> solution = bvp_solver->solve(start, goal, max_iter);
         // from solution we can obtain the trajectory: state traj | action traj | time traj
         std::vector<std::vector<double>> x_traj;
         std::vector<std::vector<double>> u_traj;
@@ -616,17 +622,23 @@ public:
         {
             // states
             int begin_idx = i*this->state_dim;
-            int end_idx = (i+1)*this->state_dim-1;
+            int end_idx = (i+1)*this->state_dim;
             std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
             x_traj.push_back(x);
             // controls
             begin_idx = i*this->control_dim+control_start;
-            end_idx = (i+1)*this->control_dim-1+control_start;
+            end_idx = (i+1)*this->control_dim+control_start;
             std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
             u_traj.push_back(u);
             // time
             t_traj.push_back(solution[duration_start+i]);
         }
+        // one more traj for x
+        int begin_idx = (_n_steps-1)*this->state_dim;
+        int end_idx = _n_steps*this->state_dim;
+        std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
+        x_traj.push_back(x);
+
         py::safe_array<double> state_array({x_traj.size(), x_traj[0].size()});
         py::safe_array<double> control_array({u_traj.size(), u_traj[0].size()});
         py::safe_array<double> time_array({t_traj.size()});
@@ -651,8 +663,8 @@ public:
     }
 
 protected:
-    std::unique_ptr<SQPBVP> bvp_solver;
-    std::unique_ptr<system_interface> _system;
+    std::shared_ptr<SQPBVP> bvp_solver;
+    std::shared_ptr<system_interface> _system;
     int state_dim, control_dim;
     int _n_steps;
     double _integration_step;
@@ -786,7 +798,8 @@ PYBIND11_MODULE(_sst_module, m) {
         )
         .def("solve", &BVPWrapper::solve,
             "start"_a,
-            "goal"_a)
+            "goal"_a,
+            "max_iter"_a)
     ;
 
 }

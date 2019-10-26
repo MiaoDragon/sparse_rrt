@@ -208,7 +208,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
           continue;
       }
       int num_steps = std::round(t_traj[i] / integration_step);
-      system.propagate(x_tree->get_point(), this->state_dimension, &(u_traj[0][0]), this->control_dimension,
+      system->propagate(x_tree->get_point(), this->state_dimension, &(u_traj[0][0]), this->control_dimension,
                        num_steps, new_state, integration_step);
 
        // add the new state to tree

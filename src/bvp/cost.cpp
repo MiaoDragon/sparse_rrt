@@ -181,5 +181,5 @@ void CostWithSystem::set_end_state(const VectorXd& x)
 /** CostWithSystemGoal class */
 double CostWithSystemGoal::term_cost(const VectorXd& x) const
 {
-    return (x - end_x).squaredNorm();
+    return (x - end_x).lpNorm<1>();
 }

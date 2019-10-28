@@ -104,7 +104,7 @@ OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_it
     //       which vars indicate velocity
     // for now we use Euclidean Distance
     //### TODO: add approximate time calculation function
-    double T = (goal - start).squaredNorm();
+    double T = (goal - start).lpNorm<1>();
     T = T / (_n_steps-1);
     for (unsigned i=0; i < _n_steps-1; i++)
     {

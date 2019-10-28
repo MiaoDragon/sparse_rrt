@@ -151,7 +151,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     delete[] _x_k3;
     delete[] _x_k4;
 
-    return (x_dynamics - x_).squaredNorm();
+    return (x_dynamics - x_).lpNorm<1>();
 }
 double ConstraintWithSystem::start_constraint(const VectorXd& x) const
 {
@@ -163,7 +163,7 @@ double ConstraintWithSystem::start_constraint(const VectorXd& x) const
     *   Here we use l2 norm for simplicity
     */
     // again, other norms can be used
-    return (x - start_x).squaredNorm();
+    return (x - start_x).lpNorm<1>();
 }
 
 double ConstraintWithSystem::term_constraint(const VectorXd& x) const
@@ -176,7 +176,7 @@ double ConstraintWithSystem::term_constraint(const VectorXd& x) const
     *   Here we use l2 norm for simplicity
     */
     // again, other norms can be used
-    return (x - end_x).squaredNorm();
+    return (x - end_x).lpNorm<1>();
 }
 
 double ConstraintWithSystem::time_min_constraint(const double dt) const

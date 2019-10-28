@@ -131,6 +131,7 @@ public:
           new_state_ref(i) = new_state[i];
         }
         delete[] new_state;
+        delete[] sample_state;
         return new_state_py;
     }
 

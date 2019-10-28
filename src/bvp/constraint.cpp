@@ -70,7 +70,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     errs(_n_steps-2) = term_dynamics(x.segment((_n_steps-2)*state_dim,state_dim),
                                       x.segment(control_start+(_n_steps-2)*control_dim, control_dim),
                                       x(duration_start+(_n_steps-2)),
-                                      x.segment((_n_steps-1)*state_dim,state_dim);
+                                      x.segment((_n_steps-1)*state_dim,state_dim));
     // handle start constraint
     errs(_n_steps-1) = start_constraint(x.segment(0,state_dim));
     // handle terminal constraint

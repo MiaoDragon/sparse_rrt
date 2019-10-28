@@ -234,7 +234,7 @@ double ConstraintWithSystemGoalFree::term_constraint(const VectorXd& x) const
     return 0.;  // already satisfied
 }
 
-double ConstraintWithSystemGoalFree::start_dynamics(const VectorXd& x) const
+double ConstraintWithSystemGoalFree::start_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const
 {
     return dynamic_constraint(start_x, u, dt, x_);;  // already satisfied
 }

@@ -36,7 +36,12 @@
    double sum_cost = 0.;
    int control_start = _n_steps*state_dim;
    int duration_start = control_start + (_n_steps-1)*control_dim;
-   for (unsigned i=0; i < _n_steps-1; i+=1)
+   // for starting state
+   sum_cost += start_cost(x.segment(0, state_dim));
+   // for the dynamics of the first state
+   // in case we want to manually force the start position
+   sum_cost += start_dynamics(x.segment(0, state_dim), x.segment(control_start, control_dim), x(duration_start));
+   for (unsigned i=1; i < _n_steps-2; i+=1)
    {
      // calculate single-step cost
      // eigen::seq returns [a,b]
@@ -44,6 +49,10 @@
                                 x.segment(control_start+i*control_dim, control_dim),
                                 x(duration_start+i));
    }
+   // in case we want to manually force the goal position
+   sum_cost += term_dynamics(x.segment(control_start-state_dim, state_dim),
+                             x.segment(duration_start-control_dim, control_dim),
+                             x(duration_start+_n_steps-2));
    sum_cost += term_cost(x.segment(control_start-state_dim,state_dim));
    return sum_cost;
  }
@@ -159,6 +168,14 @@
      // we don't have any preference for the terminal state. It is enforced by constraint
      return 0.;
  }
+ double CostWithSystem::start_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const
+ {
+     return single_cost_dt(x, u, dt);
+ }
+ double CostWithSystem::term_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const
+ {
+     return single_cost_dt(x, u, dt);
+ }
 
 void CostWithSystem::set_start_state(const VectorXd& x)
 {
@@ -182,4 +199,9 @@ void CostWithSystem::set_end_state(const VectorXd& x)
 double CostWithSystemGoal::term_cost(const VectorXd& x) const
 {
     return (x - end_x).lpNorm<1>();
+}
+
+double CostWithSystemGoal::start_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const
+{
+    return single_cost_dt(start_x, u, dt);
 }

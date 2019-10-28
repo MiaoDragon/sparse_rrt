@@ -39,6 +39,9 @@ protected:
   // x_ denotes the next state
   virtual double start_constraint(const VectorXd& x) const;
   virtual double term_constraint(const VectorXd& x) const;
+  virtual double start_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const;
+  virtual double term_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const;
+
   virtual double time_min_constraint(const double dt) const;
   virtual double time_max_constraint(const double dt) const;
 };
@@ -50,5 +53,8 @@ public:
     {}
 protected:
     double term_constraint(const VectorXd& x) const override;
+    double start_constraint(const VectorXd& x) const override;
+    double start_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const override;
+
 };
 #endif

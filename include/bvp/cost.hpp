@@ -41,6 +41,9 @@ protected:
   virtual double single_cost(const VectorXd& x, const VectorXd& u) const;
   virtual double start_cost(const VectorXd& x) const; // useful if we want to enforce cost on start state instead of constraint
   virtual double term_cost(const VectorXd& x) const;  // useful if we want to enforce cost on terminal state instead of constraint
+  virtual double start_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const;
+  virtual double term_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const;
+
 };
 
 class CostWithSystemGoal : public CostWithSystem {
@@ -53,8 +56,8 @@ public:
     {}
 protected:
     double term_cost(const VectorXd& x) const override;
+    double start_dynamics(const VectorXd& x, const VectorXd& u, const double dt) const override;
 };
-
 
 
 #endif

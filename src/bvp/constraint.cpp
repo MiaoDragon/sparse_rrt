@@ -50,7 +50,12 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     int duration_start = control_start + (_n_steps-1)*control_dim;
     // number of Dynamic Constraints: n_steps
     VectorXd errs(3*_n_steps-1);  // constraints errors to return
-    for (unsigned i=0; i < _n_steps-1; i+=1)
+
+    errs(0) = start_dynamics(x.segment(0,state_dim),
+                             x.segment(control_start, control_dim),
+                             x(duration_start),
+                             x.segment(state_dim,state_dim));
+    for (unsigned i=1; i < _n_steps-2; i+=1)
     {
       // eigen::seq returns [a,b]
       // handle Dynamic Constraints
@@ -62,6 +67,10 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
       errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
       errs(2*_n_steps+i) = time_max_constraint(x(duration_start+i));
     }
+    errs(_n_steps-2) = term_dynamics(x.segment((_n_steps-2)*state_dim,state_dim),
+                                      x.segment(control_start+(_n_steps-2)*control_dim, control_dim),
+                                      x(duration_start+(_n_steps-2)),
+                                      x.segment((_n_steps-1)*state_dim,state_dim);
     // handle start constraint
     errs(_n_steps-1) = start_constraint(x.segment(0,state_dim));
     // handle terminal constraint
@@ -153,6 +162,17 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
 
     return (x_dynamics - x_).lpNorm<1>();
 }
+
+double ConstraintWithSystem::start_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const
+{
+    return dynamic_constraint(x, u, dt, x_);
+}
+
+double ConstraintWithSystem::term_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const
+{
+    return dynamic_constraint(x, u, dt, x_);
+}
+
 double ConstraintWithSystem::start_constraint(const VectorXd& x) const
 {
     // Here we try adding constraints to both ends.
@@ -212,4 +232,14 @@ void ConstraintWithSystem::set_end_state(const VectorXd& x)
 double ConstraintWithSystemGoalFree::term_constraint(const VectorXd& x) const
 {
     return 0.;  // already satisfied
+}
+
+double ConstraintWithSystemGoalFree::start_dynamics(const VectorXd& x) const
+{
+    return dynamic_constraint(start_x, u, dt, x_);;  // already satisfied
+}
+
+double ConstraintWithSystemGoalFree::start_constraint(const VectorXd& x) const
+{
+    return 0.;  // already satisfied by forcing
 }

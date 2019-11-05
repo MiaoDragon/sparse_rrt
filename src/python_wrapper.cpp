@@ -592,7 +592,7 @@ public:
         // create a new system
         _system.reset(&system);
         // _system = new system_interface(&system);
-        bvp_solver.reset(new SQPBVP(&system, state_dim_in, control_dim_in, n_steps, integration_step));
+        bvp_solver.reset(new SQPBVP_forward(&system, state_dim_in, control_dim_in, n_steps, integration_step));
     }
     ~BVPWrapper()
     {
@@ -667,7 +667,7 @@ public:
     }
 
 protected:
-    std::shared_ptr<SQPBVP> bvp_solver;
+    std::shared_ptr<SQPBVP_forward> bvp_solver;
     std::shared_ptr<system_interface> _system;
     int state_dim, control_dim;
     int _n_steps;

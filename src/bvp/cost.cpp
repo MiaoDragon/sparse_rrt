@@ -36,6 +36,13 @@
    double sum_cost = 0.;
    int control_start = _n_steps*state_dim;
    int duration_start = control_start + (_n_steps-1)*control_dim;
+   int cost_start = _n_steps*10;
+   int cost_end = 0;
+   int duration_start = _n_steps*10;
+   int duration_end = 0;
+   std::cout << "state index range: " << 0 << " ----- " << control_start-1 << std::endl;
+   std::cout << "control index range: " << control_start << " ----- " << duration_start-1 << std::endl;
+   std::cout << "duration index range: " << duration_start << " ----- " << duration_start+_n_steps-2 << std::endl;
    // for starting state
    sum_cost += start_cost(x.segment(0, state_dim));
    // for the dynamics of the first state
@@ -50,10 +57,11 @@
                                 x(duration_start+i));
    }
    // in case we want to manually force the goal position
-   sum_cost += term_dynamics(x.segment(control_start-state_dim, state_dim),
-                             x.segment(duration_start-control_dim, control_dim),
-                             x(duration_start+_n_steps-2));
+   sum_cost += term_dynamics(x.segment(control_start-2*state_dim, state_dim),
+                             x.segment(duration_start-2*control_dim, control_dim),
+                             x(duration_start+_n_steps-3));
    sum_cost += term_cost(x.segment(control_start-state_dim,state_dim));
+   std::cout << "cost: " << sum_cost << std::endl;
    return sum_cost;
  }
 
@@ -87,6 +95,7 @@
      // formula: x_k1 = dt * _x_k1
      for (unsigned i=0; i<state_dim; i++)
      {
+         _x_k1[i] = _x_k1[i] - x(i);
          x_k1(i) = _x_k1[i] * dt;
      }
      // calculate _x_k2 from x_k1
@@ -98,6 +107,7 @@
      // formula: x_k2 = dt * _x_k2
      for (unsigned i=0; i<state_dim; i++)
      {
+         _x_k2[i] = _x_k2[i] - temp(i);
          x_k2(i) = _x_k2[i] * dt;
      }
      //calculate _x_k3 from x_k2
@@ -109,6 +119,7 @@
      // formula: x_k3 = dt * _x_k3
      for (unsigned i=0; i<state_dim; i++)
      {
+         _x_k3[i] = _x_k3[i] - temp(i);
          x_k3(i) = _x_k3[i] * dt;
      }
      // calculate _x_k4 from x_k3
@@ -120,6 +131,7 @@
      // formula: x_k4 = dt * _x_k4
      for (unsigned i=0; i<state_dim; i++)
      {
+         _x_k4[i] = _x_k4[i] - temp(i);
          x_k4(i) = _x_k4[i] * dt;
      }
      // from state, calculate loss

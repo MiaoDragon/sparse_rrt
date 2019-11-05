@@ -51,6 +51,18 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     // number of Dynamic Constraints: n_steps
     VectorXd errs(3*_n_steps-1);  // constraints errors to return
 
+    int state_dynamics_start = 0;
+    int state_dynamics_end = _n_steps-2;
+    int start = _n_steps - 1;
+    int term = _n_steps;
+    int state_inter_dynamics_start = _n_steps;
+    int state_inter_dynamics_end = 0;
+    int time_min_start = 10*_n_steps;
+    int time_min_end = 0;
+    int time_max_start = 10*_n_steps;
+    int time_max_end = 0;
+
+
     errs(0) = start_dynamics(x.segment(0,state_dim),
                              x.segment(control_start, control_dim),
                              x(duration_start),
@@ -63,9 +75,37 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                                    x.segment(control_start+i*control_dim, control_dim),
                                    x(duration_start+i),
                                    x.segment((i+1)*state_dim,state_dim));
+
+      if (i < state_inter_dynamics_start)
+      {
+          state_inter_dynamics_start = i;
+      }
+      if (i > state_inter_dynamics_end)
+      {
+          state_inter_dynamics_end = i;
+      }
       // handle Time Constraint
-      errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
-      errs(2*_n_steps+i) = time_max_constraint(x(duration_start+i));
+      errs(_n_steps+i) = time_min_constraint(x(duration_start+i));
+
+      if (_n_steps+i < time_min_start)
+      {
+          time_min_start = _n_steps + i;
+      }
+      if (_n_steps+i > time_min_end)
+      {
+          time_min_end = _n_steps+i;
+      }
+
+      errs(2*_n_steps-1+i) = time_max_constraint(x(duration_start+i));
+      if (2*_n_steps-1+i < time_max_start)
+      {
+          time_max_start = 2*_n_steps-1+i;
+      }
+      if (2*_n_steps-1+i > time_max_end)
+      {
+          time_max_end = 2*_n_steps-1+i;
+      }
+
     }
     errs(_n_steps-2) = term_dynamics(x.segment((_n_steps-2)*state_dim,state_dim),
                                       x.segment(control_start+(_n_steps-2)*control_dim, control_dim),
@@ -75,6 +115,22 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     errs(_n_steps-1) = start_constraint(x.segment(0,state_dim));
     // handle terminal constraint
     errs(_n_steps) = term_constraint(x.segment(control_start-state_dim, state_dim));
+    // print out index for all constraints
+    Eigen::IOFormat fmt(4, 0, ", ", "\n", "[", "]");
+    std::cout << "index of start_dynamics constraint: " << state_dynamics_start << std::endl;
+    std::cout << "start_dynamics constraint: " << errs(state_dynamics_start) << std::endl;
+    std::cout << "index of dynamic constraints: " << state_inter_dynamics_start << " ----- " << state_inter_dynamics_end << std::endl;
+    std::cout << "dynamic constraints: " << errs.segment(state_inter_dynamics_start, state_inter_dynamics_end-state_inter_dynamics_start+1).format(fmt) << std::endl;
+    std::cout << "index of term_dynamics constraint: " << state_dynamics_end << std::endl;
+    std::cout << "index of start state constraint: " << start << std::endl;
+    std::cout << "start state constraint: " << errs(start) << std::endl;
+    std::cout << "index of terminal state constraint: " << term << std::endl;
+    std::cout << "terminal state constraint: " << errs(term) << std::endl;
+    std::cout << "index of min time constraint: " << time_min_start << " ----- " << time_min_end << std::endl;
+    std::cout << "min time constraint: " << errs.segment(time_min_start, time_min_end-time_min_start+1).format(fmt) << std::endl;
+    std::cout << "index of max time constraint: " << time_max_start << " ----- " << time_max_end << std::endl;
+    std::cout << "max time constraint: " << errs.segment(time_max_start, time_max_end-time_max_start+1).format(fmt) << std::endl;
+
     return errs;
 }
 
@@ -108,6 +164,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     // formula: x_k1 = dt * _x_k1
     for (unsigned i=0; i<state_dim; i++)
     {
+        _x_k1[i] = _x_k1[i] - x(i);
         x_k1(i) = _x_k1[i] * dt;
     }
     // calculate _x_k2 from x_k1
@@ -119,6 +176,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     // formula: x_k2 = dt * _x_k2
     for (unsigned i=0; i<state_dim; i++)
     {
+        _x_k2[i] = _x_k2[i] - temp(i);
         x_k2(i) = _x_k2[i] * dt;
     }
     //calculate _x_k3 from x_k2
@@ -130,6 +188,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     // formula: x_k3 = dt * _x_k3
     for (unsigned i=0; i<state_dim; i++)
     {
+        _x_k3[i] = _x_k3[i] - temp(i);
         x_k3(i) = _x_k3[i] * dt;
     }
     // calculate _x_k4 from x_k3
@@ -141,6 +200,7 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     // formula: x_k4 = dt * _x_k4
     for (unsigned i=0; i<state_dim; i++)
     {
+        _x_k4[i] = _x_k4[i] - temp(i);
         x_k4(i) = _x_k4[i] * dt;
     }
     // calculate x_dynamics (x(t+1) from dynamics)

@@ -242,12 +242,14 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     /** TODO:
     *  May add small disturbance so that we don't strictly enforce the constraint
     */
+    std::cout << "reference end point state: " << x_.format(fmt) << std::endl;
     delete[] _x_k1;
     delete[] _x_k2;
     delete[] _x_k3;
     delete[] _x_k4;
-
-    return (x_dynamics - x_).lpNorm<1>();
+    double res = (x_dynamics - x_).lpNorm<1>();
+    std::cout << "result of dynamic constraint: " << res << std::endl;
+    return res;
 }
 
 double ConstraintWithSystem::start_dynamics(const VectorXd& x, const VectorXd& u, const double dt, const VectorXd& x_) const

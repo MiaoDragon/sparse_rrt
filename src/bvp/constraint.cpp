@@ -158,55 +158,81 @@ double ConstraintWithSystem::dynamic_constraint(const VectorXd& x, const VectorX
     double* _x_k2 = new double[state_dim];
     double* _x_k3 = new double[state_dim];
     double* _x_k4 = new double[state_dim];
+    Eigen::IOFormat fmt(4, 0, ", ", "\n", "[", "]");
+
 
     _system->propagate(x.data(), state_dim, u.data(), control_dim,
                        1, _x_k1, _integration_step);
     // calculate x_k1 from _x_k1
     // formula: x_k1 = dt * _x_k1
+    std::cout << "_x_k1: " << std::endl;
+    std::cout << "[";
     for (unsigned i=0; i<state_dim; i++)
     {
         _x_k1[i] = _x_k1[i] - x(i);
+        std::cout << _x_k1[i] << ",";
         x_k1(i) = _x_k1[i] * dt;
     }
+    std::cout << "]" << std::endl;
+    std::cout << "x_k1: " << x_k1.format(fmt) << std::endl;
     // calculate _x_k2 from x_k1
     // formula: _x_k2 = f(x+x_k1/2, u)
     temp = x+x_k1/2;
+    std::cout << "x+x_k1/2: " << temp.format(fmt) << std::endl;
     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                        1, _x_k2, _integration_step);
     // calculate x_k2 from _x_k2
     // formula: x_k2 = dt * _x_k2
+    std::cout << "_x_k2: " << std::endl;
+    std::cout << "[";
     for (unsigned i=0; i<state_dim; i++)
     {
         _x_k2[i] = _x_k2[i] - temp(i);
+        std::cout << _x_k2[i] << ",";
         x_k2(i) = _x_k2[i] * dt;
     }
+    std::cout << "]" << std::endl;
+    std::cout << "x_k2: " << x_k2.format(fmt) << std::endl;
     //calculate _x_k3 from x_k2
     // formula: _x_k3 = f(x+x_k2/2, u)
     temp = x+x_k2/2;
+    std::cout << "x+x_k2/2: " << temp.format(fmt) << std::endl;
     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                        1, _x_k3, _integration_step);
     // calculate x_k3 from _x_k3
     // formula: x_k3 = dt * _x_k3
+    std::cout << "_x_k3: " << std::endl;
+    std::cout << "[";
     for (unsigned i=0; i<state_dim; i++)
     {
         _x_k3[i] = _x_k3[i] - temp(i);
+        std::cout << _x_k3[i] << ",";
         x_k3(i) = _x_k3[i] * dt;
     }
+    std::cout << "]" << std::endl;
+    std::cout << "x_k3: " << x_k3.format(fmt) << std::endl;
     // calculate _x_k4 from x_k3
     // formula: _x_k4 = f(x+x_k3, u)
     temp = x+x_k3;
+    std::cout << "x+k3: " << temp.format(fmt) << std::endl;
     _system->propagate(temp.data(), state_dim, u.data(), control_dim,
                        1, _x_k4, _integration_step);
     // calculate x_k4 from _x_k4
     // formula: x_k4 = dt * _x_k4
+    std::cout << "_x_k4: " << std::endl;
+    std::cout << "[";
     for (unsigned i=0; i<state_dim; i++)
     {
         _x_k4[i] = _x_k4[i] - temp(i);
+        std::cout << _x_k4[i] << ",";
         x_k4(i) = _x_k4[i] * dt;
     }
+    std::cout << "]" << std::endl;
+    std::cout << "x_k4: " << x_k4.format(fmt) << std::endl;
     // calculate x_dynamics (x(t+1) from dynamics)
     // formula: x_dynamics = x + (x_k1 + 2*x_k2 + 2*x_k3 + x_k4) / 6
     VectorXd x_dynamics = x + (x_k1 + 2*x_k2 + 2*x_k3 + x_k4) / 6;
+    std::cout << "end point state: " << x_dynamics.format(fmt) << std::endl;
     // equality constraint between x_dynamics and x_
     //*************************************************************
     /*** Note:

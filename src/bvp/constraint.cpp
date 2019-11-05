@@ -69,7 +69,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                              x(duration_start),
                              x.segment(state_dim,state_dim));
     errs(_n_steps+1) = time_min_constraint(x(duration_start));
-    erros(2*_n_steps) = time_max_constraint(x(duration_start));
+    errs(2*_n_steps) = time_max_constraint(x(duration_start));
     for (unsigned i=1; i < _n_steps-2; i+=1)
     {
       // eigen::seq returns [a,b]

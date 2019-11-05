@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
  #include <iostream>
+ #include <cstdlib>
 using namespace Eigen;
 
 ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
@@ -66,9 +67,9 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
 
     errs(0) = start_dynamics(x.segment(0,state_dim),
                              x.segment(control_start, control_dim),
-                             x(duration_start),
+                             abs(x(duration_start)),
                              x.segment(state_dim,state_dim));
-    errs(_n_steps+1) = time_min_constraint(x(duration_start));
+    errs(_n_steps+1) = time_min_constraint(abs(x(duration_start)));
     errs(2*_n_steps) = time_max_constraint(x(duration_start));
     for (unsigned i=1; i < _n_steps-2; i+=1)
     {
@@ -76,7 +77,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
       // handle Dynamic Constraints
       errs(i) = dynamic_constraint(x.segment(i*state_dim,state_dim),
                                    x.segment(control_start+i*control_dim, control_dim),
-                                   x(duration_start+i),
+                                   abs(x(duration_start+i)),
                                    x.segment((i+1)*state_dim,state_dim));
 
       if (i < state_inter_dynamics_start)
@@ -88,7 +89,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
           state_inter_dynamics_end = i;
       }
       // handle Time Constraint
-      errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
+      errs(_n_steps+1+i) = time_min_constraint(abs(x(duration_start+i)));
 
       if (_n_steps+1+i < time_min_start)
       {
@@ -112,9 +113,9 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     }
     errs(_n_steps-2) = term_dynamics(x.segment((_n_steps-2)*state_dim,state_dim),
                                       x.segment(control_start+(_n_steps-2)*control_dim, control_dim),
-                                      x(duration_start+(_n_steps-2)),
+                                      abs(x(duration_start+(_n_steps-2))),
                                       x.segment((_n_steps-1)*state_dim,state_dim));
-    errs(2*_n_steps-1) = time_min_constraint(x(duration_start+_n_steps-2));
+    errs(2*_n_steps-1) = time_min_constraint(abs(x(duration_start+_n_steps-2)));
     errs(3*_n_steps-2) = time_max_constraint(x(duration_start+_n_steps-2));
 
     // handle start constraint

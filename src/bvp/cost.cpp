@@ -11,6 +11,7 @@
  #include <Eigen/Dense>
  #include <Eigen/Core>
  #include <iostream>
+ #include <cstdlib>
  using namespace Eigen;
 
  /* CostWithSystem class */
@@ -44,19 +45,19 @@
    sum_cost += start_cost(x.segment(0, state_dim));
    // for the dynamics of the first state
    // in case we want to manually force the start position
-   sum_cost += start_dynamics(x.segment(0, state_dim), x.segment(control_start, control_dim), x(duration_start));
+   sum_cost += start_dynamics(x.segment(0, state_dim), x.segment(control_start, control_dim), abs(x(duration_start)));
    for (unsigned i=1; i < _n_steps-2; i+=1)
    {
      // calculate single-step cost
      // eigen::seq returns [a,b]
      sum_cost += single_cost_dt(x.segment(i*state_dim,state_dim),
                                 x.segment(control_start+i*control_dim, control_dim),
-                                x(duration_start+i));
+                                abs(x(duration_start+i)));
    }
    // in case we want to manually force the goal position
    sum_cost += term_dynamics(x.segment(control_start-2*state_dim, state_dim),
                              x.segment(duration_start-2*control_dim, control_dim),
-                             x(duration_start+_n_steps-3));
+                             abs(x(duration_start+_n_steps-3)));
    sum_cost += term_cost(x.segment(control_start-state_dim,state_dim));
    std::cout << "cost: " << sum_cost << std::endl;
    return sum_cost;

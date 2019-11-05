@@ -125,6 +125,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     // print out index for all constraints
     Eigen::IOFormat fmt(4, 0, ", ", "\n", "[", "]");
     std::cout << "optimization variable: " << x.format(fmt) << std::endl;
+    std::cout << "optimization constraint error: " << errs.format(fmt) << std::endl;
     std::cout << "index of start_dynamics constraint: " << state_dynamics_start << std::endl;
     std::cout << "start_dynamics constraint: " << errs(state_dynamics_start) << std::endl;
     std::cout << "index of dynamic constraints: " << state_inter_dynamics_start << " ----- " << state_inter_dynamics_end << std::endl;

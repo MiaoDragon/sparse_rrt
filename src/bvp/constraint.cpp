@@ -124,6 +124,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     errs(_n_steps) = term_constraint(x.segment(control_start-state_dim, state_dim));
     // print out index for all constraints
     Eigen::IOFormat fmt(4, 0, ", ", "\n", "[", "]");
+    std::cout << "optimization variable: " << x.format(fmt) << std::endl;
     std::cout << "index of start_dynamics constraint: " << state_dynamics_start << std::endl;
     std::cout << "start_dynamics constraint: " << errs(state_dynamics_start) << std::endl;
     std::cout << "index of dynamic constraints: " << state_inter_dynamics_start << " ----- " << state_inter_dynamics_end << std::endl;

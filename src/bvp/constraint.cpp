@@ -11,6 +11,7 @@
 #include "bvp/constraint.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Core>
+ #include <iostream>
 using namespace Eigen;
 
 ConstraintWithSystem::ConstraintWithSystem(system_interface* system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)

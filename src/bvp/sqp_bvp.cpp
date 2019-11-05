@@ -15,6 +15,7 @@
 #include "sco/solver_interface.hpp"
 #include "sco/optimizers.hpp"
 #include "sco/modeling_utils.hpp"
+ #include <iostream>
 using namespace sco;
 using namespace Eigen;
 

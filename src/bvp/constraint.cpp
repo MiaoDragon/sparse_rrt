@@ -68,6 +68,8 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                              x.segment(control_start, control_dim),
                              x(duration_start),
                              x.segment(state_dim,state_dim));
+    errs(_n_steps+1) = time_min_constraint(x(duration_start));
+    erros(2*_n_steps) = time_max_constraint(x(duration_start));
     for (unsigned i=1; i < _n_steps-2; i+=1)
     {
       // eigen::seq returns [a,b]
@@ -86,25 +88,25 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
           state_inter_dynamics_end = i;
       }
       // handle Time Constraint
-      errs(_n_steps+i) = time_min_constraint(x(duration_start+i));
+      errs(_n_steps+1+i) = time_min_constraint(x(duration_start+i));
 
-      if (_n_steps+i < time_min_start)
+      if (_n_steps+1+i < time_min_start)
       {
-          time_min_start = _n_steps + i;
+          time_min_start = _n_steps+1+i;
       }
-      if (_n_steps+i > time_min_end)
+      if (_n_steps+1+i > time_min_end)
       {
-          time_min_end = _n_steps+i;
+          time_min_end = _n_steps+1+i;
       }
 
-      errs(2*_n_steps-1+i) = time_max_constraint(x(duration_start+i));
-      if (2*_n_steps-1+i < time_max_start)
+      errs(2*_n_steps+i) = time_max_constraint(x(duration_start+i));
+      if (2*_n_steps+i < time_max_start)
       {
-          time_max_start = 2*_n_steps-1+i;
+          time_max_start = 2*_n_steps+i;
       }
-      if (2*_n_steps-1+i > time_max_end)
+      if (2*_n_steps+i > time_max_end)
       {
-          time_max_end = 2*_n_steps-1+i;
+          time_max_end = 2*_n_steps+i;
       }
 
     }
@@ -112,6 +114,9 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                                       x.segment(control_start+(_n_steps-2)*control_dim, control_dim),
                                       x(duration_start+(_n_steps-2)),
                                       x.segment((_n_steps-1)*state_dim,state_dim));
+    errs(2*_n_steps-1) = time_min_constraint(x(duration_start+_n_steps-2));
+    errs(3*_n_steps-2) = time_max_constraint(x(duration_start+_n_steps-2));
+
     // handle start constraint
     errs(_n_steps-1) = start_constraint(x.segment(0,state_dim));
     // handle terminal constraint
@@ -127,10 +132,10 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     std::cout << "start state constraint: " << errs(start) << std::endl;
     std::cout << "index of terminal state constraint: " << term << std::endl;
     std::cout << "terminal state constraint: " << errs(term) << std::endl;
-    std::cout << "index of min time constraint: " << time_min_start << " ----- " << time_min_end << std::endl;
-    std::cout << "min time constraint: " << errs.segment(time_min_start, time_min_end-time_min_start+1).format(fmt) << std::endl;
-    std::cout << "index of max time constraint: " << time_max_start << " ----- " << time_max_end << std::endl;
-    std::cout << "max time constraint: " << errs.segment(time_max_start, time_max_end-time_max_start+1).format(fmt) << std::endl;
+    std::cout << "index of min time constraint: " << time_min_start-1 << " ----- " << time_min_end+1 << std::endl;
+    std::cout << "min time constraint: " << errs.segment(time_min_start-1, time_min_end-time_min_start+1+2).format(fmt) << std::endl;
+    std::cout << "index of max time constraint: " << time_max_start-1 << " ----- " << time_max_end+1 << std::endl;
+    std::cout << "max time constraint: " << errs.segment(time_max_start-1, time_max_end-time_max_start+1+2).format(fmt) << std::endl;
 
     return errs;
 }

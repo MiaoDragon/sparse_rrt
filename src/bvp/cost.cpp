@@ -37,10 +37,6 @@
    double sum_cost = 0.;
    int control_start = _n_steps*state_dim;
    int duration_start = control_start + (_n_steps-1)*control_dim;
-   int cost_start = _n_steps*10;
-   int cost_end = 0;
-   int duration_start = _n_steps*10;
-   int duration_end = 0;
    std::cout << "state index range: " << 0 << " ----- " << control_start-1 << std::endl;
    std::cout << "control index range: " << control_start << " ----- " << duration_start-1 << std::endl;
    std::cout << "duration index range: " << duration_start << " ----- " << duration_start+_n_steps-2 << std::endl;

@@ -64,7 +64,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
     int time_max_start = 10*_n_steps;
     int time_max_end = 0;
 
-
+    std::cout << "absolution value of x(duration_start): " << abs(x(duration_start)) << std::endl;
     errs(0) = start_dynamics(x.segment(0,state_dim),
                              x.segment(control_start, control_dim),
                              abs(x(duration_start)),
@@ -79,7 +79,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                                    x.segment(control_start+i*control_dim, control_dim),
                                    abs(x(duration_start+i)),
                                    x.segment((i+1)*state_dim,state_dim));
-
+      std::cout << "abolution value of x(duration_start+i): " << abs(x(duration_start+i)) << std::endl;
       if (i < state_inter_dynamics_start)
       {
           state_inter_dynamics_start = i;
@@ -116,6 +116,7 @@ VectorXd ConstraintWithSystem::operator()(const VectorXd& x) const
                                       abs(x(duration_start+(_n_steps-2))),
                                       x.segment((_n_steps-1)*state_dim,state_dim));
     errs(2*_n_steps-1) = time_min_constraint(abs(x(duration_start+_n_steps-2)));
+    std::cout << "abolution value of x(duration_start+_n_steps-2): " << abs(x(duration_start+_n_steps-2)) << std::endl;
     errs(3*_n_steps-2) = time_max_constraint(x(duration_start+_n_steps-2));
 
     // handle start constraint

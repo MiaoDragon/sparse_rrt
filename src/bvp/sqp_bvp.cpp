@@ -81,7 +81,7 @@ OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_it
     BasicTrustRegionSQP solver(probPtr);
     // set solver parameters
     solver.max_iter_ = max_iter;
-    solver.trust_box_size_ = 1;
+    solver.trust_box_size_ = 10;
     solver.min_trust_box_size_ = 1e-5;
     solver.min_approx_improve_ = 1e-10;
     solver.merit_error_coeff_ = 1;
@@ -105,8 +105,9 @@ OptResults SQPBVP::solve(const VectorXd& start, const VectorXd& goal, int max_it
     //       which vars indicate velocity
     // for now we use Euclidean Distance
     //### TODO: add approximate time calculation function
-    double T = (goal - start).lpNorm<1>();
-    T = T / (_n_steps-1);
+    double T = 1.0;
+    //double T = (goal - start).lpNorm<1>();
+    //T = T / (_n_steps-1);
     for (unsigned i=0; i < _n_steps-1; i++)
     {
         init.push_back(T);

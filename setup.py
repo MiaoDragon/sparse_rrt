@@ -22,7 +22,7 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def run(self):
         try:
-            out = subprocess.check_output(['cmake', '--version'], stdout=STDOUT, stderr=STDOUT)
+            out = subprocess.check_output(['cmake', '--version'], stderr=STDOUT)
         except OSError:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: " +

@@ -33,6 +33,7 @@ function(pybindings_add_module module)
     include(cpp_CMakeLists.txt)
     #include(psopt_CMakeLists.txt)
     # Invoke pybind11 and set where the library should go, and what it is called
+    message("CMAKE_LIBRARY_OUTPUT_DIRECTORY: " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     pybind11_add_module(${target_name} ${sources})
     set(outdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${relpath})
     target_link_libraries(${target_name} sst_module)  # link the cpp library to the pybinding

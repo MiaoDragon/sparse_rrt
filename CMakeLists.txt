@@ -8,6 +8,7 @@
 
 # adapted from https://gist.github.com/hovren/5b62175731433c741d07ee6f482e2936
 function(pybindings_add_module module)
+    message("inside CMakeLists of pybind")
     set(target_name ${module})
     string(REPLACE "." "/" modpath ${module})
     string(REPLACE "." ";" modlist ${module})

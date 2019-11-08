@@ -55,13 +55,26 @@ class CMakeBuild(build_ext):
         # CMakeLists.txt is in the same directory as this setup.py file
         cmake_list_dir = os.path.abspath(os.path.dirname(__file__))
         print('-'*10, 'Running CMake prepare', '-'*40)
-        subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
-                              cwd=self.build_temp, env=env, stdout=STDOUT, stderr=PIPE)
+        #subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
+        #                      cwd=self.build_temp, env=env)
+        # printout the output
+        with subprocess.Popen(['cmake', cmake_list_dir] + cmake_args, cwd=self.build_temp, env=env, stdout=PIPE,
+                              bufsize=1, universal_newlines=True) as p:
+            for line in p.stdout:
+                print(line, end='') # process line here
+
 
         print('-'*10, 'Building extensions', '-'*40)
         cmake_cmd = ['cmake', '--build', '.'] + self.build_args
-        subprocess.check_call(cmake_cmd,
-                              cwd=self.build_temp, stdout=STDOUT, stderr=PIPE)
+        #subprocess.check_call(cmake_cmd,
+        #                      cwd=self.build_temp)
+        with subprocess.Popen(cmake_cmd, cwd=self.build_temp, stdout=PIPE,
+                              bufsize=1, universal_newlines=True) as p:
+            for line in p.stdout:
+                print(line, end='') # process line here
+
+
+
         print('finished cmake build.')
         # Move from build temp to final position
         for ext in self.extensions:

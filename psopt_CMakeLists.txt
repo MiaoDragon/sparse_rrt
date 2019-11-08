@@ -1,0 +1,63 @@
+execute_process(COMMAND "whoami"
+                OUTPUT_VARIABLE SHELL_ME
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(USERHOME "/home/${SHELL_ME}")
+set(prefix "${USERHOME}/Ipopt-3.12.12")
+
+
+set(EXT_PKG_DIR "${CMAKE_SOURCE_DIR}/deps/psopt")
+set(DMATRIXDIR "${EXT_PKG_DIR}/dmatrix")
+set(CXSPARSE "${EXT_PKG_DIR}/SuiteSparse/CXSparse")
+set(LUSOL "${EXT_PKG_DIR}/lusol/csrc")
+set(IPOPTINCDIR "-I${prefix}/Ipopt/src/Interfaces -I${prefix}/Ipopt/src/Common -I${prefix}/Ipopt/src/LinAlg")
+set(IPOPTLIBDIR "${exec_prefix}/lib")
+set(exec_prefix "${prefix}")
+set(SNOPTDIR "${EXT_PKG_DIR}/snopt-interface")
+set(LIBDIR "${SNOPTDIR}/lib")
+set(SPARSE_LIBS "${LUSOL}/liblusol.a  ${CXSPARSE}/Lib/libcxsparse.a -ldl")
+set(PSOPTSRCDIR "${EXT_PKG_DIR}/PSOPT/src")
+set(PSOPTDIR "${EXT_PKG_DIR}/PSOPT")
+
+execute_process(COMMAND bash "-c" "PKG_CONFIG_PATH=${prefix}/lib64/pkgconfig:${prefix}/lib/pkgconfig:${prefix}/share/pkgconfig: /usr/bin/pkg-config --libs ipopt"
+                OUTPUT_VARIABLE IPOPT_RES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(IPOPT_LIBS ${IPOPT_RES})
+set(ADOLC_LIBS "-ladolc /usr/lib/libColPack.a -Wl,-rpath=/usr/lib/x86_64-linux-gnu/")
+set(PSOPT_LIBS "${PSOPTDIR}/lib/libpsopt.a")
+set(DMATRIX_LIBS "${DMATRIXDIR}/lib/libdmatrix.a")
+
+set(CXX "/usr/bin/g++")
+set(CXXFLAGS "-O0 -g -I${USERHOME}/adolc_base/include -I${SNOPTDIR}/include -I${DMATRIXDIR}/include -I${SNOPTDIR}/cppexamples -I${PSOPTSRCDIR} -DLAPACK -DUNIX -DSPARSE_MATRIX -DUSE_IPOPT -I${CXSPARSE}/Include -I${CXSPARSE}/../SuiteSparse_config -I${LUSOL} ${IPOPTINCDIR} -fomit-frame-pointer -pipe -DNDEBUG -pedantic-errors -Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -fPIC -DHAVE_MALLOC -std=c++11")
+set(LDFLAGS "-Wl,--rpath -Wl,${prefix}/lib")
+#set(FLIBS "-lm -lf2c  -llapack -lf77blas -lcblas")
+set(FLIBS "-lm")
+
+set(ALL_LIBRARIES "${ADOLC_LIBS} ${PSOPT_LIBS} ${DMATRIX_LIBS} ${FLIBS} ${SPARSE_LIBS} ${IPOPT_LIBS}")
+
+set(CMAKE_CXX_COMPILER ${CXX})
+
+
+link_directories(${PSOPTDIR}/lib
+                 ${DMATRIXDIR}/lib
+                 ${LUSOL}
+                 ${CXSPARSE}/Lib
+                )
+find_library(FIND_PSOPT psopt HINTS ${PSOPTDIR}/lib)
+find_library(FIND_DMATRIX dmatrix HINTS ${DMATRIXDIR}/lib)
+find_library(FIND_LUSOL lusol HINTS ${LUSOL})
+find_library(FIND_CXSPARSE cxsparse HINTS ${CXSPARSE}/Lib)
+find_library(FIND_ADOLC adolc HINTS /usr/lib)
+find_library(FIND_DL dl)
+find_library(FIND_F2C NAMES "libf2c.a" HINTS /usr/lib)
+find_library(FIND_IPOPT ipopt HINTS ${prefix}/lib)
+find_library(FIND_LAPACK lapack)
+find_library(FIND_FBLAS f77blas)
+find_library(FIND_CBLAS cblas)
+separate_arguments(CFLAGS UNIX_COMMAND "${CXXFLAGS} ${ALL_LIBRARIES} ${LDFLAGS}")
+add_compile_options(${CFLAGS})
+set(CMAKE_CXX_FLAGS "${CXXFLAGS} ${ALL_LIBRARIES} ${LDFLAGS}")
+
+
+target_link_libraries(${PROJECT_NAME} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
+                      ${FIND_FBLAS} ${FIND_CBLAS})

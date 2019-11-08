@@ -17,7 +17,7 @@
 
 #include "systems/system.hpp"
 #include "motion_planners/planner.hpp"
-#include "bvp/psopt_bvp.hpp"
+#include "bvp/sqp_bvp.hpp"
 
 class sample_node_t;
 

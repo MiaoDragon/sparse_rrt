@@ -16,7 +16,7 @@
 //  add eigen dependency to the package
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
-#include "bvp/psopt_bvp.hpp"
+#include "bvp/sqp_bvp.hpp"
 #include <sco/optimizers.hpp>
 
 #include <Eigen/Dense>
@@ -158,21 +158,23 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 
   // try to connect from nearest to input_sample_state
   // convert from double array to VectorXd
-  double* start_x = nearest->get_point();
-  double* end_x = sample_state;
+  VectorXd start_x(this->state_dimension);
+  VectorXd end_x(this->state_dimension);
+  for (unsigned i=0; i < this->state_dimension; i++)
+  {
+      start_x(i) = nearest->get_point()[i];
+      end_x(i) = sample_state[i];
+  }
+  //std::vector<std::vector<double>>
   int num_steps = 3*this->state_dimension;
   //int num_steps = 6*this->state_dimension;
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)
   {
-      bvp_solver = new PSOPT_BVP(system, this->state_dimension, this->control_dimension);
+      bvp_solver = new SQPBVP_forward(system, this->state_dimension, this->control_dimension, num_steps, integration_step);
   }
 
-  //OptResults res = bvp_solver->solve(start_x, end_x, 100);
-  bvp_solver->solve(start_x, end_x, 100, 100, 1.0, 10.0);
-
-  /**
-
+  OptResults res = bvp_solver->solve(start_x, end_x, 100);
   std::vector<double> solution(res.x);
   std::cout << "after creating solution variable" << std::endl;
   // from solution we can obtain the trajectory: state traj | action traj | time traj
@@ -225,7 +227,6 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 
   }
   std::cout << "after creating new nodes" << std::endl;
-  */
 }
 
 

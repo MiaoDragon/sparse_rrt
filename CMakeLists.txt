@@ -75,13 +75,20 @@ set(SOURCE_FILES
         src/systems/distance_functions.cpp
         src/bvp/constraint.cpp
         src/bvp/cost.cpp
-        src/bvp/sqp_bvp.cpp)
+        src/bvp/sqp_bvp.cpp
+        src/bvp/psopt_bvp.cpp
+        src/bvp/psopt_system.cpp
+        src/bvp/psopt_cart_pole.cpp)
 
 add_library(${PROJECT_NAME} STATIC
     ${SOURCE_FILES})
 
 add_library(sst_module SHARED
     ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp)
+
+# Add compilation for psopt
+include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
+
 
 target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})

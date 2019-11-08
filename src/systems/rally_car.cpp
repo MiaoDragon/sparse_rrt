@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 
@@ -28,9 +28,9 @@
 #define LF 1.3
 #define LR 1.4
 #define R .3
-#define IF 1.8 
+#define IF 1.8
 #define IR 1.8
-#define H .4    
+#define H .4
 #define B 7
 #define C 1.6
 #define D .52
@@ -84,7 +84,7 @@ bool rally_car_t::propagate(
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
 {
-        temp_state[0] = start_state[0]; 
+        temp_state[0] = start_state[0];
         temp_state[1] = start_state[1];
         temp_state[2] = start_state[2];
         temp_state[3] = start_state[3];
@@ -121,7 +121,7 @@ bool rally_car_t::propagate(
 void rally_car_t::enforce_bounds()
 {
 // #x y xdot ydot theta thetadot wf wr
-// state_space: 
+// state_space:
 //   min: [-25, -40, -18, -18, -3.14, -17, -40, -40]
 //   max: [25, 25, 18, 18, 3.14, 17, 40, 40]
         if(temp_state[0]<MIN_X)
@@ -172,9 +172,9 @@ bool rally_car_t::valid_state()
         //any obstacles need to be checked here
         for(unsigned i=0;i<obstacles.size() && !obstacle_collision;i++)
         {
-                if(     temp_state[0]>obstacles[i].low_x-1 && 
-                        temp_state[0]<obstacles[i].high_x+1 && 
-                        temp_state[1]>obstacles[i].low_y-1 && 
+                if(     temp_state[0]>obstacles[i].low_x-1 &&
+                        temp_state[0]<obstacles[i].high_x+1 &&
+                        temp_state[1]>obstacles[i].low_y-1 &&
                         temp_state[1]<obstacles[i].high_y+1)
                 {
                         obstacle_collision = true;
@@ -314,5 +314,3 @@ std::vector<bool> rally_car_t::is_circular_topology() const {
             false
     };
 }
-
-

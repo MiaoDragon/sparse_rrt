@@ -280,7 +280,7 @@ protected:
 	/**
 	 * BVP solver
 	 */
-	SQPBVP* bvp_solver;
+	PSOPT_BVP* bvp_solver;
 
 };
 

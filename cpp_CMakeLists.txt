@@ -15,15 +15,15 @@ IF(APPLE)
 ENDIF(APPLE)
 
 # Add dependency of trajopt
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/deps/trajopt/cmake/modules")
-find_package(Eigen3 REQUIRED)
-find_package(Boost COMPONENTS system python thread program_options REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/deps/trajopt/cmake/modules")
+#find_package(Eigen3 REQUIRED)
+#find_package(Boost COMPONENTS system python thread program_options REQUIRED)
+#include_directories(${EIGEN3_INCLUDE_DIR})
 
-link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
-list(APPEND CMAKE_PREFIX_PATH  "${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib")
-find_library(SCO_LIB sco)
-find_library(UTILS_LIB utils)
+#link_directories(${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib)
+#list(APPEND CMAKE_PREFIX_PATH  "${CMAKE_SOURCE_DIR}/deps/trajopt/build/lib")
+#find_library(SCO_LIB sco)
+#find_library(UTILS_LIB utils)
 
 
 
@@ -53,7 +53,6 @@ include_directories(
         ${PYTHON_INCLUDE_DIRS}
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/deps/pybind11/include"
-        "${PROJECT_SOURCE_DIR}/deps/trajopt/src"
         )
 
 
@@ -73,11 +72,7 @@ set(SOURCE_FILES
         src/image_creation/svg_image.cpp
         src/image_creation/planner_visualization.cpp
         src/systems/distance_functions.cpp
-        src/bvp/constraint.cpp
-        src/bvp/cost.cpp
-        src/bvp/sqp_bvp.cpp
         src/bvp/psopt_bvp.cpp
-        src/bvp/psopt_system.cpp
         src/bvp/psopt_cart_pole.cpp)
 
 add_library(${PROJECT_NAME} STATIC
@@ -90,7 +85,7 @@ add_library(sst_module SHARED
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
 
 
-target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
+#target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})
 
 

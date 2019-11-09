@@ -17,14 +17,9 @@
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "bvp/psopt_bvp.hpp"
-#include <sco/optimizers.hpp>
-
-#include <Eigen/Dense>
 
 #include <iostream>
 #include <deque>
-
-using namespace Eigen;
 
 sst_node_t::sst_node_t(const double* point, unsigned int state_dimension, sst_node_t* a_parent, tree_edge_t&& a_parent_edge, double a_cost)
     : tree_node_t(point, state_dimension, std::move(a_parent_edge), a_cost)

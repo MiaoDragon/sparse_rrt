@@ -29,9 +29,11 @@
 #include "motion_planners/sst.hpp"
 #include "motion_planners/rrt.hpp"
 
+#include "bvp/sqp_bvp.hpp"
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"
 #include "bvp/psopt_cart_pole.hpp"
+#include <sco/optimizers.hpp>
 
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
@@ -581,6 +583,102 @@ public:
 
 
 
+class SQPBVPWrapper
+{
+public:
+    SQPBVPWrapper(system_interface& system, int state_dim_in, int control_dim_in, int n_steps, double integration_step)
+    : _n_steps(n_steps)
+    , state_dim(state_dim_in)
+    , control_dim(control_dim_in)
+    , _integration_step(integration_step)
+    {
+        // create a new system
+        _system.reset(&system);
+        // _system = new system_interface(&system);
+        bvp_solver.reset(new SQPBVP_forward(&system, state_dim_in, control_dim_in, n_steps, integration_step));
+    }
+    ~SQPBVPWrapper()
+    {
+        _system.reset();
+        bvp_solver.reset();
+    }
+
+    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter) {
+
+        auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
+        auto goal_data_py = goal_py.unchecked<1>();
+        int size = start_data_py.shape(0);
+        VectorXd start(size);
+        VectorXd goal(size);
+        // copy from input to start and goal
+        for (unsigned i=0; i < size; i++)
+        {
+            start(i) = start_data_py(i);
+            goal(i) = goal_data_py(i);
+        }
+        OptResults res = bvp_solver->solve(start, goal, max_iter);
+        std::vector<double> solution = res.x;  // optimziation solution
+        // from solution we can obtain the trajectory: state traj | action traj | time traj
+        std::vector<std::vector<double>> x_traj;
+        std::vector<std::vector<double>> u_traj;
+        std::vector<double> t_traj;
+        int control_start = _n_steps*this->state_dim;
+        int duration_start = control_start + (_n_steps-1)*this->control_dim;
+        for (unsigned i=0; i < _n_steps-1; i++)
+        {
+            // states
+            int begin_idx = i*this->state_dim;
+            int end_idx = (i+1)*this->state_dim;
+            std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
+            x_traj.push_back(x);
+            // controls
+            begin_idx = i*this->control_dim+control_start;
+            end_idx = (i+1)*this->control_dim+control_start;
+            std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
+            u_traj.push_back(u);
+            // time
+            t_traj.push_back(solution[duration_start+i]);
+        }
+        // one more traj for x
+        int begin_idx = (_n_steps-1)*this->state_dim;
+        int end_idx = _n_steps*this->state_dim;
+        std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
+        x_traj.push_back(x);
+
+        py::safe_array<double> state_array({x_traj.size(), x_traj[0].size()});
+        py::safe_array<double> control_array({u_traj.size(), u_traj[0].size()});
+        py::safe_array<double> time_array({t_traj.size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < x_traj.size(); ++i) {
+            for (unsigned int j = 0; j < x_traj[0].size(); ++j) {
+                state_ref(i, j) = x_traj[i][j];
+            }
+        }
+        auto control_ref = control_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < u_traj.size(); ++i) {
+            for (unsigned int j = 0; j < u_traj[0].size(); ++j) {
+                control_ref(i, j) = u_traj[i][j];
+            }
+        }
+        auto time_ref = time_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < t_traj.size(); ++i) {
+            time_ref(i) = t_traj[i];
+        }
+        // return flag, available flags, states, controls, time
+        return py::cast(std::tuple<std::string, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (statusToString(res.status), state_array, control_array, time_array));
+    }
+
+protected:
+    std::shared_ptr<SQPBVP_forward> bvp_solver;
+    std::shared_ptr<system_interface> _system;
+    int state_dim, control_dim;
+    int _n_steps;
+    double _integration_step;
+};
+
+
+
 class PSOPTBVPWrapper
 {
 public:
@@ -791,6 +889,24 @@ PYBIND11_MODULE(_sst_module, m) {
             "sst_delta_drain"_a
         )
    ;
+
+   py::class_<SQPBVPWrapper>(m, "SQPBVPWrapper")
+        .def(py::init<system_interface&,
+                      int,
+                      int,
+                      int,
+                      double>(),
+            "system"_a,
+            "state_dim"_a,
+            "control_dim"_a,
+            "n_steps"_a,
+            "integration_step"_a
+        )
+        .def("solve", &SQPBVPWrapper::solve,
+            "start"_a,
+            "goal"_a,
+            "max_iter"_a)
+    ;
 
     py::class_<PSOPTBVPWrapper>(m, "PSOPTBVPWrapper")
          .def(py::init<psopt_system_t&,

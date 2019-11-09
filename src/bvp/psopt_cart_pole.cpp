@@ -26,6 +26,10 @@
 #define MIN_W -2
 #define MAX_W 2
 
+std::string psopt_cart_pole_t::get_name() const
+{
+    return "cartpole";
+}
 
 bool psopt_cart_pole_t::propagate(
     const double* start_state, unsigned int state_dimension,

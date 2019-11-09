@@ -27,7 +27,7 @@ public:
 	    delete temp_state;
 	    delete deriv;
 	}
-
+	std::string get_name() const override;
 	/**
 	 * @copydoc system_t::propagate(const double*, const double*, int, int, double*, double& )
 	 */

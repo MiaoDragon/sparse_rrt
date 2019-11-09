@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 # Build a Python extension module using pybind11
 #   pybindings_add_module(<module>)
 # Here <module> should be the fully qualified name for the module,

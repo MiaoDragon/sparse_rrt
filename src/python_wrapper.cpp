@@ -114,7 +114,7 @@ public:
     /**
 	 * @copydoc planner_t::step()
 	 */
-   py::safe_array<double> step_with_sample(system_interface& system, py::safe_array<double>& sample_state_py, int min_time_steps, int max_time_steps, double integration_step)
+   py::safe_array<double> step_with_sample(psopt_system_t& system, py::safe_array<double>& sample_state_py, int min_time_steps, int max_time_steps, double integration_step)
    {
         auto init_sample_state = sample_state_py.unchecked<1>(); // need to be one dimension vector
         // create a sample variable that holds the initial value from the one passed

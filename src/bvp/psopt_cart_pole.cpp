@@ -18,6 +18,7 @@
 #define STATE_THETA 2
 #define STATE_W 3
 #define CONTROL_A 0
+#define STATE_N 4
 
 #define MIN_X -30
 #define MAX_X 30
@@ -176,10 +177,10 @@ static adouble psopt_cart_pole_t::integrand_cost(adouble* states, adouble* contr
 static void psopt_cart_pole_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
             adouble& tf, adouble* xad, int iphase, Workspace* workspace)
 {
-  for (unsigned i=0; i < state_n; i++)
+  for (unsigned i=0; i < STATE_N; i++)
   {
       e[i] = initial_states[i];
-      e[state_n+i] = final_states[i];
+      e[STATE_N+i] = final_states[i];
   }
 }
 

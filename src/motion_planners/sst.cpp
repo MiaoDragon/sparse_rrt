@@ -161,7 +161,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)
   {
-      bvp_solver = new PSOPT_BVP(system->get_name(), this->state_dimension, this->control_dimension);
+      bvp_solver = new PSOPT_BVP(system, this->state_dimension, this->control_dimension);
   }
 
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);

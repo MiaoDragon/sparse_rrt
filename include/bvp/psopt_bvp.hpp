@@ -9,7 +9,7 @@
 #endif
 
 #include <vector>
-
+#include "bvp/psopt_system.hpp"
 typedef void (*dae_f)(adouble*, adouble*, adouble*, adouble*, adouble*, adouble&, int, Workspace*);
 typedef adouble (*endpoint_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);
 typedef adouble (*integrand_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble*, int, Workspace*);
@@ -18,7 +18,7 @@ typedef void (*linkages_f)(adouble*, adouble*, Workspace*);
 class PSOPT_BVP
 {
 public:
-    PSOPT_BVP(const std::string& system_in, int state_n_in, int control_n_in);
+    PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
 
     ~PSOPT_BVP()
     {
@@ -33,7 +33,7 @@ protected:
     int control_n;
     double* _start;
     double* _goal;
-    std::string system;
+    const psopt_system_t* system;
     dae_f dae;
     endpoint_cost_f endpoint_cost;
     integrand_cost_f integrand_cost;

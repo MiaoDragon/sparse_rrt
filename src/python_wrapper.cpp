@@ -591,7 +591,7 @@ public:
         // create a new system
         _system.reset(&system);
         // _system = new system_interface(&system);
-        bvp_solver.reset(new PSOPT_BVP(system.get_name(), state_dim_in, control_dim_in));
+        bvp_solver.reset(new PSOPT_BVP(&system, state_dim_in, control_dim_in));
     }
     ~PSOPTBVPWrapper()
     {

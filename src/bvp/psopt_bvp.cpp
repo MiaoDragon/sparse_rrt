@@ -1,7 +1,8 @@
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_cart_pole.hpp"
+#include "bvp/psopt_system.hpp"
 
-PSOPT_BVP::PSOPT_BVP(const std::string& system_in, int state_n_in, int control_n_in)
+PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in)
 : state_n(state_n_in)
 , control_n(control_n_in)
 , system(system_in)
@@ -9,7 +10,7 @@ PSOPT_BVP::PSOPT_BVP(const std::string& system_in, int state_n_in, int control_n
 , _goal(new double[state_n_in])
 {
     // based on the name of the system, register the function for computing cost and so on
-    if (system_in == "cartpole")
+    if (system_in->get_name() == "cartpole")
     {
         dae = &(psopt_cart_pole_t::dynamics);
         endpoint_cost = &(psopt_cart_pole_t::endpoint_cost);
@@ -55,8 +56,8 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     for (unsigned i=1; i <= state_n; i+=1)
     {
         // specify the boundary
-        problem.phases(1).bounds.lower.states(i) = state_bound[i-1][0];
-        problem.phases(1).bounds.upper.states(i) = state_bound[i-1][1];
+        problem.phases(1).bounds.lower.states(i) = state_bound[i-1].first;
+        problem.phases(1).bounds.upper.states(i) = state_bound[i-1].second;
     }
 
 
@@ -65,16 +66,16 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     for (unsigned i=1; i <= control_n; i+=1)
     {
         // specify the boundary
-        problem.phases(1).bounds.lower.controls(i) = control_bound[i-1][0];
-        problem.phases(1).bounds.upper.controls(i) = control_bound[i-1][1];
+        problem.phases(1).bounds.lower.controls(i) = control_bound[i-1].first;
+        problem.phases(1).bounds.upper.controls(i) = control_bound[i-1].second;
     }
     for (unsigned i=1; i <= state_n; i+=1)
     {
         // specify the boundary
         problem.phases(1).bounds.lower.events(i) = start[i-1];
-        problem.phases(1).bounds.higher.events(i) = start[i-1];
+        problem.phases(1).bounds.upper.events(i) = start[i-1];
         problem.phases(1).bounds.lower.events(state_n+i) = goal[state_n+i-1];
-        problem.phases(1).bounds.higher.events(state_n+i) = goal[state_n+i-1];
+        problem.phases(1).bounds.upper.events(state_n+i) = goal[state_n+i-1];
     }
 
     problem.phases(1).bounds.lower.StartTime = 0.0;

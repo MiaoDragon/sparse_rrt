@@ -142,7 +142,7 @@ std::vector<bool> psopt_cart_pole_t::is_circular_topology() const {
 
 
 
-static void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
+void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
                            adouble& time, adouble* xad, int iphase, Workspace* workspace)
 {
     adouble _v = states[STATE_V];

@@ -3,6 +3,10 @@
 */
 #ifndef PSOPT_BVP_HPP
 #define PSOPT_BVP_HPP
+#ifndef PSOPT_H
+#define PSOPT_H
+#include "psopt.h"
+#endif
 
 #include <vector>
 #include "bvp/psopt_system.hpp"

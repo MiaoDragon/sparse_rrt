@@ -5,7 +5,12 @@
 #ifndef PSOPT_SYSTEM_HPP
 #define PSOPT_SYSTEM_HPP
 
+#ifndef PSOPT_H
+#define PSOPT_H
 #include "psopt.h"
+#endif
+
+
 #include "systems/system.hpp"
 #include "systems/car.hpp"
 #include "systems/cart_pole_obs.hpp"

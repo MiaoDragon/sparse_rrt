@@ -1,5 +1,4 @@
 #include "bvp/psopt_bvp.hpp"
-#include "psopt.h"
 
 void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
                  double tmin, double tmax)

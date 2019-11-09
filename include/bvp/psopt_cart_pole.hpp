@@ -5,7 +5,11 @@
 #ifndef PSOPT_CARTPOLE_HPP
 #define PSOPT_CARTPOLE_HPP
 
+#ifndef PSOPT_H
+#define PSOPT_H
 #include "psopt.h"
+#endif
+
 #include "bvp/psopt_system.hpp"
 
 class psopt_cart_pole_t : public psopt_system_t

@@ -58,21 +58,21 @@ class CMakeBuild(build_ext):
         #subprocess.check_call(['cmake', cmake_list_dir] + cmake_args,
         #                      cwd=self.build_temp, env=env)
         # printout the output
-        with subprocess.Popen(['cmake', cmake_list_dir] + cmake_args, cwd=self.build_temp, env=env, stdout=PIPE,
-                              bufsize=1, universal_newlines=True) as p:
-            for line in p.stdout:
-                print(line, end='') # process line here
-
+        p = subprocess.Popen(['cmake', cmake_list_dir] + cmake_args, cwd=self.build_temp, env=env, stdout=PIPE,
+                              bufsize=1, universal_newlines=True)
+        for line in p.stdout:
+            print(line) # process line here
+        p.wait()
 
         print('-'*10, 'Building extensions', '-'*40)
         cmake_cmd = ['cmake', '--build', '.'] + self.build_args
         #subprocess.check_call(cmake_cmd,
         #                      cwd=self.build_temp)
-        with subprocess.Popen(cmake_cmd, cwd=self.build_temp, stdout=PIPE,
-                              bufsize=1, universal_newlines=True) as p:
-            for line in p.stdout:
-                print(line, end='') # process line here
-
+        p = subprocess.Popen(cmake_cmd, cwd=self.build_temp, stdout=PIPE,
+                              bufsize=1, universal_newlines=True)
+        for line in p.stdout:
+            print(line) # process line here
+        p.wait()
 
 
         print('finished cmake build.')

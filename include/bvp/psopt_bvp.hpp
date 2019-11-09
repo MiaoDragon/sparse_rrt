@@ -10,7 +10,7 @@
 
 #include <vector>
 #include "bvp/psopt_system.hpp"
-typedef void (*dae_f)(adouble*, adouble*, adouble*, adouble*, adouble*, adouble&, int, Workspace*);
+typedef void (*dae_f)(adouble*, adouble*, adouble*, adouble*, adouble*, adouble&, double*, int, Workspace*);
 typedef adouble (*endpoint_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);
 typedef adouble (*integrand_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble*, int, Workspace*);
 typedef void (*events_f)(adouble*, adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);

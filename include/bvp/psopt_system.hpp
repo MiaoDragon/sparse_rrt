@@ -17,6 +17,7 @@
 
 class psopt_system_t : public system_t
 {
+public:
     psopt_system_t();
     virtual void dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
         adouble& time, adouble* xad, int iphase, Workspace* workspace) = 0;

@@ -1,4 +1,23 @@
 #include "bvp/psopt_bvp.hpp"
+#include "bvp/psopt_cart_pole.hpp"
+
+PSOPT_BVP::PSOPT_BVP(const std::string& system_in, int state_n_in, int control_n_in)
+: state_n(state_n_in)
+, control_n(control_n_in)
+, system(system_in)
+, _start(new double[state_n_in])
+, _goal(new double[state_n_in])
+{
+    // based on the name of the system, register the function for computing cost and so on
+    if (system_in == "cartpole")
+    {
+        dae = &(psopt_cart_pole_t::dynamics);
+        endpoint_cost = &(psopt_cart_pole_t::endpoint_cost);
+        integrand_cost = &(psopt_cart_pole_t::integrand_cost);
+        events = &(psopt_cart_pole_t::events);
+        linkages = &(psopt_cart_pole_t::linkages);
+    }
+}
 
 void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
                  double tmin, double tmax)
@@ -65,11 +84,11 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     problem.phases(1).bounds.upper.EndTime = tmax;
 
 
-    problem.integrand_cost = &integrand_cost;
-    problem.endpoint_cost = &endpoint_cost;
-    problem.dae = &(system->dynamics);
-    problem.events = &events;
-    problem.linkages = &linkages;
+    problem.integrand_cost = integrand_cost;
+    problem.endpoint_cost = endpoint_cost;
+    problem.dae = dae;
+    problem.events = events;
+    problem.linkages = linkages;
 
 
     problem.phases(1).guess.controls = zeros(state_n, num_steps);
@@ -97,35 +116,4 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     u.Print("bvp_u.txt");
     t.Print("bvp_t.txt");
 
-}
-
-adouble PSOPT_BVP::endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
-                                 adouble& tf, adouble* xad, int iphase, Workspace* workspace)
-{
-    // Since we already set endpoint constraint in events, we don't need it here
-    // TODO: maybe we can set one end free, but try to reduce the cost only
-    // Here we use the time as endpoint cost for minimum time control
-    return tf;
-}
-
-adouble PSOPT_BVP::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
-                      int iphase, Workspace* workspace)
-{
-    adouble retval = 0.0;
-    return retval;
-}
-
-void PSOPT_BVP::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
-            adouble& tf, adouble* xad, int iphase, Workspace* workspace)
-{
-  for (unsigned i=0; i < state_n; i++)
-  {
-      e[i] = initial_states[i];
-      e[state_n+i] = final_states[i];
-  }
-}
-
-void PSOPT_BVP::linkages(adouble* linkages, adouble* xad, Workspace* workspace)
-{
-  // No linkages in this single phase problem
 }

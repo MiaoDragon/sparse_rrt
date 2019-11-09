@@ -36,8 +36,15 @@ public:
         const double* control, unsigned int control_dimension,
 	    int num_steps, double* result_state, double integration_step);
 
-    virtual void dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
+    static void dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
              adouble& time, adouble* xad, int iphase, Workspace* workspace);
+ 	static adouble endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+             adouble& tf, adouble* xad, int iphase, Workspace* workspace);
+	static adouble integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
+	         int iphase, Workspace* workspace);
+	static void events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+	         adouble& tf, adouble* xad, int iphase, Workspace* workspace);
+	static void linkages(adouble* linkages, adouble* xad, Workspace* workspace);
 
 	/**
 	 * @copydoc system_t::enforce_bounds()

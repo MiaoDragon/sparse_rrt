@@ -137,7 +137,7 @@ std::vector<bool> psopt_cart_pole_t::is_circular_topology() const {
 
 
 
-void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
+static void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
                            adouble& time, adouble* xad, int iphase, Workspace* workspace)
 {
     adouble _v = states[STATE_V];
@@ -151,4 +151,35 @@ void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, adouble* s
     mass_term = (1.0 / mass_term);
     derivatives[STATE_V] = ((I + m * L * L)*(_a + m * L * _w * _w * sin(_theta)) + m * m * L * L * cos(_theta) * sin(_theta) * g) * mass_term;
     derivatives[STATE_W] = ((-m * L * cos(_theta))*(_a + m * L * _w * _w * sin(_theta))+(M + m)*(-m * g * L * sin(_theta))) * mass_term;
+}
+
+static adouble psopt_cart_pole_t::endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+                                 adouble& tf, adouble* xad, int iphase, Workspace* workspace)
+{
+    // Since we already set endpoint constraint in events, we don't need it here
+    // TODO: maybe we can set one end free, but try to reduce the cost only
+    // Here we use the time as endpoint cost for minimum time control
+    return tf;
+}
+
+static adouble psopt_cart_pole_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
+                      int iphase, Workspace* workspace)
+{
+    adouble retval = 0.0;
+    return retval;
+}
+
+static void psopt_cart_pole_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+            adouble& tf, adouble* xad, int iphase, Workspace* workspace)
+{
+  for (unsigned i=0; i < state_n; i++)
+  {
+      e[i] = initial_states[i];
+      e[state_n+i] = final_states[i];
+  }
+}
+
+static void psopt_cart_pole_t::linkages(adouble* linkages, adouble* xad, Workspace* workspace)
+{
+  // No linkages in this single phase problem
 }

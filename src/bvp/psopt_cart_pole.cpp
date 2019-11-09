@@ -158,7 +158,7 @@ static void psopt_cart_pole_t::dynamics(adouble* derivatives, adouble* path, ado
     derivatives[STATE_W] = ((-m * L * cos(_theta))*(_a + m * L * _w * _w * sin(_theta))+(M + m)*(-m * g * L * sin(_theta))) * mass_term;
 }
 
-static adouble psopt_cart_pole_t::endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+adouble psopt_cart_pole_t::endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
                                  adouble& tf, adouble* xad, int iphase, Workspace* workspace)
 {
     // Since we already set endpoint constraint in events, we don't need it here
@@ -167,14 +167,14 @@ static adouble psopt_cart_pole_t::endpoint_cost(adouble* initial_states, adouble
     return tf;
 }
 
-static adouble psopt_cart_pole_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
+adouble psopt_cart_pole_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
                       int iphase, Workspace* workspace)
 {
     adouble retval = 0.0;
     return retval;
 }
 
-static void psopt_cart_pole_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
+void psopt_cart_pole_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
             adouble& tf, adouble* xad, int iphase, Workspace* workspace)
 {
   for (unsigned i=0; i < STATE_N; i++)
@@ -184,7 +184,7 @@ static void psopt_cart_pole_t::events(adouble* e, adouble* initial_states, adoub
   }
 }
 
-static void psopt_cart_pole_t::linkages(adouble* linkages, adouble* xad, Workspace* workspace)
+void psopt_cart_pole_t::linkages(adouble* linkages, adouble* xad, Workspace* workspace)
 {
   // No linkages in this single phase problem
 }

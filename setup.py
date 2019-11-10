@@ -82,11 +82,14 @@ class CMakeBuild(build_ext):
 
     def move_output(self, ext):
         build_temp = Path(self.build_temp).resolve()
-        dest_path = Path(self.get_ext_fullpath(ext.name)).resolve()
+        dest_path = os.path.abspath(self.get_ext_fullpath(ext.name))
+        dest_path = Path(dest_path)
+        #dest_path = Path(self.get_ext_fullpath(ext.name)).resolve()
         source_path = build_temp / self.get_ext_filename(ext.name)
         dest_directory = dest_path.parents[0]
-        dest_directory.mkdir(parents=True, exist_ok=True)
-        self.copy_file(source_path, dest_path)
+        if not dest_directory.exists():
+            dest_directory.mkdir(parents=True)
+        self.copy_file(str(source_path), str(dest_path))
 
 
 ext_modules = [

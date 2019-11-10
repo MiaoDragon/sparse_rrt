@@ -14,7 +14,8 @@
 
 #include "motion_planners/rrt.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
-
+#include "bvp/psopt_bvp.hpp"
+#include "bvp/psopt_system.hpp"
 #include <iostream>
 #include <deque>
 
@@ -79,7 +80,7 @@ void rrt_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
     }
 }
 
-void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
+void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao
      * Given the random sample from some sampler

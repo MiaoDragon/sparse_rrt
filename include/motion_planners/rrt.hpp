@@ -17,7 +17,8 @@
 
 #include "systems/system.hpp"
 #include "motion_planners/planner.hpp"
-
+#include "bvp/psopt_bvp.hpp"
+#include "bvp/psopt_system.hpp"
 
 /**
  * @brief A special storage node for RRT.
@@ -103,7 +104,7 @@ public:
 	/**
 	 * @copydoc planner_t::step()
 	 */
-	virtual void step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
+	virtual void step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
 	virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step);
 
 protected:

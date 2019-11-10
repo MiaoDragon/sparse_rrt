@@ -14,8 +14,7 @@
 
 #include "motion_planners/rrt.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
-#include "bvp/psopt_bvp.hpp"
-#include "bvp/psopt_system.hpp"
+
 #include <iostream>
 #include <deque>
 

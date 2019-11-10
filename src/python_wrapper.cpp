@@ -118,7 +118,7 @@ public:
    {
         auto init_sample_state = sample_state_py.unchecked<1>(); // need to be one dimension vector
         // create a sample variable that holds the initial value from the one passed
-        int size = init_sample_state.shape(0);
+        long unsigned int size = init_sample_state.shape(0);
         double* sample_state = new double[size];
         double* new_state = new double[size];
         for (int i = 0; i < size; i++) {
@@ -128,7 +128,7 @@ public:
         // return the new sample
         py::safe_array<double> new_state_py({size});
         auto new_state_ref = new_state_py.mutable_unchecked<1>();
-        for (int i = 0; i < size; i++) {
+        for (unsigned int i = 0; i < size; i++) {
           new_state_ref(i) = new_state[i];
         }
         delete[] new_state;

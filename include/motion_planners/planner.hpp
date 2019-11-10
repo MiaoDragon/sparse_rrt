@@ -21,7 +21,8 @@
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "motion_planners/tree_node.hpp"
 #include "utilities/random.hpp"
-
+#include "bvp/psopt_bvp.hpp"
+#include "bvp/psopt_system.hpp"
 /**
  * @brief The base class for motion planners.
  * @details The base class for motion planners. This class provides
@@ -92,7 +93,7 @@ public:
 	 * @param max_time_steps Maximum number of control steps for the system
 	 * @param integration_step Integration step in seconds to integrate the system
 	 */
-	virtual void step_with_sample(system_interface* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step) = 0;
+	virtual void step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step) = 0;
 	virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step) = 0;
 
     /**

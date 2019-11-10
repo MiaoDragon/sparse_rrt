@@ -41,7 +41,7 @@ class CMakeBuild(build_ext):
         cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
 
         # Assuming Makefiles
-        build_args += ['--', '-j2', '-std=c++1y']
+        build_args += ['--', '-j2']
 
         self.build_args = build_args
 

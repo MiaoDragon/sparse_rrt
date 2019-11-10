@@ -8,6 +8,10 @@ cmake_minimum_required(VERSION 2.8)
 # E.g. for module=foo.bar._baz -> src/pybindings/bar/py_baz.cc
 
 # adapted from https://gist.github.com/hovren/5b62175731433c741d07ee6f482e2936
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 
 set(module sparse_rrt._sst_module)
 message("inside CMakeLists of pybind")

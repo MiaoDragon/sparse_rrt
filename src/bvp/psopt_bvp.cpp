@@ -65,8 +65,8 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
         // specify the boundary
         problem.phases(1).bounds.lower.events(i) = start[i-1];
         problem.phases(1).bounds.upper.events(i) = start[i-1];
-        problem.phases(1).bounds.lower.events(state_n+i) = goal[state_n+i-1];
-        problem.phases(1).bounds.upper.events(state_n+i) = goal[state_n+i-1];
+        problem.phases(1).bounds.lower.events(state_n+i) = goal[i-1];
+        problem.phases(1).bounds.upper.events(state_n+i) = goal[i-1];
     }
 
     problem.phases(1).bounds.lower.StartTime = 0.0;

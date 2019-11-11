@@ -165,29 +165,10 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   }
 
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);
-  psopt_result_t res = bvp_solver->solve(start_x, end_x, 10, 100, 1.0, 10.0);
+  psopt_result_t res = bvp_solver->solve(start_x, end_x, num_steps, 100, 1.0, 10.0);
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
   std::vector<double> t_traj = res.t;
-
-  int control_start = num_steps*this->state_dimension;
-  int duration_start = control_start + (num_steps-1)*this->control_dimension;
-  for (unsigned i=0; i < num_steps-1; i++)
-  {
-      // states
-      int begin_idx = i*this->state_dimension;
-      int end_idx = (i+1)*this->state_dimension;
-      std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
-      x_traj.push_back(x);
-      // controls
-      begin_idx = i*this->control_dimension+control_start;
-      end_idx = (i+1)*this->control_dimension+control_start;
-      std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
-      u_traj.push_back(u);
-      // time
-      t_traj.push_back(solution[duration_start+i]);
-  }
-  std::cout << "after inserting into trajectory." << std::endl;
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
   sst_node_t* x_tree = nearest;
@@ -199,13 +180,13 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
           // the time step is too small, ignore this action
           continue;
       }
-      int num_steps = std::round(t_traj[i] / integration_step);
+      int num_dis = std::round(t_traj[i] / integration_step);
       double* control_ptr = u_traj[i].data();
       system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                       num_steps, new_state, integration_step);
+                       num_dis, new_state, integration_step);
         std::cout << "after propagation..." << std::endl;
        // add the new state to tree
-       sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, num_steps*integration_step);
+       sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, num_dis*integration_step);
        std::cout << "after adding into tree" << std::endl;
        x_tree = new_x_tree;
        // if the created tree node is nullptr, stop right there

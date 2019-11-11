@@ -23,7 +23,7 @@ struct psopt_result_t
     std::vector<std::vector<double>> x;  // (T x X)
     std::vector<std::vector<double>> u;  // (T x U)
     std::vector<double> t;
-}
+};
 
 class PSOPT_BVP
 {

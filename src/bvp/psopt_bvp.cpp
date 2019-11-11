@@ -128,17 +128,17 @@ psopt_result_t& PSOPT_BVP::solve(const double* start, const double* goal, int nu
         std::cout << "[";
         for (unsigned j=0; j < state_n; j+=1)
         {
-            x_t.pushback(x(j+1,i+1));
+            x_t.push_back(x(j+1,i+1));
             std::cout << x(j+1,i+1) << ", ";
         }
         std::cout << "], " << std::endl;
         for (unsigned j=0; j < control_n; j+=1)
         {
-            u_t.pushback(u(j+1,i+1));
+            u_t.push_back(u(j+1,i+1));
         }
-        res.x.pushback(x_t);
-        res.u.pushback(u_t);
-        res.t.pushback(t(1,i+1));
+        res.x.push_back(x_t);
+        res.u.push_back(u_t);
+        res.t.push_back(t(1,i+1));
     }
     std::cout << "]" << std::endl;
     return res;

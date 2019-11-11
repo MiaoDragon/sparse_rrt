@@ -92,7 +92,7 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     problem.linkages = linkages;
 
 
-    problem.phases(1).guess.controls = zeros(controls_n, num_steps);
+    problem.phases(1).guess.controls = zeros(control_n, num_steps);
     problem.phases(1).guess.states = zeros(state_n, num_steps);
     // DMatrix index starts from 1
     DMatrix states(state_n, num_steps);

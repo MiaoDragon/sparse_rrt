@@ -4,3 +4,6 @@
 [submodule "deps/trajopt"]
 	path = deps/trajopt
 	url = https://github.com/MiaoDragon/trajopt.git
+[submodule "deps/psopt"]
+	path = deps/psopt
+	url = https://github.com/MiaoDragon/psopt

@@ -165,16 +165,11 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   }
 
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);
-  bvp_solver->solve(start_x, end_x, 100, 100, 1.0, 10.0);
+  psopt_result_t res = bvp_solver->solve(start_x, end_x, 10, 100, 1.0, 10.0);
+  std::vector<std::vector<double>> x_traj = res.x;
+  std::vector<std::vector<double>> u_traj = res.u;
+  std::vector<double> t_traj = res.t;
 
-  /**
-
-  std::vector<double> solution(res.x);
-  std::cout << "after creating solution variable" << std::endl;
-  // from solution we can obtain the trajectory: state traj | action traj | time traj
-  std::vector<std::vector<double>> x_traj;
-  std::vector<std::vector<double>> u_traj;
-  std::vector<double> t_traj;
   int control_start = num_steps*this->state_dimension;
   int duration_start = control_start + (num_steps-1)*this->control_dimension;
   for (unsigned i=0; i < num_steps-1; i++)
@@ -221,7 +216,6 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   }
   std::cout << "after creating new nodes" << std::endl;
-  */
 }
 
 

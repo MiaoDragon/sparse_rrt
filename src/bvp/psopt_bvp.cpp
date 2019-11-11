@@ -113,8 +113,8 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     //plot(t,u,"control","time (s)", "u", "u", "pdf", "stc1_control.pdf");
 
     // printout the solution
-    x.Print("bvp_x.txt");
-    u.Print("bvp_u.txt");
-    t.Print("bvp_t.txt");
+    x.Save("bvp_x.txt");
+    u.Save("bvp_u.txt");
+    t.Save("bvp_t.txt");
 
 }

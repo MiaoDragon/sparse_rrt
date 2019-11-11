@@ -169,7 +169,11 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   bvp_solver->solve(res, start_x, end_x, num_steps, 100, 1.0, 10.0);
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
-  std::vector<double> t_traj = res.t;
+  std::vector<double> t_traj;
+  for (unsigned i=0; i < num_steps-1; i+=1)
+  {
+      t_traj.push_back(res.t[i+1] - res.t[i]);
+  }
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
   sst_node_t* x_tree = nearest;

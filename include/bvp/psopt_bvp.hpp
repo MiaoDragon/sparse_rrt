@@ -21,19 +21,12 @@ class PSOPT_BVP
 public:
     PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
 
-    ~PSOPT_BVP()
-    {
-        delete[] _start;
-        delete[] _goal;
-    };
     void solve(const double* start, const double* goal, int num_steps, int max_iter,
           double tmin, double tmax);
 
 protected:
     int state_n;
     int control_n;
-    double* _start;
-    double* _goal;
     const psopt_system_t* system;
     dae_f dae;
     endpoint_cost_f endpoint_cost;

@@ -6,8 +6,6 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
 : state_n(state_n_in)
 , control_n(control_n_in)
 , system(system_in)
-, _start(new double[state_n_in])
-, _goal(new double[state_n_in])
 {
     // based on the name of the system, register the function for computing cost and so on
     if (system_in->get_name() == "cartpole")
@@ -23,13 +21,6 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
 void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
                  double tmin, double tmax)
 {
-
-    // copy to the internal state
-    for (unsigned i=0; i < state_n; i++)
-    {
-        _start[i] = start[i];
-        _goal[i] = goal[i];
-    }
 
     Alg algorithm;
     Sol solution;

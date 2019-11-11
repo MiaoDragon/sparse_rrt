@@ -98,7 +98,7 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     DMatrix states(state_n, num_steps);
     for (unsigned i=0; i < state_n; i+=1)
     {
-        states.SetRow(linspace(start[i], goal[i], num_steps), i+1)
+        states.SetRow(linspace(start[i], goal[i], num_steps), i+1);
     }
     states.Save("state_init.txt");
     problem.phases(1).guess.time = linspace(0.0, tmax, num_steps);

@@ -16,12 +16,21 @@ typedef adouble (*endpoint_cost_f)(adouble*, adouble*, adouble*, adouble&, adoub
 typedef adouble (*integrand_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble*, int, Workspace*);
 typedef void (*events_f)(adouble*, adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);
 typedef void (*linkages_f)(adouble*, adouble*, Workspace*);
+
+
+struct psopt_result_t
+{
+    std::vector<std::vector<double>> x;  // (T x X)
+    std::vector<std::vector<double>> u;  // (T x U)
+    std::vector<double> t;
+}
+
 class PSOPT_BVP
 {
 public:
     PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
 
-    void solve(const double* start, const double* goal, int num_steps, int max_iter,
+    psopt_result_t& solve(const double* start, const double* goal, int num_steps, int max_iter,
           double tmin, double tmax);
 
 protected:

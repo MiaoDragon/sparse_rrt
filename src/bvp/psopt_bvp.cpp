@@ -18,7 +18,7 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
     }
 }
 
-void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
+psopt_result_t& PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
                  double tmin, double tmax)
 {
 
@@ -98,6 +98,7 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
 
     algorithm.scaling = "automatic";
     algorithm.derivatives = "automatic";
+    algorithm.hessian = "exact";
     algorithm.nlp_iter_max = max_iter;
     algorithm.nlp_tolerance = 1.e-4;
     algorithm.nlp_method = "IPOPT";
@@ -117,4 +118,28 @@ void PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, in
     u.Save("bvp_u.txt");
     t.Save("bvp_t.txt");
 
+    psopt_result_t res;
+    // DMatrix -> double vector
+    std::cout << "[";
+    for (unsigned i=0; i < num_steps; i+=1)
+    {
+        std::vector<double> x_t;
+        std::vector<double> u_t;
+        std::cout << "[";
+        for (unsigned j=0; j < state_n; j+=1)
+        {
+            x_t.pushback(x(j+1,i+1));
+            std::cout << x(j+1,i+1) << ", ";
+        }
+        std::cout << "], " << std::endl;
+        for (unsigned j=0; j < control_n; j+=1)
+        {
+            u_t.pushback(u(j+1,i+1));
+        }
+        res.x.pushback(x_t);
+        res.u.pushback(u_t);
+        res.t.pushback(t(1,i+1));
+    }
+    std::cout << "]" << std::endl;
+    return res;
 }

@@ -24,8 +24,8 @@ public:
 		deriv = new double[state_dimension];
 	}
 	virtual ~psopt_cart_pole_t(){
-	    delete temp_state;
-	    delete deriv;
+	    delete[] temp_state;
+	    delete[] deriv;
 	}
 	std::string get_name() const override;
 	/**

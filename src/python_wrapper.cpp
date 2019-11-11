@@ -613,7 +613,8 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
-        bvp_solver->solve(start, goal, num_steps, max_iter, tmin, tmax);
+        psopt_result_t res;
+        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
         /*
 
         std::vector<double> solution = res.x;  // optimziation solution

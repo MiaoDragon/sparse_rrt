@@ -18,8 +18,8 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
     }
 }
 
-psopt_result_t& PSOPT_BVP::solve(const double* start, const double* goal, int num_steps, int max_iter,
-                 double tmin, double tmax)
+void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* goal, int num_steps,
+                                int max_iter, double tmin, double tmax)
 {
 
     Alg algorithm;
@@ -117,8 +117,6 @@ psopt_result_t& PSOPT_BVP::solve(const double* start, const double* goal, int nu
     x.Save("bvp_x.txt");
     u.Save("bvp_u.txt");
     t.Save("bvp_t.txt");
-
-    psopt_result_t res;
     // DMatrix -> double vector
     std::cout << "[";
     for (unsigned i=0; i < num_steps; i+=1)
@@ -141,5 +139,4 @@ psopt_result_t& PSOPT_BVP::solve(const double* start, const double* goal, int nu
         res.t.push_back(t(1,i+1));
     }
     std::cout << "]" << std::endl;
-    return res;
 }

@@ -30,7 +30,7 @@ class PSOPT_BVP
 public:
     PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
 
-    psopt_result_t& solve(const double* start, const double* goal, int num_steps, int max_iter,
+    void solve(psopt_result_t& res, const double* start, const double* goal, int num_steps, int max_iter,
           double tmin, double tmax);
 
 protected:

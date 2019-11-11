@@ -808,7 +808,7 @@ PYBIND11_MODULE(_sst_module, m) {
              "tmin"_a,
              "tmax"_a)
      ;
-     py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system_interface_var);
+     py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system);
      system
           .def("get_state_bounds", &psopt_system_t::get_state_bounds)
           .def("get_control_bounds", &psopt_system_t::get_control_bounds)

@@ -189,10 +189,10 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       double* control_ptr = u_traj[i].data();
       system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                        num_dis, new_state, integration_step);
-        std::cout << "after propagation..." << std::endl;
+        //std::cout << "after propagation..." << std::endl;
        // add the new state to tree
        sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, num_dis*integration_step);
-       std::cout << "after adding into tree" << std::endl;
+       //std::cout << "after adding into tree" << std::endl;
        x_tree = new_x_tree;
        // if the created tree node is nullptr, stop right there
        if (!x_tree)
@@ -201,7 +201,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
        }
 
   }
-  std::cout << "after creating new nodes" << std::endl;
+  //std::cout << "after creating new nodes" << std::endl;
 }
 
 

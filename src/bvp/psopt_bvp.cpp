@@ -93,7 +93,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         row.Transpose();
         states.SetRow(row, i+1);
     }
-    states.Save("state_init.txt");
+    //states.Save("state_init.txt");
     problem.phases(1).guess.time = linspace(0.0, tmax, num_steps);
 
     algorithm.scaling = "automatic";
@@ -114,9 +114,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //plot(t,u,"control","time (s)", "u", "u", "pdf", "stc1_control.pdf");
 
     // printout the solution
-    x.Save("bvp_x.txt");
-    u.Save("bvp_u.txt");
-    t.Save("bvp_t.txt");
+    //x.Save("bvp_x.txt");
+    //u.Save("bvp_u.txt");
+    //t.Save("bvp_t.txt");
     // DMatrix -> double vector
     std::cout << "[";
     for (unsigned i=0; i < num_steps; i+=1)

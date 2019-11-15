@@ -217,7 +217,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
           }
 
       }
-      if (!xtree)
+      if (!x_tree)
       {
           break;
       }

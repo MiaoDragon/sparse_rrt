@@ -113,6 +113,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   for (unsigned i=0; i < num_steps-1; i+=1)
   {
       t_traj.push_back(res.t[i+1] - res.t[i]);
+	  std::cout << "t_traj[" << i << "]: " << res.t[i+1] - res.t[i] << std::endl;
   }
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not

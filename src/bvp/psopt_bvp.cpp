@@ -145,7 +145,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         for (unsigned j=0; j < state_n; j+=1)
         {
             x_t.push_back(x(j+1,i+1));
-            std::cout << x(j+1,i+1) << ", ";
+            //std::cout << x(j+1,i+1) << ", ";
         }
         //std::cout << "], " << std::endl;
         for (unsigned j=0; j < control_n; j+=1)

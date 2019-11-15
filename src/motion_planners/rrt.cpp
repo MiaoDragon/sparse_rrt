@@ -106,7 +106,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);
   psopt_result_t res;
-  bvp_solver->solve(res, start_x, end_x, num_steps, 100, min_time_steps*integration_step*num_steps, 50*max_time_steps*integration_step*num_steps);
+  bvp_solver->solve(res, start_x, end_x, num_steps, 100, max_time_steps*integration_step*num_steps, 50*max_time_steps*integration_step*num_steps);
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
   std::vector<double> t_traj;

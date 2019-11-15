@@ -99,7 +99,7 @@ void psopt_pendulum_t::dynamics(adouble* derivatives, adouble* path, adouble* st
     adouble temp0 = states[0];
     adouble temp1 = states[1];
     derivatives[0] = temp1;
-    derivatives[1] = ((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
+    derivatives[1] = ((controls[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
 }
 
 

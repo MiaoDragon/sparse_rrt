@@ -114,6 +114,7 @@ public:
 	 */
 	virtual void step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
 	virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step);
+	virtual void step_bvp(psopt_system_t* system, int min_time_steps, int max_time_steps, double integration_step);
 
 protected:
 

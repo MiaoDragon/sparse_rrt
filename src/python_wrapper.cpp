@@ -141,6 +141,9 @@ public:
     void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
+    void step_bvp(psopt_system_t& system, int min_time_steps, int max_time_steps, double integration_step) {
+        planner->step_bvp(&system, min_time_steps, max_time_steps, integration_step);
+    }
 
     /**
      * @brief Generate SVG visualization of the planning tree
@@ -736,6 +739,7 @@ PYBIND11_MODULE(_sst_module, m) {
    planner
         .def("step_with_sample", &PlannerWrapper::step_with_sample)
         .def("step", &PlannerWrapper::step)
+        .def("step_bvp", &PlannerWrapper::step_bvp)
         .def("visualize_tree", &PlannerWrapper::visualize_tree_wrapper,
             "system"_a,
             "image_width"_a=500,

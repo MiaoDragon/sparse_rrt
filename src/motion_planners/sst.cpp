@@ -308,7 +308,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
         double* control_ptr = u_traj[i].data();
         int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
         int num_j = num_dis / num_steps + 1;
-        std::cout << "num_j: " << num_j << std::endl;
+        //std::cout << "num_j: " << num_j << std::endl;
         for (unsigned j=0; j < num_j; j++)
         {
             int time_step = num_steps;
@@ -325,7 +325,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
             // todo: we can also use larger step for adding
             bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                              time_step, sample_state, integration_step);
-             std::cout << "after propagation... val: " << val << std::endl;
+             //std::cout << "after propagation... val: " << val << std::endl;
             // add the new state to tree
             if (!val)
             {
@@ -334,8 +334,8 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                 break;
             }
             sst_node_t* new_x_tree = add_to_tree(sample_state, control_ptr, x_tree, time_step*integration_step);
-            std::cout << "after adding into tree" << std::endl;
-            std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
+            //std::cout << "after adding into tree" << std::endl;
+            //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
             x_tree = new_x_tree;
             // if the created tree node is nullptr, stop right there
             if (!x_tree)

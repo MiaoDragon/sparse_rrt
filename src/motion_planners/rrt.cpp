@@ -113,7 +113,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   for (unsigned i=0; i < num_steps-1; i+=1)
   {
       t_traj.push_back(res.t[i+1] - res.t[i]);
-	  std::cout << "t_traj[" << i << "]: " << res.t[i+1] - res.t[i] << std::endl;
+	  //std::cout << "t_traj[" << i << "]: " << res.t[i+1] - res.t[i] << std::endl;
   }
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
@@ -130,7 +130,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
-      std::cout << "num_j: " << num_j << std::endl;
+      //std::cout << "num_j: " << num_j << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
           int time_step = num_steps;
@@ -147,7 +147,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
           // todo: we can also use larger step for adding
           bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                            time_step, new_state, integration_step);
-           std::cout << "after propagation... val: " << val << std::endl;
+           //std::cout << "after propagation... val: " << val << std::endl;
           // add the new state to tree
           if (!val)
           {

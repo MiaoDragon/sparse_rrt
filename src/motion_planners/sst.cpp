@@ -214,7 +214,8 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
               break;
           }
           sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, time_step*integration_step);
-          //std::cout << "after adding into tree" << std::endl;
+          std::cout << "after adding into tree" << std::endl;
+          std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
           x_tree = new_x_tree;
           // if the created tree node is nullptr, stop right there
           if (!x_tree)

@@ -63,6 +63,7 @@ public:
         , distance(distance_function)
         , random_generator(random_seed)
         , number_of_nodes(0)
+		, bvp_solver(NULL)
     {
         std::copy(in_start, in_start + this->state_dimension, start_state);
 	    std::copy(in_goal, in_goal + this->state_dimension, goal_state);
@@ -221,6 +222,11 @@ protected:
 
 	/** @brief The number of nodes in the tree. */
 	unsigned number_of_nodes;
+	/**
+	 * BVP solver
+	 */
+	PSOPT_BVP* bvp_solver;
+
 };
 
 

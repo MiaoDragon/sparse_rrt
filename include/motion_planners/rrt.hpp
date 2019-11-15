@@ -90,6 +90,9 @@ public:
 
         //add root to nearest neighbor structure
         metric.add_node(root);
+
+		// initialize BVP solver
+	    bvp_solver = NULL;
 	}
 	virtual ~rrt_t(){
         delete this->root;

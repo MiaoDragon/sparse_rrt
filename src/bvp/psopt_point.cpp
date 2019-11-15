@@ -27,7 +27,7 @@
 #define MAX_V 10
 #define MIN_THETA -3.14
 #define MAX_THETA 3.14
-
+#define STATE_N 2
 std::string psopt_point_t::get_name() const
 {
     return "point";

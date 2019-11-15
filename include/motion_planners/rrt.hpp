@@ -94,6 +94,11 @@ public:
 	virtual ~rrt_t(){
         delete this->root;
         this->root = nullptr;
+		if (bvp_solver)
+	    {
+	        // if bvp_solver pointer is not NULL
+	        delete bvp_solver;
+	    }
 	}
 
 	/**
@@ -124,6 +129,12 @@ protected:
 	 * @details Find the nearest node to the randomly sampled state.
 	 */
 	rrt_node_t* nearest_vertex(const double* state) const;
+
+	/**
+	 * BVP solver
+	 */
+	PSOPT_BVP* bvp_solver;
+
 
 };
 

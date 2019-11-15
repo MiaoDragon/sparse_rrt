@@ -187,7 +187,8 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       }
       int num_dis = std::round(t_traj[i] / integration_step);
       double* control_ptr = u_traj[i].data();
-      int num_j = num_dis / min_time_steps;
+      int num_j = num_dis / min_time_steps + 1;
+      std::cout << "num_j: " << num_j << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
           int time_step = min_time_steps;
@@ -195,11 +196,16 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
           {
               time_step = num_dis % min_time_steps;
           }
+          if (time_step == 0)
+          {
+              // when we don't need to propagate anymore, break
+              break;
+          }
 
           // todo: we can also use larger step for adding
           bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                            time_step, new_state, integration_step);
-           //std::cout << "after propagation..." << std::endl;
+           std::cout << "after propagation... val: " << val << std::endl;
           // add the new state to tree
           if (!val)
           {

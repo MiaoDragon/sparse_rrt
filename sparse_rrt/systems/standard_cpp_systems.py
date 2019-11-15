@@ -41,3 +41,6 @@ class TwoLinkAcrobot(_sst_module.TwoLinkAcrobot):
 
 class PSOPTCartPole(_sst_module.PSOPTCartPole, WithEuclideanDistanceComputer):
     pass
+
+class PSOPTPendulum(_sst_module.PSOPTPendulum, WithEuclideanDistanceComputer):
+    pass

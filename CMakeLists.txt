@@ -76,6 +76,7 @@ set(SOURCE_FILES
         src/systems/distance_functions.cpp
         src/bvp/psopt_bvp.cpp
         src/bvp/psopt_cart_pole.cpp
+        src/bvp/psopt_pendulum.cpp
         src/bvp/psopt_system.cpp)
 
 add_library(${PROJECT_NAME} STATIC

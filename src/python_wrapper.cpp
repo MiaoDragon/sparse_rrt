@@ -31,6 +31,7 @@
 
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"
+#include "bvp/psopt_pendulum.hpp"
 #include "bvp/psopt_cart_pole.hpp"
 
 #include "image_creation/planner_visualization.hpp"
@@ -817,4 +818,5 @@ PYBIND11_MODULE(_sst_module, m) {
      ;
 
      py::class_<psopt_cart_pole_t>(m, "PSOPTCartPole", psopt_system).def(py::init<>());
+     py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
 }

@@ -19,48 +19,8 @@
 #include "psopt.h"
 #endif
 
+#include "systems/point.hpp"
 #include "bvp/psopt_system.hpp"
-
-
-class Rectangle_t
-{
-public:
-	/**
-	 * @brief Create a rectangle using two corners
-	 *
-	 * @param lx Bottom Left X coordinate
-	 * @param ly Bottom Left Y coordinate
-	 * @param hx Top Right X coordinate
-	 * @param hy Top Right Y coordinate
-	 */
-	Rectangle_t(double lx,double ly,double hx,double hy)
-	{
-		low_x = lx;
-		low_y = ly;
-		high_x = hx;
-		high_y = hy;
-	}
-	/**
-	 * @brief Create a rectangle with center position and dimensions.
-	 *
-	 * @param pos_x Center X coordinate.
-	 * @param pos_y Center Y coordinate.
-	 * @param dim_x X Dimension
-	 * @param dim_y Y Dimension
-	 * @param value Just a flag to denote which constructor is used.
-	 */
-	Rectangle_t(double pos_x,double pos_y,double dim_x,double dim_y,bool value)
-	{
-		low_x = pos_x-dim_x/2;
-		low_y = pos_y-dim_y/2;
-		high_x = pos_x+dim_x/2;
-		high_y = pos_y+dim_y/2;
-	}
-	double low_x;
-	double low_y;
-	double high_x;
-	double high_y;
-};
 
 /**
  * @brief A simple system implementing a 2d point.
@@ -96,7 +56,7 @@ public:
 	    const double* start_state, unsigned int state_dimension,
         const double* control, unsigned int control_dimension,
 	    int num_steps, double* result_state, double integration_step) override;
-        
+
     static void dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
              adouble& time, adouble* xad, int iphase, Workspace* workspace);
  	static adouble endpoint_cost(adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,

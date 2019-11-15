@@ -1,7 +1,7 @@
 /**
 * Define the system propagate function in psopt format (adouble)
 */
-#include "bvp/psopt_system.hpp"
+#include "bvp/psopt_pendulum.hpp"
 
 #define _USE_MATH_DEFINES
 #define MIN_W -7
@@ -13,7 +13,7 @@
 #define LENGTH 1
 #define MASS 1
 #define DAMPING .05
-
+#define STATE_N 2
 
 #include <cmath>
 #include "utilities/random.hpp"

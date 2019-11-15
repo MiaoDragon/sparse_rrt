@@ -44,3 +44,5 @@ class PSOPTCartPole(_sst_module.PSOPTCartPole, WithEuclideanDistanceComputer):
 
 class PSOPTPendulum(_sst_module.PSOPTPendulum, WithEuclideanDistanceComputer):
     pass
+class PSOPTPoint(_sst_module.PSOPTPoint, WithEuclideanDistanceComputer):
+    pass

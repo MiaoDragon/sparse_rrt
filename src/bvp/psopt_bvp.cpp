@@ -2,6 +2,7 @@
 #include "bvp/psopt_cart_pole.hpp"
 #include "bvp/psopt_pendulum.hpp"
 #include "bvp/psopt_system.hpp"
+#include "bvp/psopt_point.hpp"
 
 PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in)
 : state_n(state_n_in)
@@ -24,6 +25,14 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         integrand_cost = &(psopt_pendulum_t::integrand_cost);
         events = &(psopt_pendulum_t::events);
         linkages = &(psopt_pendulum_t::linkages);
+    }
+    else if (system_in->get_name() == "point")
+    {
+        dae = &(psopt_point_t::dynamics);
+        endpoint_cost = &(psopt_point_t::endpoint_cost);
+        integrand_cost = &(psopt_point_t::integrand_cost);
+        events = &(psopt_point_t::events);
+        linkages = &(psopt_point_t::linkages);
     }
 }
 

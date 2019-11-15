@@ -272,7 +272,7 @@ void rrt_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
 
             // todo: we can also use larger step for adding
             bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                             time_step, new_state, integration_step);
+                             time_step, sample_state, integration_step);
              //std::cout << "after propagation... val: " << val << std::endl;
             // add the new state to tree
             if (!val)
@@ -284,7 +284,7 @@ void rrt_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
   		  {
   	          //create a new tree node
   	          rrt_node_t* new_node = static_cast<rrt_node_t*>(x_tree->add_child(new rrt_node_t(
-  	              new_state, this->state_dimension, x_tree,
+  	              sample_state, this->state_dimension, x_tree,
   	              tree_edge_t(control_ptr, this->control_dimension, time_step*integration_step),
   	              x_tree->get_cost() + time_step*integration_step)
   	          ));

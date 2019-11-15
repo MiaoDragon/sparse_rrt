@@ -324,7 +324,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
 
             // todo: we can also use larger step for adding
             bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                             time_step, new_state, integration_step);
+                             time_step, sample_state, integration_step);
              //std::cout << "after propagation... val: " << val << std::endl;
             // add the new state to tree
             if (!val)
@@ -333,7 +333,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                 x_tree = NULL;
                 break;
             }
-            sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, time_step*integration_step);
+            sst_node_t* new_x_tree = add_to_tree(sample_state, control_ptr, x_tree, time_step*integration_step);
             //std::cout << "after adding into tree" << std::endl;
             //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
             x_tree = new_x_tree;

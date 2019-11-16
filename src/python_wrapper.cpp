@@ -604,8 +604,7 @@ public:
         bvp_solver.reset();
     }
 
-    void solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_steps, int max_iter,
-                     double tmin, double tmax)
+    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
@@ -618,63 +617,115 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
+        int num_steps = 6*this->state_dim;
         psopt_result_t res;
+        double tmin = integration_step*num_steps;
+        double tmax = 50*max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
-        /*
 
-        std::vector<double> solution = res.x;  // optimziation solution
-        // from solution we can obtain the trajectory: state traj | action traj | time traj
-        std::vector<std::vector<double>> x_traj;
-        std::vector<std::vector<double>> u_traj;
-        std::vector<double> t_traj;
-        int control_start = _n_steps*this->state_dim;
-        int duration_start = control_start + (_n_steps-1)*this->control_dim;
-        for (unsigned i=0; i < _n_steps-1; i++)
+
+        std::vector<std::vector<double>> x_traj = res.x;  // optimziation solution
+        std::vector<std::vector<double>> u_traj = res.u;  // optimziation solution
+        std::vector<double> t_traj = res.t;  // optimziation solution
+        for (unsigned i=0; i < num_steps-1; i+=1)
         {
-            // states
-            int begin_idx = i*this->state_dim;
-            int end_idx = (i+1)*this->state_dim;
-            std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
-            x_traj.push_back(x);
-            // controls
-            begin_idx = i*this->control_dim+control_start;
-            end_idx = (i+1)*this->control_dim+control_start;
-            std::vector<double> u(solution.begin()+begin_idx, solution.begin()+end_idx);
-            u_traj.push_back(u);
-            // time
-            t_traj.push_back(solution[duration_start+i]);
+            t_traj.push_back(res.t[i+1] - res.t[i]);
         }
-        // one more traj for x
-        int begin_idx = (_n_steps-1)*this->state_dim;
-        int end_idx = _n_steps*this->state_dim;
-        std::vector<double> x(solution.begin()+begin_idx, solution.begin()+end_idx);
-        x_traj.push_back(x);
+        // variables to return
+        std::vector<std::vector<double>> res_x;
+        std::vector<std::vector<double>> res_u;
+        std::vector<double> res_t;
+        // add the start state to x_traj first
+        res_x.push_back(x_traj[0])
 
-        py::safe_array<double> state_array({x_traj.size(), x_traj[0].size()});
-        py::safe_array<double> control_array({u_traj.size(), u_traj[0].size()});
-        py::safe_array<double> time_array({t_traj.size()});
+        for (unsigned i=0; i < num_steps-1; i++)
+        {
+            if (t_traj[i] < integration_step / 2)
+            {
+                // the time step is too small, ignore this action
+                continue;
+            }
+            int num_dis = std::round(t_traj[i] / integration_step);
+            double* control_ptr = u_traj[i].data();
+            int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
+            int num_j = num_dis / num_steps + 1;
+            bol val = true;
+            //std::cout << "num_j: " << num_j << std::endl;
+            for (unsigned j=0; j < num_j; j++)
+            {
+                int time_step = num_steps;
+                if (j == num_j-1)
+                {
+                    time_step = num_dis % num_steps;
+                }
+                if (time_step == 0)
+                {
+                    // when we don't need to propagate anymore, break
+                    break;
+                }
+                val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+                                 time_step, goal, integration_step);
+                // copy the new state to start
+                for (unsigned k=0; k < this->state_dim; k++)
+                {
+                    start[k] = goal[k];
+                }
+                 //std::cout << "after propagation... val: " << val << std::endl;
+                // add the new state to tree
+                if (!val)
+                {
+                    // not valid state, no point going further, not adding to tree, stop right here
+                    break;
+                }
+                // add the path to return
+                std::vector<double> x_vec;
+                std::vector<double> u_vec;
+                for (unsigned k=0; k < this->state_dim; k++)
+                {
+                    x_vec.pushback(start[k]);
+                }
+                for (unsigned k=0; k < this->control_dim; k++)
+                {
+                    u_vec.pushback(control_ptr[k]);
+                }
+                res_x.push_back(x_vec);
+                res_u.push_back(u_vec);
+                res_t.push_back(time_step*integration_step);
+            }
+            if (!val)
+            {
+                break;
+            }
+        }
+
+
+
+        // from solution we can obtain the trajectory: state traj | action traj | time traj
+        py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
+        py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
+        py::safe_array<double> time_array({res_t.size()});
         auto state_ref = state_array.mutable_unchecked<2>();
-        for (unsigned int i = 0; i < x_traj.size(); ++i) {
-            for (unsigned int j = 0; j < x_traj[0].size(); ++j) {
-                state_ref(i, j) = x_traj[i][j];
+        for (unsigned int i = 0; i < res_x.size(); ++i) {
+            for (unsigned int j = 0; j < res_x[0].size(); ++j) {
+                state_ref(i, j) = res_x[i][j];
             }
         }
         auto control_ref = control_array.mutable_unchecked<2>();
-        for (unsigned int i = 0; i < u_traj.size(); ++i) {
-            for (unsigned int j = 0; j < u_traj[0].size(); ++j) {
-                control_ref(i, j) = u_traj[i][j];
+        for (unsigned int i = 0; i < res_u.size(); ++i) {
+            for (unsigned int j = 0; j < res_u[0].size(); ++j) {
+                control_ref(i, j) = res_u[i][j];
             }
         }
         auto time_ref = time_array.mutable_unchecked<1>();
-        for (unsigned int i = 0; i < t_traj.size(); ++i) {
-            time_ref(i) = t_traj[i];
+        for (unsigned int i = 0; i < res_t.size(); ++i) {
+            time_ref(i) = res_t[i];
         }
-        */
+
         delete[] start;
         delete[] goal;
         // return flag, available flags, states, controls, time
-        //return py::cast(std::tuple<std::string, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-        //    (statusToString(res.status), state_array, control_array, time_array));
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, control_array, time_array));
     }
 
 protected:
@@ -807,13 +858,10 @@ PYBIND11_MODULE(_sst_module, m) {
              "state_dim"_a,
              "control_dim"_a
          )
-         .def("solve", &PSOPTBVPWrapper::solve,
+         .def("steerTo", &PSOPTBVPWrapper::steerTo,
              "start"_a,
              "goal"_a,
-             "num_steps"_a,
-             "max_iter"_a,
-             "tmin"_a,
-             "tmax"_a)
+             "max_iter"_a)
      ;
      py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system);
      system

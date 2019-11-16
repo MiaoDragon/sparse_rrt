@@ -649,7 +649,7 @@ public:
             double* control_ptr = u_traj[i].data();
             int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
             int num_j = num_dis / num_steps + 1;
-            bol val = true;
+            bool val = true;
             //std::cout << "num_j: " << num_j << std::endl;
             for (unsigned j=0; j < num_j; j++)
             {
@@ -682,11 +682,11 @@ public:
                 std::vector<double> u_vec;
                 for (unsigned k=0; k < this->state_dim; k++)
                 {
-                    x_vec.pushback(start[k]);
+                    x_vec.push_back(start[k]);
                 }
                 for (unsigned k=0; k < this->control_dim; k++)
                 {
-                    u_vec.pushback(control_ptr[k]);
+                    u_vec.push_back(control_ptr[k]);
                 }
                 res_x.push_back(x_vec);
                 res_u.push_back(u_vec);

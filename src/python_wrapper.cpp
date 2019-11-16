@@ -636,7 +636,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         // add the start state to x_traj first
-        res_x.push_back(x_traj[0])
+        res_x.push_back(x_traj[0]);
 
         for (unsigned i=0; i < num_steps-1; i++)
         {

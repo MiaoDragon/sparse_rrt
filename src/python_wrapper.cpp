@@ -38,6 +38,7 @@
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
 
+#include "utilities/random.hpp"
 
 namespace pybind11 {
     template <typename T>
@@ -592,6 +593,7 @@ public:
     PSOPTBVPWrapper(psopt_system_t& system, int state_dim_in, int control_dim_in)
     : state_dim(state_dim_in)
     , control_dim(control_dim_in)
+    , random_generator()
     {
         // create a new system
         _system.reset(&system);
@@ -732,6 +734,7 @@ protected:
     std::shared_ptr<PSOPT_BVP> bvp_solver;
     std::shared_ptr<psopt_system_t> _system;
     int state_dim, control_dim;
+	RandomGenerator random_generator;
 };
 
 

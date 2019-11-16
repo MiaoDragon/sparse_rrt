@@ -606,7 +606,7 @@ public:
         bvp_solver.reset();
     }
 
-    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter)
+    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int min_time_steps, int max_time_steps, double integration_step)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
@@ -864,7 +864,10 @@ PYBIND11_MODULE(_sst_module, m) {
          .def("steerTo", &PSOPTBVPWrapper::steerTo,
              "start"_a,
              "goal"_a,
-             "max_iter"_a)
+             "max_iter"_a,
+             "min_time_steps"_a,
+             "max_time_steps"_a,
+             "integration_step"_a)
      ;
      py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system);
      system

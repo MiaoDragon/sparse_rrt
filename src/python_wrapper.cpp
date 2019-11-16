@@ -590,10 +590,10 @@ public:
 class PSOPTBVPWrapper
 {
 public:
-    PSOPTBVPWrapper(psopt_system_t& system, int state_dim_in, int control_dim_in)
+    PSOPTBVPWrapper(psopt_system_t& system, int state_dim_in, int control_dim_in, int random_seed)
     : state_dim(state_dim_in)
     , control_dim(control_dim_in)
-    , random_generator()
+    , random_generator(random_seed)
     {
         // create a new system
         _system.reset(&system);
@@ -856,10 +856,12 @@ PYBIND11_MODULE(_sst_module, m) {
     py::class_<PSOPTBVPWrapper>(m, "PSOPTBVPWrapper")
          .def(py::init<psopt_system_t&,
                        int,
+                       int,
                        int>(),
              "system"_a,
              "state_dim"_a,
-             "control_dim"_a
+             "control_dim"_a,
+             "random_seed"_a
          )
          .def("steerTo", &PSOPTBVPWrapper::steerTo,
              "start"_a,

@@ -188,6 +188,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   for (unsigned i=0; i < num_steps-1; i++)
   {
+      std::cout << i << std::endl;
       if (t_traj[i] < integration_step / 2)
       {
           // the time step is too small, ignore this action

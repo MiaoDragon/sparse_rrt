@@ -606,6 +606,61 @@ public:
         bvp_solver.reset();
     }
 
+    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int min_time_steps, int max_time_steps, double integration_step)
+    {
+        auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
+        auto goal_data_py = goal_py.unchecked<1>();
+        int size = start_data_py.shape(0);
+        double* start = new double[size];
+        double* goal = new double[size];
+        // copy from input to start and goal
+        for (unsigned i=0; i < size; i++)
+        {
+            start[i] = start_data_py(i);
+            goal[i] = goal_data_py(i);
+        }
+        int num_steps = 6*this->state_dim;
+        psopt_result_t res;
+        double tmin = integration_step*num_steps;
+        double tmax = 50*max_time_steps*integration_step*num_steps;
+        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
+
+
+        std::vector<std::vector<double>> res_x = res.x;  // optimziation solution
+        std::vector<std::vector<double>> res_u = res.u;  // optimziation solution
+        std::vector<double> res_t = res.t;  // optimziation solution
+        for (unsigned i=0; i < num_steps-1; i+=1)
+        {
+            res_t.push_back(res.t[i+1] - res.t[i]);
+        }
+
+        py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
+        py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
+        py::safe_array<double> time_array({res_t.size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_x.size(); ++i) {
+            for (unsigned int j = 0; j < res_x[0].size(); ++j) {
+                state_ref(i, j) = res_x[i][j];
+            }
+        }
+        auto control_ref = control_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_u.size(); ++i) {
+            for (unsigned int j = 0; j < res_u[0].size(); ++j) {
+                control_ref(i, j) = res_u[i][j];
+            }
+        }
+        auto time_ref = time_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < res_t.size(); ++i) {
+            time_ref(i) = res_t[i];
+        }
+
+        delete[] start;
+        delete[] goal;
+        // return flag, available flags, states, controls, time
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, control_array, time_array));
+    }
+
     py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int min_time_steps, int max_time_steps, double integration_step)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
@@ -869,7 +924,16 @@ PYBIND11_MODULE(_sst_module, m) {
              "max_iter"_a,
              "min_time_steps"_a,
              "max_time_steps"_a,
-             "integration_step"_a)
+             "integration_step"_a
+         )
+         .def("solve", &PSOPTBVPWrapper::solve,
+             "start"_a,
+             "goal"_a,
+             "max_iter"_a,
+             "min_time_steps"_a,
+             "max_time_steps"_a,
+             "integration_step"_a
+         )
      ;
      py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system);
      system

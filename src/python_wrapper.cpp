@@ -708,7 +708,7 @@ public:
             int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
             int num_j = num_dis / num_steps + 1;
             bool val = true;
-            double res_t = t_traj[i] - num_dis * integration_step;
+            double residual_t = t_traj[i] - num_dis * integration_step;
             //std::cout << "num_j: " << num_j << std::endl;
             for (unsigned j=0; j < num_j; j++)
             {
@@ -719,7 +719,7 @@ public:
                 }
                 if (time_step == 0)
                 {
-                    if (res_t <= 0.000001)
+                    if (residual_t <= 0.000001)
                     {
                         // too small
                         break;
@@ -727,7 +727,7 @@ public:
                     else
                     {
                         val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
-                                        time_step, goal, res_t);
+                                        time_step, goal, residual_t);
                     }
                 }
                 else

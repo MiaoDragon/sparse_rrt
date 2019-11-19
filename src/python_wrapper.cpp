@@ -624,7 +624,7 @@ public:
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
         double tmin = integration_step*this->state_dim;
-        double tmax = max_time_steps*integration_step*num_steps;
+        double tmax = 50*max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 
 
@@ -683,7 +683,7 @@ public:
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
         double tmin = integration_step*this->state_dim;
-        double tmax = max_time_steps*integration_step*num_steps;
+        double tmax = 50*max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 
 

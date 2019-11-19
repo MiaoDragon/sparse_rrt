@@ -318,7 +318,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
             {
                 time_step = num_dis % num_steps;
             }
-            bol val = true;
+            bool val = true;
             if (time_step == 0)
             {
                 if (res_t <= 0.000001)

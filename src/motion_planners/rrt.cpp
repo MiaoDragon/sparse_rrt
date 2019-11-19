@@ -134,7 +134,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 		  {
 			  time_step = num_dis % num_steps;
 		  }
-		  bol val = true;
+		  bool val = true;
 		  if (time_step == 0)
 		  {
 			  if (res_t <= 0.000001)

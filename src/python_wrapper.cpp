@@ -619,10 +619,10 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
-        int num_steps = 6*this->state_dim;
+        int num_steps = 3*this->state_dim;
         psopt_result_t res;
         double tmin = integration_step*num_steps;
-        double tmax = 50*max_time_steps*integration_step*num_steps;
+        double tmax = 10*max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 
 
@@ -677,10 +677,10 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
-        int num_steps = 6*this->state_dim;
+        int num_steps = 3*this->state_dim;
         psopt_result_t res;
         double tmin = integration_step*num_steps;
-        double tmax = 50*max_time_steps*integration_step*num_steps;
+        double tmax = 10*max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 
 

@@ -628,7 +628,7 @@ public:
 
         std::vector<std::vector<double>> res_x = res.x;  // optimziation solution
         std::vector<std::vector<double>> res_u = res.u;  // optimziation solution
-        std::vector<double> res_t = res.t;  // optimziation solution
+        std::vector<double> res_t;  // optimziation solution
         for (unsigned i=0; i < num_steps-1; i+=1)
         {
             res_t.push_back(res.t[i+1] - res.t[i]);
@@ -683,7 +683,7 @@ public:
 
         std::vector<std::vector<double>> x_traj = res.x;  // optimziation solution
         std::vector<std::vector<double>> u_traj = res.u;  // optimziation solution
-        std::vector<double> t_traj = res.t;  // optimziation solution
+        std::vector<double> t_traj;  // optimziation solution
         for (unsigned i=0; i < num_steps-1; i+=1)
         {
             t_traj.push_back(res.t[i+1] - res.t[i]);

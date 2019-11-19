@@ -128,7 +128,7 @@ adouble psopt_pendulum_t::integrand_cost(adouble* states, adouble* controls, ado
     return sqrt(derivatives[0]*derivatives[0]+derivatives[1]*derivatives[1]);
 
 
-    return retval;
+    //return retval;
 }
 
 void psopt_pendulum_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,

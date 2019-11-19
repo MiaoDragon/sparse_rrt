@@ -96,7 +96,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // convert from double array to VectorXd
   const double* start_x = nearest->get_point();
   double* end_x = sample_state;
-  int num_steps = 6*this->state_dimension;
+  int num_steps = 10*this->state_dimension;
   //int num_steps = 6*this->state_dimension;
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)
@@ -106,7 +106,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);
   psopt_result_t res;
-  bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*num_steps, 50*max_time_steps*integration_step*num_steps);
+  bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*this->state_dimension, 10*max_time_steps*integration_step*num_steps);
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
   std::vector<double> t_traj;
@@ -121,32 +121,38 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // double* result_x = new double[this->state_dimension];
   for (unsigned i=0; i < num_steps-1; i++)
   {
-      if (t_traj[i] < integration_step / 2)
-      {
-          // the time step is too small, ignore this action
-          continue;
-      }
-      int num_dis = std::round(t_traj[i] / integration_step);
+	  int num_dis = std::floor(t_traj[i] / integration_step);
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
+	  double res_t = t_traj[i] - num_dis * integration_step;
       //std::cout << "num_j: " << num_j << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
           int time_step = num_steps;
-          if (j == num_j-1)
-          {
-              time_step = num_dis % num_steps;
-          }
-          if (time_step == 0)
-          {
-              // when we don't need to propagate anymore, break
-              break;
-          }
-
-          // todo: we can also use larger step for adding
-          bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                           time_step, new_state, integration_step);
+		  if (j == num_j-1)
+		  {
+			  time_step = num_dis % num_steps;
+		  }
+		  bol val = true;
+		  if (time_step == 0)
+		  {
+			  if (res_t <= 0.000001)
+			  {
+				  // too small
+				  break;
+			  }
+			  else:
+			  {
+				  val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+								  time_step, goal, res_t);
+			  }
+		  }
+		  else
+		  {
+			  val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+							   time_step, goal, integration_step);
+		  }
            //std::cout << "after propagation... val: " << val << std::endl;
           // add the new state to tree
           if (!val)

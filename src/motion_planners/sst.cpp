@@ -305,15 +305,11 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
     // double* result_x = new double[this->state_dimension];
     for (unsigned i=0; i < num_steps-1; i++)
     {
-        if (t_traj[i] < integration_step / 2)
-        {
-            // the time step is too small, ignore this action
-            continue;
-        }
-        int num_dis = std::round(t_traj[i] / integration_step);
+        int num_dis = std::floor(t_traj[i] / integration_step);
         double* control_ptr = u_traj[i].data();
         int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
         int num_j = num_dis / num_steps + 1;
+        double res_t = t_traj[i] - num_dis * integration_step;
         //std::cout << "num_j: " << num_j << std::endl;
         for (unsigned j=0; j < num_j; j++)
         {
@@ -322,15 +318,25 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
             {
                 time_step = num_dis % num_steps;
             }
+            bol val = true;
             if (time_step == 0)
             {
-                // when we don't need to propagate anymore, break
-                break;
+                if (res_t <= 0.000001)
+                {
+                    // too small
+                    break;
+                }
+                else:
+                {
+                    val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+                                    time_step, goal, res_t);
+                }
             }
-
-            // todo: we can also use larger step for adding
-            bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                             time_step, sample_state, integration_step);
+            else
+            {
+                val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+                                 time_step, goal, integration_step);
+            }
              //std::cout << "after propagation... val: " << val << std::endl;
             // add the new state to tree
             if (!val)

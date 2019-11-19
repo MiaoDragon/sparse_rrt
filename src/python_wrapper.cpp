@@ -693,8 +693,6 @@ public:
         for (unsigned i=0; i < num_steps-1; i+=1)
         {
             t_traj.push_back(res.t[i+1] - res.t[i]);
-            std::cout << "t_traj[i]:" << t_traj[i] << std::endl;
-
         }
         // variables to return
         std::vector<std::vector<double>> res_x;
@@ -705,17 +703,12 @@ public:
 
         for (unsigned i=0; i < num_steps-1; i++)
         {
-            std::cout << t_traj[i] << std::endl;
-            if (t_traj[i] < integration_step / 2)
-            {
-                // the time step is too small, ignore this action
-                continue;
-            }
-            int num_dis = std::round(t_traj[i] / integration_step);
+            int num_dis = std::floor(t_traj[i] / integration_step);
             double* control_ptr = u_traj[i].data();
             int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
             int num_j = num_dis / num_steps + 1;
             bool val = true;
+            double res_t = t_traj[i] - num_dis * integration_step;
             //std::cout << "num_j: " << num_j << std::endl;
             for (unsigned j=0; j < num_j; j++)
             {
@@ -726,11 +719,22 @@ public:
                 }
                 if (time_step == 0)
                 {
-                    // when we don't need to propagate anymore, break
-                    break;
+                    if (res_t <= 0.000001)
+                    {
+                        // too small
+                        break;
+                    }
+                    else:
+                    {
+                        val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+                                        time_step, goal, res_t);
+                    }
                 }
-                val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
-                                 time_step, goal, integration_step);
+                else
+                {
+                    val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
+                                     time_step, goal, integration_step);
+                }
                 // copy the new state to start
                 for (unsigned k=0; k < this->state_dim; k++)
                 {

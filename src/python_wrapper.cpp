@@ -692,6 +692,7 @@ public:
         std::vector<double> t_traj;  // optimziation solution
         for (unsigned i=0; i < num_steps-1; i+=1)
         {
+            std::cout << "t_traj[i]:" << t_traj[i] << std::endl;
             t_traj.push_back(res.t[i+1] - res.t[i]);
         }
         // variables to return
@@ -703,6 +704,7 @@ public:
 
         for (unsigned i=0; i < num_steps-1; i++)
         {
+            std::cout << t_traj[i] << std::endl;
             if (t_traj[i] < integration_step / 2)
             {
                 // the time step is too small, ignore this action

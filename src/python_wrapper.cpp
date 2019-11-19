@@ -724,7 +724,7 @@ public:
                         // too small
                         break;
                     }
-                    else:
+                    else
                     {
                         val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
                                         time_step, goal, res_t);

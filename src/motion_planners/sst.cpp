@@ -326,7 +326,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                     // too small
                     break;
                 }
-                else:
+                else
                 {
                     val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
   						  time_step, sample_state, res_t);

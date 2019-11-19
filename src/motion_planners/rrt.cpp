@@ -142,7 +142,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 				  // too small
 				  break;
 			  }
-			  else:
+			  else
 			  {
 				  val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
 								  time_step, sample_state, res_t);

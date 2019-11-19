@@ -328,13 +328,13 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                 }
                 else:
                 {
-                    val = _system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+                    val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
   						  time_step, sample_state, res_t);
   			    }
   		    }
   		    else
   		    {
-                val = _system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+                val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
   				          time_step, sample_state, integration_step);
   		    }
              //std::cout << "after propagation... val: " << val << std::endl;

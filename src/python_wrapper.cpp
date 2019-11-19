@@ -133,7 +133,9 @@ public:
         auto new_state_ref = new_state_py.mutable_unchecked<1>();
         for (unsigned int i = 0; i < size; i++) {
           new_state_ref(i) = new_state[i];
+          std::cout << "new_state[i]:" << new_state[i] << std::endl;
         }
+        std::cout << "before deleting..." << std::endl;
         delete[] new_state;
         delete[] sample_state;
         return new_state_py;

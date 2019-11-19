@@ -168,12 +168,16 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   psopt_result_t res;
   //bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*num_steps, max_time_steps*integration_step*num_steps);
   bvp_solver->solve(res, start_x, end_x, num_steps, 100, 0.0, max_time_steps*integration_step*num_steps);
+  std::cout << "after bvp_solver solve" << std::endl;
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
   std::vector<double> t_traj;
+  std::cout << "before setting t_traj..." << std::endl;
   for (unsigned i=0; i < num_steps-1; i+=1)
   {
       t_traj.push_back(res.t[i+1] - res.t[i]);
+      std::cout << "t_traj[i]" << << t_traj[i] << std::endl;
+
   }
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not

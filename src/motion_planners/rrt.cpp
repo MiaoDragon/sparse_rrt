@@ -144,14 +144,14 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 			  }
 			  else:
 			  {
-				  val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
-								  time_step, goal, res_t);
+				  val = _system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+								  time_step, sample_state, res_t);
 			  }
 		  }
 		  else
 		  {
-			  val = _system->propagate(start, this->state_dim, control_ptr, this->control_dim,
-							   time_step, goal, integration_step);
+			  val = _system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+							   time_step, sample_state, integration_step);
 		  }
            //std::cout << "after propagation... val: " << val << std::endl;
           // add the new state to tree

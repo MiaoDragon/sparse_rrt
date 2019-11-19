@@ -156,7 +156,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // convert from double array to VectorXd
   const double* start_x = nearest->get_point();
   double* end_x = sample_state;
-  int num_steps = 20*this->state_dimension;
+  int num_steps = 10*this->state_dimension;
   //int num_steps = 6*this->state_dimension;
   // initialize bvp pointer if it is nullptr
   if (bvp_solver == NULL)

@@ -110,13 +110,24 @@ adouble psopt_pendulum_t::endpoint_cost(adouble* initial_states, adouble* final_
     // Since we already set endpoint constraint in events, we don't need it here
     // TODO: maybe we can set one end free, but try to reduce the cost only
     // Here we use the time as endpoint cost for minimum time control
-    return tf;
+    //return tf;
+    return 0.;
 }
 
 adouble psopt_pendulum_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
                       int iphase, Workspace* workspace)
 {
-    adouble retval = 0.0;
+    //adouble retval = 0.0;
+    // here we try minimizing the state trajectory length instead of the time
+    // thus need to calculate the derivatives
+    adouble derivatives[2];
+    adouble temp0 = states[0];
+    adouble temp1 = states[1];
+    derivatives[0] = temp1;
+    derivatives[1] = ((controls[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
+    return sqrt(derivatives[0]*derivatives[0]+derivatives[1]*derivatives[1]);
+
+
     return retval;
 }
 

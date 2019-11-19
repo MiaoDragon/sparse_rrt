@@ -629,13 +629,13 @@ public:
         std::vector<std::vector<double>> res_x = res.x;  // optimziation solution
         std::vector<std::vector<double>> res_u = res.u;  // optimziation solution
         std::vector<double> res_t;  // optimziation solution
-        res_t.push_back(res.t[1]/2);
-        for (unsigned i=1; i < num_steps-1; i+=1)
+        //res_t.push_back(res.t[1]/2);
+        for (unsigned i=0; i < num_steps-1; i+=1)
         {
-            //res_t.push_back(res.t[i+1] - res.t[i]);
-            res_t.push_back((res.t[i+1]-res.t[i-1])/2);
+            res_t.push_back(res.t[i+1] - res.t[i]);
+            //res_t.push_back((res.t[i+1]-res.t[i-1])/2);
         }
-        res_t.push_back((res.t[num_steps-1]-res.t[num_steps-2])/2);
+        //res_t.push_back((res.t[num_steps-1]-res.t[num_steps-2])/2);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
         py::safe_array<double> control_array({res_u.size(), res_u[0].size()});

@@ -179,6 +179,13 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
   sst_node_t* x_tree = nearest;
   // double* result_x = new double[this->state_dimension];
+
+  // initialize new_state
+  for (unsigned i=0; i < this->state_dimension; i++)
+  {
+      new_state[i] = start_x[i];
+  }
+
   for (unsigned i=0; i < num_steps-1; i++)
   {
       if (t_traj[i] < integration_step / 2)

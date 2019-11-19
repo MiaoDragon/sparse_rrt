@@ -154,7 +154,6 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.x.push_back(x_t);
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
-        std::cout << "t[1," << i+1 << "]: " << t(1,i+1) << std::endl;
     }
     //std::cout << "]" << std::endl;
 }

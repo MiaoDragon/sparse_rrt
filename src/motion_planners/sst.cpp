@@ -217,7 +217,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
               else
               {
                   val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-                        time_step, new_state, res_t);
+                        1, new_state, res_t);
               }
           }
           else
@@ -340,7 +340,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                 else
                 {
                     val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-  						  time_step, sample_state, res_t);
+  						  1, sample_state, res_t);
   			    }
   		    }
   		    else

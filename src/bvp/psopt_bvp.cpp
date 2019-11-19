@@ -112,7 +112,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         states.SetRow(row, i+1);
     }
     //states.Save("state_init.txt");
-    problem.phases(1).guess.time = linspace(0.0, tmax, num_steps);
+    problem.phases(1).guess.time = linspace(0.0, tmin, num_steps);
 
     algorithm.scaling = "automatic";
     algorithm.derivatives = "automatic";

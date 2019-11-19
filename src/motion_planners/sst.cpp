@@ -197,7 +197,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
-      //std::cout << "num_j: " << num_j << std::endl;
+      std::cout << "num_j: " << num_j << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
           int time_step = num_steps;
@@ -210,6 +210,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
               // when we don't need to propagate anymore, break
               break;
           }
+          std::cout << "time:step: " << time_step << std::endl;
 
           // todo: we can also use larger step for adding
           bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,

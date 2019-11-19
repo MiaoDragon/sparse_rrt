@@ -133,9 +133,8 @@ public:
         auto new_state_ref = new_state_py.mutable_unchecked<1>();
         for (unsigned int i = 0; i < size; i++) {
           new_state_ref(i) = new_state[i];
-          std::cout << "new_state[i]:" << new_state[i] << std::endl;
         }
-        std::cout << "before deleting..." << std::endl;
+
         delete[] new_state;
         delete[] sample_state;
         return new_state_py;
@@ -624,7 +623,7 @@ public:
         int num_steps = 10*this->state_dim;
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
-        double tmin = 0.;
+        double tmin = integration_step;
         double tmax = max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 
@@ -683,7 +682,7 @@ public:
         int num_steps = 10*this->state_dim;
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
-        double tmin = 0.;
+        double tmin = integration_step;
         double tmax = max_time_steps*integration_step*num_steps;
         bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
 

@@ -167,17 +167,13 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   //OptResults res = bvp_solver->solve(start_x, end_x, 100);
   psopt_result_t res;
   //bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*num_steps, max_time_steps*integration_step*num_steps);
-  bvp_solver->solve(res, start_x, end_x, num_steps, 100, 0.0, max_time_steps*integration_step*num_steps);
-  std::cout << "after bvp_solver solve" << std::endl;
+  bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step, max_time_steps*integration_step*num_steps);
   std::vector<std::vector<double>> x_traj = res.x;
   std::vector<std::vector<double>> u_traj = res.u;
   std::vector<double> t_traj;
-  std::cout << "before setting t_traj..." << std::endl;
   for (unsigned i=0; i < num_steps-1; i+=1)
   {
       t_traj.push_back(res.t[i+1] - res.t[i]);
-      std::cout << "t_traj[i]" << t_traj[i] << std::endl;
-
   }
   //TODO: do something with the trajectories
   // simulate forward using the action trajectory, regardless if the traj opt is successful or not
@@ -192,7 +188,6 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   for (unsigned i=0; i < num_steps-1; i++)
   {
-      std::cout << i << std::endl;
       if (t_traj[i] < integration_step / 2)
       {
           // the time step is too small, ignore this action
@@ -202,7 +197,6 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
-      std::cout << "num_j: " << num_j << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
           int time_step = num_steps;
@@ -215,8 +209,6 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
               // when we don't need to propagate anymore, break
               break;
           }
-          std::cout << "time:step: " << time_step << std::endl;
-
           // todo: we can also use larger step for adding
           bool val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                            time_step, new_state, integration_step);

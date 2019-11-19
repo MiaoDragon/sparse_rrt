@@ -633,7 +633,7 @@ public:
         for (unsigned i=1; i < num_steps-1; i+=1)
         {
             //res_t.push_back(res.t[i+1] - res.t[i]);
-            res_t.push_back(res_t[i-1]+(res.t[i+1]-res.t[i])/2);
+            res_t.push_back((res.t[i+1]-res.t[i-1])/2);
         }
         res_t.push_back((res.t[num_steps-1]-res.t[num_steps-2])/2);
 

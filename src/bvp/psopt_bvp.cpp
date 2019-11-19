@@ -121,9 +121,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.nlp_tolerance = 1.e-4;
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
-    std::cout << "before solving..." << std::endl;
     psopt(solution, problem, algorithm);
-    std::cout << "after solving..." << std::endl;
 
     DMatrix x = solution.get_states_in_phase(1);
     DMatrix u = solution.get_controls_in_phase(1);
@@ -156,6 +154,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.x.push_back(x_t);
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
+        std::cout << "t[1," << i+1 << "]: " << t(1,i+1) << std::endl;
     }
     //std::cout << "]" << std::endl;
 }

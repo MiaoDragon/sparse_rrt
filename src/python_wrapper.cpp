@@ -692,8 +692,9 @@ public:
         std::vector<double> t_traj;  // optimziation solution
         for (unsigned i=0; i < num_steps-1; i+=1)
         {
-            std::cout << "t_traj[i]:" << t_traj[i] << std::endl;
             t_traj.push_back(res.t[i+1] - res.t[i]);
+            std::cout << "t_traj[i]:" << t_traj[i] << std::endl;
+
         }
         // variables to return
         std::vector<std::vector<double>> res_x;

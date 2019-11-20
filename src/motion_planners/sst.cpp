@@ -188,19 +188,18 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 
   for (unsigned i=0; i < num_steps-1; i++)
   {
-      if (t_traj[i] < integration_step / 2)
-      {
-          // the time step is too small, ignore this action
-          continue;
-      }
+	  std::cout << "t_traj[" << i <<"]: " << t_traj[i] << std::endl;
       int num_dis = std::floor(t_traj[i] / integration_step);
+	  std::cout << "num_dis: " << num_dis << std::endl;
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
       double res_t = t_traj[i] - num_dis * integration_step;
-      //std::cout << "num_j: " << num_j << std::endl;
+      std::cout << "num_j: " << num_j << std::endl;
+	  std::cout << "res_t: " << res_t << std::endl;
       for (unsigned j=0; j < num_j; j++)
       {
+          std::cout << "j=" << j << ", num_j=" << num_j << std::endl;
           int time_step = num_steps;
           if (j == num_j-1)
           {
@@ -212,12 +211,15 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
               if (res_t <= 0.000001)
               {
                   // too small
+				  std::cout << "time_step == 0: res_t <= 0.00001" << std::endl;
                   break;
               }
               else
               {
                   val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
                         1, new_state, res_t);
+                  std::cout << "time_step == 0: res_t > 0.00001" << std::endl;
+      			  std::cout << "new_state: [" << new_state[0] << ", " << new_state[1] << "]" << std::endl;
               }
           }
           else
@@ -238,6 +240,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
           // if the created tree node is nullptr, stop right there
           if (!x_tree)
           {
+              std::cout << "x_tree is NULL" << std::endl;
               break;
           }
 

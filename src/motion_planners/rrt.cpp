@@ -121,19 +121,19 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
   // double* result_x = new double[this->state_dimension];
   for (unsigned i=0; i < num_steps-1; i++)
   {
-	  std::cout << "t_traj[" << i <<"]: " << t_traj[i] << std::endl;
+	  //std::cout << "t_traj[" << i <<"]: " << t_traj[i] << std::endl;
 	  int num_dis = std::floor(t_traj[i] / integration_step);
-	  std::cout << "num_dis: " << num_dis << std::endl;
+	  //std::cout << "num_dis: " << num_dis << std::endl;
       double* control_ptr = u_traj[i].data();
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
 	  double res_t = t_traj[i] - num_dis * integration_step;
-      std::cout << "num_j: " << num_j << std::endl;
-	  std::cout << "res_t: " << res_t << std::endl;
-	  double propagated_time = 0.;
+      //std::cout << "num_j: " << num_j << std::endl;
+	  //std::cout << "res_t: " << res_t << std::endl;
+	  //double propagated_time = 0.;
       for (unsigned j=0; j < num_j; j++)
       {
-          std::cout << "j=" << j << ", num_j=" << num_j << std::endl;
+          //std::cout << "j=" << j << ", num_j=" << num_j << std::endl;
           int time_step = num_steps;
 		  if (j == num_j-1)
 		  {
@@ -145,14 +145,14 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 			  val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
 							   time_step, new_state, integration_step);
 			  //std::cout << "propagated time: " << time_step*integration_step << std::endl;
-			  propagated_time += time_step*integration_step;
+			  //propagated_time += time_step*integration_step;
 		  }
 		  if (j == num_j-1)
 		  {
 			  val = val && system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
 							   1, new_state, res_t);
 			  //std::cout << "propagated time: " << res_t << std::endl;
-			  propagated_time += res_t;
+			  //propagated_time += res_t;
 			  //std::cout << "total propagated time: " << propagated_time << std::endl;
 		  }
            //std::cout << "after propagation... val: " << val << std::endl;

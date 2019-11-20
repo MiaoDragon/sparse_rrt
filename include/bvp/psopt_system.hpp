@@ -25,6 +25,7 @@ class psopt_system_t : public system_t
 public:
     psopt_system_t();
     virtual std::string get_name() const=0;
+	virtual double max_distance() const=0;
 };
 
 #endif

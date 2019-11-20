@@ -17,6 +17,7 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         integrand_cost = &(psopt_cart_pole_t::integrand_cost);
         events = &(psopt_cart_pole_t::events);
         linkages = &(psopt_cart_pole_t::linkages);
+        dist_calculator = new euclidean_distance(system_in->is_circular_topology());
     }
     else if (system_in->get_name() == "pendulum")
     {
@@ -25,6 +26,7 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         integrand_cost = &(psopt_pendulum_t::integrand_cost);
         events = &(psopt_pendulum_t::events);
         linkages = &(psopt_pendulum_t::linkages);
+        dist_calculator = new euclidean_distance(system_in->is_circular_topology());
     }
     else if (system_in->get_name() == "point")
     {
@@ -33,9 +35,14 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         integrand_cost = &(psopt_point_t::integrand_cost);
         events = &(psopt_point_t::events);
         linkages = &(psopt_point_t::linkages);
+        dist_calculator = new euclidean_distance(system_in->is_circular_topology());
     }
 }
 
+~PSOPT_BVP::PSOPT_BVP()
+{
+    delete dist_calculator;
+}
 void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* goal, int num_steps,
                                 int max_iter, double tmin, double tmax)
 {
@@ -111,7 +118,18 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         states.SetRow(row, i+1);
     }
     //states.Save("state_init.txt");
-    problem.phases(1).guess.time = linspace(0.0, 100*num_steps*tmin, num_steps);
+    // dynamically initialize time based on (l/l_max)^2 * (t_max-t_min) + t_min
+    double l = dist_calculator->distance(start, goal, state_n);
+    double lmax = system->max_distance();
+    double init_time = (l/lmax)*(l/lmax)*(tmax-tmin)+tmin;
+    std::cout << "start: [" << start[0] << ", " << start[1] << "]" << std::endl;
+    std::cout << "goal: [" << goal[0] << ", " << goal[1] << "]" << std::endl;
+    std::cout << "distance: " << l << std::endl;
+    std::cout << "max_distance: " << lmax << std::endl;
+    std::cout << "init_time: " << init_time << std::endl;
+    std::cout << "tmin: " << tmin << std::endl;
+    std::cout << "tmax: " << tmax << std::endl;
+    problem.phases(1).guess.time = linspace(0.0, init_time, num_steps);
 
     algorithm.scaling = "automatic";
     algorithm.derivatives = "automatic";

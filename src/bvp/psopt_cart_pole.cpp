@@ -31,7 +31,10 @@ std::string psopt_cart_pole_t::get_name() const
 {
     return "cartpole";
 }
-
+double psopt_cart_pole_t::max_distance() const
+{
+    return sqrt((MAX_X-MIN_X)*(MAX_X-MIN_X)+(MAX_V-MIN_V)*(MAX_V-MIN_V)+(MAX_W-MIN_W)*(MAX_W-MIN_W)+M_PI*M_PI);
+}
 bool psopt_cart_pole_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,

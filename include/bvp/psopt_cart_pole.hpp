@@ -28,6 +28,7 @@ public:
 	    delete[] deriv;
 	}
 	std::string get_name() const override;
+	double max_distance() const override;
 	/**
 	 * @copydoc system_t::propagate(const double*, const double*, int, int, double*, double& )
 	 */

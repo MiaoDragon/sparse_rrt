@@ -22,7 +22,10 @@ std::string psopt_pendulum_t::get_name() const
 {
     return "pendulum";
 }
-
+double psopt_pendulum_t::max_distance() const
+{
+    return sqrt(M_PI*M_PI+(MAX_W-MIN_W)*(MAX_W-MIN_W));
+}
 bool psopt_pendulum_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,

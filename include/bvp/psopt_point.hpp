@@ -49,6 +49,7 @@ public:
 	}
 	virtual ~psopt_point_t(){ delete temp_state;}
 	std::string get_name() const override;
+	double max_distance() const override;
 	/**
 	 * @copydoc system_t::propagate(double*, double*, int, int, double*, double& )
 	 */

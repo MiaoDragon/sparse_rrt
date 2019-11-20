@@ -10,6 +10,7 @@
 
 #include <vector>
 #include "bvp/psopt_system.hpp"
+#include "systems/distance_functions.h"
 
 typedef void (*dae_f)(adouble*, adouble*, adouble*, adouble*, adouble*, adouble&, adouble*, int, Workspace*);
 typedef adouble (*endpoint_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);
@@ -29,7 +30,7 @@ class PSOPT_BVP
 {
 public:
     PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
-
+    ~PSOPT_BVP();
     void solve(psopt_result_t& res, const double* start, const double* goal, int num_steps, int max_iter,
           double tmin, double tmax);
 
@@ -42,5 +43,6 @@ protected:
     integrand_cost_f integrand_cost;
     events_f events;
     linkages_f linkages;
+    const distance_t* dist_calculator;
 };
 #endif

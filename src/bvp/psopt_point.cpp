@@ -32,6 +32,10 @@ std::string psopt_point_t::get_name() const
 {
     return "point";
 }
+double psopt_point_t::max_distance() const
+{
+    return sqrt((MAX_X-MIN_X)*(MAX_X-MIN_X)+(MAX_Y-MIN_Y)*(MAX_Y-MIN_Y));
+}
 bool psopt_point_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,

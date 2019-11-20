@@ -130,6 +130,7 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 	  double res_t = t_traj[i] - num_dis * integration_step;
       std::cout << "num_j: " << num_j << std::endl;
 	  std::cout << "res_t: " << res_t << std::endl;
+	  double propagated_time = 0.;
       for (unsigned j=0; j < num_j; j++)
       {
           std::cout << "j=" << j << ", num_j=" << num_j << std::endl;
@@ -139,26 +140,20 @@ void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 			  time_step = num_dis % num_steps;
 		  }
 		  bool val = true;
-		  if (time_step == 0)
-		  {
-			  if (res_t <= 0.000001)
-			  {
-				  // too small
-				  std::cout << "time_step == 0: res_t <= 0.00001" << std::endl;
-				  break;
-			  }
-			  else
-			  {
-				  val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-								  1, new_state, res_t);
-				  std::cout << "time_step == 0: res_t > 0.00001" << std::endl;
-				  std::cout << "new_state: [" << new_state[0] << ", " << new_state[1] << "]" << std::endl;
-			  }
-		  }
-		  else
+		  if (time_step != 0)
 		  {
 			  val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
 							   time_step, new_state, integration_step);
+			  std::cout << "propagated time: " << time_step*integration_step << std::endl;
+			  propagated_time += time_step*integration_step;
+		  }
+		  if (j == num_j-1)
+		  {
+			  val = val && system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+							   1, new_state, res_t);
+			  std::cout << "propagated time: " << res_t << std::endl;
+			  propagated_time += res_t;
+			  std::cout << "total propagated time: " << propagated_time << std::endl;
 		  }
            //std::cout << "after propagation... val: " << val << std::endl;
           // add the new state to tree

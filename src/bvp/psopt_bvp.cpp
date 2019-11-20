@@ -39,7 +39,7 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
     }
 }
 
-~PSOPT_BVP::PSOPT_BVP()
+PSOPT_BVP::~PSOPT_BVP()
 {
     delete dist_calculator;
 }

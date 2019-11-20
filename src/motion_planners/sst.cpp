@@ -195,6 +195,7 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
       int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
       int num_j = num_dis / num_steps + 1;
       double res_t = t_traj[i] - num_dis * integration_step;
+      double propagated_time = 0.;
       std::cout << "num_j: " << num_j << std::endl;
 	  std::cout << "res_t: " << res_t << std::endl;
       for (unsigned j=0; j < num_j; j++)

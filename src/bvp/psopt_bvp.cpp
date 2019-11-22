@@ -121,7 +121,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     // dynamically initialize time based on (l/l_max)^2 * (t_max-t_min) + t_min
     double l = dist_calculator->distance(start, goal, state_n);
     double lmax = system->max_distance();
-    double init_time = (l/lmax)*(l/lmax)*(tmax-tmin)+tmin;
+    double init_time = pow(l/lmax, 1/state_n)*(tmax-tmin)+tmin;
     std::cout << "start: [" << start[0] << ", " << start[1] << "]" << std::endl;
     std::cout << "goal: [" << goal[0] << ", " << goal[1] << "]" << std::endl;
     std::cout << "distance: " << l << std::endl;

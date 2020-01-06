@@ -36,7 +36,7 @@ ENDIF(APPLE)
 #    OUTPUT_STRIP_TRAILING_WHITESPACE
 #)
 execute_process(
-    COMMAND "python3.4" -c "import sys;print(sys.prefix)"
+    COMMAND "python3.5" -c "import sys;print(sys.prefix)"
     OUTPUT_VARIABLE PYTHON_PREFIX
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -47,12 +47,12 @@ else(APPLE)
     # set(PYTHON_LIBRARIES "${PYTHON_PREFIX}/lib/libpython2.7.so")
 
     #set(PYTHON_LIBRARIES "/usr/lib/x86_64-linux-gnu/libpython2.7.so")
-    set(PYTHON_LIBRARIES "/usr/lib/x86_64-linux-gnu/libpython3.4m.so")
+    set(PYTHON_LIBRARIES "/usr/lib/x86_64-linux-gnu/libpython3.5m.so")
 endif(APPLE)
 
 
 execute_process(
-    COMMAND "python3.4" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
+    COMMAND "python3.5" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
     OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )

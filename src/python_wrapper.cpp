@@ -522,7 +522,7 @@ public:
      RectangleObsWrapper(
              const py::safe_array<double> &_obs_list,
              double width,
-             std::string env_name
+             const std::string &env_name
       )
      {
          if (_obs_list.shape()[0] == 0) {
@@ -857,7 +857,8 @@ PYBIND11_MODULE(_sst_module, m) {
    // TODO: add init parameters
    py::class_<RectangleObsWrapper>(m, "RectangleObsSystem", system)
         .def(py::init<const py::safe_array<double> &,
-                      double>(),
+                      double,
+                      const std::string &>(),
             "obstacle_list"_a,
             "obstacle_width"_a,
             "env_name"_a

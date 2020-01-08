@@ -40,7 +40,7 @@ ENDIF(APPLE)
 # arclabdl1: use python
 # desktop: use python3.5
 execute_process(
-    COMMAND "python3.5" -c "import sys;print(sys.prefix)"
+    COMMAND "python" -c "import sys;print(sys.prefix)"
     OUTPUT_VARIABLE PYTHON_PREFIX
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -54,14 +54,14 @@ else(APPLE)
 
     # the below depends where libpython is located on the system
     # arclabdl1:
-    #set(PYTHON_LIBRARIES "/home/arclabdl1/anaconda3/envs/ylmiao_kino/lib/libpython3.6m.so")
+    set(PYTHON_LIBRARIES "/home/arclabdl1/anaconda3/envs/ylmiao_kino/lib/libpython3.6m.so")
     # desktop:
     #set(PYTHON_LIBRARIES "/usr/lib/x86_64-linux-gnu/libpython3.5m.so")
 endif(APPLE)
 
 
 execute_process(
-    COMMAND "python3.5" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
+    COMMAND "python" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
     OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )

@@ -607,7 +607,7 @@ public:
         bvp_solver.reset();
     }
 
-    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int min_time_steps, int max_time_steps, double integration_step)
+    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, int min_time_steps, int max_time_steps, double integration_step)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
@@ -620,7 +620,7 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
-        int num_steps = 10*this->state_dim;
+        // int num_steps = 10*this->state_dim;
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
         double tmin = integration_step*this->state_dim;
@@ -943,6 +943,7 @@ PYBIND11_MODULE(_sst_module, m) {
              "start"_a,
              "goal"_a,
              "max_iter"_a,
+             "num_steps"_a,
              "min_time_steps"_a,
              "max_time_steps"_a,
              "integration_step"_a

@@ -121,7 +121,8 @@ std::vector<std::pair<double, double> > psopt_cart_pole_t::get_state_bounds() co
     return {
             {MIN_X,MAX_X},
             {MIN_V,MAX_V},
-            {-M_PI,M_PI},
+            //{-M_PI,M_PI},
+            {-inf,inf},
             {MIN_W,MAX_W},
     };
 }

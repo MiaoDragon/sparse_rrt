@@ -78,7 +78,8 @@ std::tuple<double, double> psopt_pendulum_t::visualize_point(const double* state
 std::vector<std::pair<double, double> > psopt_pendulum_t::get_state_bounds() const {
     // here we increase the bound to make sure that the state can wrap around
 	return {
-			{-2*M_PI,2*M_PI},
+			//{M_PI,M_PI},
+            [-inf, inf},  // we don't add constraint here to angle
 			{MIN_W,MAX_W},
 	};
 }

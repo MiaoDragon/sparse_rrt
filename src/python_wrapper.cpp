@@ -25,6 +25,8 @@
 #include "systems/pendulum.hpp"
 #include "systems/rally_car.hpp"
 #include "systems/two_link_acrobot.hpp"
+#include "systems/two_link_acrobot_obs.hpp"
+
 
 #include "motion_planners/sst.hpp"
 #include "motion_planners/rrt.hpp"
@@ -34,6 +36,7 @@
 #include "bvp/psopt_pendulum.hpp"
 #include "bvp/psopt_cart_pole.hpp"
 #include "bvp/psopt_point.hpp"
+#include "bvp/psopt_acrobot.hpp"
 
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
@@ -505,20 +508,21 @@ public:
  * @details python interface using C++ implementation
  *
  */
- class __attribute__ ((visibility ("hidden"))) CartPoleObsWrapper : public system_t
+ class __attribute__ ((visibility ("hidden"))) RectangleObsWrapper : public system_t
  {
  public:
 
  	/**
- 	 * @brief Python wrapper of CartPoleObs constructor
- 	 * @details Python wrapper of CartPoleObs constructor
+ 	 * @brief Python wrapper of RectangleObsWrapper constructor
+ 	 * @details Python wrapper of RectangleObsWrapper constructor
  	 *
  	 * @param _obs_list: numpy array (N x 2) representing the middle point of the obstacles
      * @param width: width of the rectangle obstacle
  	 */
-     CartPoleObsWrapper(
+     RectangleObsWrapper(
              const py::safe_array<double> &_obs_list,
-             double width
+             double width,
+             std::string env_name
       )
      {
          if (_obs_list.shape()[0] == 0) {
@@ -538,56 +542,66 @@ public:
              obs_list[i][0] = py_obs_list(i, 0);
              obs_list[i][1] = py_obs_list(i, 1);
          }
-         cart_pole_obs.reset(
-                 new cart_pole_obs_t(obs_list, width)
-         );
-     }
+         if (env_name == "cartpole")
+         {
+             system_obs.reset(
+                     new cart_pole_obs_t(obs_list, width)
+             );
+         }
+         else if (env_name == "acrobot")
+         {
+             system_obs.reset(
+                     new two_link_acrobot_obs_t(obs_list, width)
+             );
+         }
+    }
 
     bool propagate(
              const double* start_state, unsigned int state_dimension,
              const double* control, unsigned int control_dimension,
      	    int num_steps, double* result_state, double integration_step)
     {
-        return cart_pole_obs->propagate(start_state, state_dimension, control, control_dimension,
+        return system_obs->propagate(start_state, state_dimension, control, control_dimension,
                                     num_steps, result_state, integration_step);
     }
 
     void enforce_bounds()
     {
-        cart_pole_obs->enforce_bounds();
+        system_obs->enforce_bounds();
     }
 
     bool valid_state()
     {
-        return cart_pole_obs->valid_state();
+        return system_obs->valid_state();
     }
     std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension) const override
     {
-        return cart_pole_obs->visualize_point(state, state_dimension);
+        return system_obs->visualize_point(state, state_dimension);
     }
     std::vector<std::pair<double, double>> get_state_bounds() const override
     {
-        return cart_pole_obs->get_state_bounds();
+        return system_obs->get_state_bounds();
     }
     std::vector<std::pair<double, double>> get_control_bounds() const override
     {
-        return cart_pole_obs->get_control_bounds();
+        return system_obs->get_control_bounds();
     }
 
     std::vector<bool> is_circular_topology() const override
     {
-        return cart_pole_obs->is_circular_topology();
+        return system_obs->is_circular_topology();
     }
 
  protected:
  	/**
  	 * @brief Created planner object
  	 */
-     std::unique_ptr<cart_pole_obs_t> cart_pole_obs;
+     std::unique_ptr<system_t> system_obs;
  };
 
 
 
+//*******************BVP Solver****************************
 class PSOPTBVPWrapper
 {
 public:
@@ -841,11 +855,12 @@ PYBIND11_MODULE(_sst_module, m) {
    py::class_<cart_pole_t>(m, "CartPole", system).def(py::init<>());
    // newly added cart_pole_obs
    // TODO: add init parameters
-   py::class_<CartPoleObsWrapper>(m, "CartPoleObs", system)
+   py::class_<RectangleObsWrapper>(m, "RectangleObsSystem", system)
         .def(py::init<const py::safe_array<double> &,
                       double>(),
             "obstacle_list"_a,
-            "obstacle_width"_a
+            "obstacle_width"_a,
+            "env_name"_a
         );
 
    py::class_<pendulum_t>(m, "Pendulum", system).def(py::init<>());

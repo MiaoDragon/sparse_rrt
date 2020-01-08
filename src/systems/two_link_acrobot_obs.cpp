@@ -13,7 +13,7 @@
  */
 
 
-#include "systems/two_link_acrobot.hpp"
+#include "systems/two_link_acrobot_obs.hpp"
 
 
 #define _USE_MATH_DEFINES
@@ -47,7 +47,7 @@
 #define MIN_T -4
 #define MAX_T 4
 
-double two_link_acrobot_t::distance(const double* point1, const double* point2, unsigned int state_dimension)
+double two_link_acrobot_obs_t::distance(const double* point1, const double* point2, unsigned int state_dimension)
 {
         double x = (LENGTH) * cos(point1[STATE_THETA_1] - M_PI / 2)+(LENGTH) * cos(point1[STATE_THETA_1] + point1[STATE_THETA_2] - M_PI / 2);
         double y = (LENGTH) * sin(point1[STATE_THETA_1] - M_PI / 2)+(LENGTH) * sin(point1[STATE_THETA_1] + point1[STATE_THETA_2] - M_PI / 2);
@@ -56,7 +56,7 @@ double two_link_acrobot_t::distance(const double* point1, const double* point2, 
         return std::sqrt(pow(x-x2,2.0)+pow(y-y2,2.0));
 }
 
-bool two_link_acrobot_t::propagate(
+bool two_link_acrobot_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
@@ -97,7 +97,7 @@ bool two_link_acrobot_t::propagate(
             return validity;
     }
 
-void two_link_acrobot_t::enforce_bounds()
+void two_link_acrobot_obs_t::enforce_bounds()
 {
 
     if(temp_state[0]<-M_PI)
@@ -119,12 +119,53 @@ void two_link_acrobot_t::enforce_bounds()
 }
 
 
-bool two_link_acrobot_t::valid_state()
+bool two_link_acrobot_obs_t::valid_state()
 {
+    // check the pole with the rectangle to see if in collision
+    // calculate the pole state
+    double pole_x0 = 0.;
+    double pole_y0 = 0.;
+    double pole_x1 = (LENGTH) * cos(point1[STATE_THETA_1] - M_PI / 2);
+    double pole_y1 = (LENGTH) * sin(point1[STATE_THETA_1] - M_PI / 2);
+    double pole_x2 = pole_x0 + (LENGTH) * cos(point1[STATE_THETA_1] + point1[STATE_THETA_2] - M_PI / 2);
+    double pole_y2 = pole_y0 + (LENGTH) * sin(point1[STATE_THETA_1] + point1[STATE_THETA_2] - M_PI / 2);
+
+    //std::cout << "state:" << temp_state[0] << "\n";
+    //std::cout << "pole point 1: " << "(" << pole_x1 << ", " << pole_y1 << ")\n";
+    //std::cout << "pole point 2: " << "(" << pole_x2 << ", " << pole_y2 << ")\n";
+    for(unsigned int i = 0; i < obs_list.size(); i++)
+    {
+        // check if any obstacle has intersection with pole
+        //std::cout << "obstacle " << i << "\n";
+        //std::cout << "points: \n";
+        for (unsigned int j = 0; j < 8; j+=2)
+        {
+
+            //std::cout << j << "-th point: " << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
+        }
+        for (unsigned int j = 0; j < 8; j+=2)
+        {
+            // check each line of the obstacle
+            double x1 = obs_list[i][j];
+            double y1 = obs_list[i][j+1];
+            double x2 = obs_list[i][(j+2) % 8];
+            double y2 = obs_list[i][(j+3) % 8];
+            if (lineLine(pole_x0, pole_y0, pole_x1, pole_y1, x1, y1, x2, y2))
+            {
+                // intersect
+                return false;
+            }
+            if (lineLine(pole_x1, pole_y1, pole_x2, pole_y2, x1, y1, x2, y2))
+            {
+                // intersect
+                return false;
+            }
+        }
+    }
     return true;
 }
 
-std::tuple<double, double> two_link_acrobot_t::visualize_point(const double* state, unsigned int state_dimension) const
+std::tuple<double, double> two_link_acrobot_obs_t::visualize_point(const double* state, unsigned int state_dimension) const
 {
     double x = (LENGTH) * cos(state[STATE_THETA_1] - M_PI / 2)+(LENGTH) * cos(state[STATE_THETA_1] + state[STATE_THETA_2] - M_PI / 2);
     double y = (LENGTH) * sin(state[STATE_THETA_1] - M_PI / 2)+(LENGTH) * sin(state[STATE_THETA_1] + state[STATE_THETA_2] - M_PI / 2);
@@ -133,7 +174,7 @@ std::tuple<double, double> two_link_acrobot_t::visualize_point(const double* sta
     return std::make_tuple(x, y);
 }
 
-void two_link_acrobot_t::update_derivative(const double* control)
+void two_link_acrobot_obs_t::update_derivative(const double* control)
 {
     double theta2 = temp_state[STATE_THETA_2];
     double theta1 = temp_state[STATE_THETA_1] - M_PI / 2;
@@ -165,9 +206,25 @@ void two_link_acrobot_t::update_derivative(const double* control)
     deriv[STATE_V_1] = theta1dot_dot;
     deriv[STATE_V_2] = theta2dot_dot;
 }
+bool two_link_acrobot_obs_t::lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+// compute whether two lines intersect with each other
+{
+    // ref: http://www.jeffreythompson.org/collision-detection/line-rect.php
+    // calculate the direction of the lines
+    double uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+    double uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
 
+    // if uA and uB are between 0-1, lines are colliding
+    if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+    {
+        // intersect
+        return true;
+    }
+    // not intersect
+    return false;
+}
 
-std::vector<std::pair<double, double> > two_link_acrobot_t::get_state_bounds() const {
+std::vector<std::pair<double, double> > two_link_acrobot_obs_t::get_state_bounds() const {
     return {
             {-M_PI,M_PI},
             {-M_PI,M_PI},
@@ -176,14 +233,14 @@ std::vector<std::pair<double, double> > two_link_acrobot_t::get_state_bounds() c
     };
 }
 
-std::vector<std::pair<double, double> > two_link_acrobot_t::get_control_bounds() const{
+std::vector<std::pair<double, double> > two_link_acrobot_obs_t::get_control_bounds() const{
     return {
             {MIN_T,MAX_T}
     };
 }
 
 
-std::vector<bool> two_link_acrobot_t::is_circular_topology() const{
+std::vector<bool> two_link_acrobot_obs_t::is_circular_topology() const{
     return {
             true,
             true,

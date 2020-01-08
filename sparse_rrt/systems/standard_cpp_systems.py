@@ -17,8 +17,15 @@ class Car(_sst_module.Car, WithEuclideanDistanceComputer):
 class CartPole(_sst_module.CartPole, WithEuclideanDistanceComputer):
     pass
 
-class CartPoleObs(_sst_module.CartPoleObs, WithEuclideanDistanceComputer):
-    pass
+class CartPoleObs(_sst_module.RectangleObsSystem):
+    def __init__(self, obstacle_list, obstacle_width, env_name):
+        super().__init__(obstacle_list, obstacle_width, env_name)
+        self.env_name = env_name
+    def distance_computer(self):
+        if env_name == "acrobot":
+            return _sst_module.TwoLinkAcrobotDistance()
+        elif env_name == 'cartpole':
+            return _sst_module.euclidean_distance(np.array(self.is_circular_topology()))
 
 class Pendulum(_sst_module.Pendulum, WithEuclideanDistanceComputer):
     pass

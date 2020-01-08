@@ -12,24 +12,46 @@
  *
  */
 
-#ifndef SPARSE_TWO_LINK_ACROBOT_HPP
-#define SPARSE_TWO_LINK_ACROBOT_HPP
+#ifndef SPARSE_TWO_LINK_ACROBOT_OBS_HPP
+#define SPARSE_TWO_LINK_ACROBOT_OBS_HPP
 
 
 #include "systems/system.hpp"
 
-class two_link_acrobot_t : public system_t
+class two_link_acrobot_obs_t : public system_t
 {
 public:
-	two_link_acrobot_t()
+	two_link_acrobot_obs_t(std::vector<std::vector<double>>& _obs_list, double width)
 	{
 		state_dimension = 4;
 		control_dimension = 1;
 		temp_state = new double[state_dimension];
 		deriv = new double[state_dimension];
+		// copy the items from _obs_list to obs_list
+		for(unsigned i=0;i<_obs_list.size();i++)
+		{
+			// each obstacle is represented by its middle point
+			std::vector<double> obs(4*2);
+			// calculate the four points representing the rectangle in the order
+			// UL, UR, LR, LL
+			// the obstacle points are concatenated for efficient calculation
+			double x = _obs_list[i][0];
+			double y = _obs_list[i][1];
+			obs[0] = x - width / 2;  obs[1] = y + width / 2;
+			obs[2] = x + width / 2;  obs[3] = y + width / 2;
+			obs[4] = x + width / 2;  obs[5] = y - width / 2;
+			obs[6] = x - width / 2;  obs[7] = y - width / 2;
+			obs_list.push_back(obs);
+		}
 
 	}
-	virtual ~two_link_acrobot_t(){}
+	virtual ~two_link_acrobot_obs_t()
+	{
+		delete temp_state;
+	    delete deriv;
+		// clear the vector
+		obs_list.clear();
+	}
 
 	/**
 	 * @copydoc system_t::distance(double*, double*)
@@ -77,7 +99,11 @@ public:
 protected:
 	double* deriv;
 	void update_derivative(const double* control);
-
+	// for obstacle
+	std::vector<std::vector<double>> obs_list;
+	// collision checker
+	// from http://www.jeffreythompson.org/collision-detection/line-rect.php
+	bool lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);
 };
 
 

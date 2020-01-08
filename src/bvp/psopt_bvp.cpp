@@ -1,8 +1,10 @@
 #include "bvp/psopt_bvp.hpp"
+#include "bvp/psopt_point.hpp"
 #include "bvp/psopt_cart_pole.hpp"
+#include "bvp/psopt_acrobot.hpp"
 #include "bvp/psopt_pendulum.hpp"
 #include "bvp/psopt_system.hpp"
-#include "bvp/psopt_point.hpp"
+
 
 PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in)
 : state_n(state_n_in)
@@ -36,6 +38,16 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         events = &(psopt_point_t::events);
         linkages = &(psopt_point_t::linkages);
         dist_calculator = new euclidean_distance(system_in->is_circular_topology());
+    }
+    else if (system_in->get_name() == "acrobot")
+    {
+        dae = &(psopt_acrobot_t::dynamics);
+        endpoint_cost = &(psopt_acrobot_t::endpoint_cost);
+        integrand_cost = &(psopt_acrobot_t::integrand_cost);
+        events = &(psopt_acrobot_t::events);
+        linkages = &(psopt_acrobot_t::linkages);
+        dist_calculator = new euclidean_distance(system_in->is_circular_topology());
+        //TODO: use the distance function in the acrobot
     }
 }
 

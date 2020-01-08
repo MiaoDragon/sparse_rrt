@@ -54,7 +54,7 @@ bool cart_pole_obs_t::propagate(
         temp_state[1] = start_state[1];
         temp_state[2] = start_state[2];
         temp_state[3] = start_state[3];
-        bool validity = true;
+        bool validity = false;
         for(int i=0;i<num_steps;i++)
         {
                 update_derivative(control);
@@ -63,14 +63,25 @@ bool cart_pole_obs_t::propagate(
                 temp_state[2] += integration_step*deriv[2];
                 temp_state[3] += integration_step*deriv[3];
                 enforce_bounds();
-                //std::cout << "validity check\n";
-                validity = validity && valid_state();
-                //std::cout << "validity: " << validity << "\n";
+                //validity = validity && valid_state();
+                if (valid_state() == true)
+                {
+                    result_state[0] = temp_state[0];
+                    result_state[1] = temp_state[1];
+                    result_state[2] = temp_state[2];
+                    result_state[3] = temp_state[3];
+                    validity = true;
+                }
+                else
+                {
+                    // Found the earliest invalid position. break the loop and return
+                    break;
+                }
         }
-        result_state[0] = temp_state[0];
-        result_state[1] = temp_state[1];
-        result_state[2] = temp_state[2];
-        result_state[3] = temp_state[3];
+        //result_state[0] = temp_state[0];
+        //result_state[1] = temp_state[1];
+        //result_state[2] = temp_state[2];
+        //result_state[3] = temp_state[3];
         return validity;
 }
 

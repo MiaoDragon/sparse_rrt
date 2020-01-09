@@ -92,6 +92,7 @@ set(SOURCE_FILES
         src/systems/point.cpp
         src/systems/rally_car.cpp
         src/systems/two_link_acrobot.cpp
+        src/systems/two_link_acrobot_obs.cpp
         src/utilities/random.cpp
         src/utilities/timer.cpp
         src/image_creation/svg_image.cpp
@@ -100,6 +101,7 @@ set(SOURCE_FILES
         src/bvp/psopt_bvp.cpp
         src/bvp/psopt_cart_pole.cpp
         src/bvp/psopt_pendulum.cpp
+        src/bvp/psopt_acrobot.cpp
         src/bvp/psopt_point.cpp
         src/bvp/psopt_system.cpp)
 

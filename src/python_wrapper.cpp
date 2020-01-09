@@ -565,15 +565,15 @@ public:
                                     num_steps, result_state, integration_step);
     }
 
-    void enforce_bounds()
-    {
-        system_obs->enforce_bounds();
-    }
+    //void enforce_bounds()
+    //{
+    //    system_obs->enforce_bounds();
+    //}
 
-    bool valid_state()
-    {
-        return system_obs->valid_state();
-    }
+    //bool valid_state()
+    //{
+    //    return system_obs->valid_state();
+    //}
     std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension) const override
     {
         return system_obs->visualize_point(state, state_dimension);

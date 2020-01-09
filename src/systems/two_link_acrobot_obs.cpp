@@ -127,8 +127,8 @@ bool two_link_acrobot_obs_t::valid_state()
     double pole_y0 = 0.;
     double pole_x1 = (LENGTH) * cos(temp_state[STATE_THETA_1] - M_PI / 2);
     double pole_y1 = (LENGTH) * sin(temp_state[STATE_THETA_1] - M_PI / 2);
-    double pole_x2 = pole_x0 + (LENGTH) * cos(temp_state[STATE_THETA_1] + temp_state[STATE_THETA_2] - M_PI / 2);
-    double pole_y2 = pole_y0 + (LENGTH) * sin(temp_state[STATE_THETA_1] + temp_state[STATE_THETA_2] - M_PI / 2);
+    double pole_x2 = pole_x1 + (LENGTH) * cos(temp_state[STATE_THETA_1] + temp_state[STATE_THETA_2] - M_PI / 2);
+    double pole_y2 = pole_y1 + (LENGTH) * sin(temp_state[STATE_THETA_1] + temp_state[STATE_THETA_2] - M_PI / 2);
 
     //std::cout << "state:" << temp_state[0] << "\n";
     //std::cout << "pole point 1: " << "(" << pole_x1 << ", " << pole_y1 << ")\n";

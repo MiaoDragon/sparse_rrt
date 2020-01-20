@@ -975,4 +975,6 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_cart_pole_t>(m, "PSOPTCartPole", psopt_system).def(py::init<>());
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
+     py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
+
 }

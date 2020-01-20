@@ -53,3 +53,6 @@ class PSOPTPendulum(_sst_module.PSOPTPendulum, WithEuclideanDistanceComputer):
     pass
 class PSOPTPoint(_sst_module.PSOPTPoint, WithEuclideanDistanceComputer):
     pass
+class PSOPTAcrobot(_sst_module.PSOPTAcrobot):
+    def distance_computer(self):
+        return _sst_module.TwoLinkAcrobotDistance()

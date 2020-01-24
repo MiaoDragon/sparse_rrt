@@ -251,11 +251,11 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       // the mapping to [0, 2pi] are equal
       if (i == 0 || i == 1)
       {
-          e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_state[i]/2/M_PI);
+          e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_states[i]/2/M_PI);
       }
       else
       {
-          e[STATE_N+i] = final_state[i];
+          e[STATE_N+i] = final_states[i];
       }
   }
 }

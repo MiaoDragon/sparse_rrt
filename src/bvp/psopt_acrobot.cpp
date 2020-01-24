@@ -247,7 +247,16 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
   for (unsigned i=0; i < STATE_N; i++)
   {
       e[i] = initial_states[i];
-      e[STATE_N+i] = final_states[i];
+      // we fix the initial state, but the final state if it is angle then allow them to have 2pi difference
+      // the mapping to [0, 2pi] are equal
+      if (i == 0 || i == 1)
+      {
+          e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_state[i]/2/M_PI);
+      }
+      else
+      {
+          e[STATE_N+i] = final_state[i];
+      }
   }
 }
 

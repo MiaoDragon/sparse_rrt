@@ -254,12 +254,16 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       if (i == 0 || i == 1)
       {
           e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_states[i]/2/M_PI);
+          if (e[STATE_N+i] > M_PI)
+          {
+              e[STATE_N+i] = e[STATE_N+i] - 2*M_PI;
+          }
       }
       else
       {
           e[STATE_N+i] = final_states[i];
       }
-      
+
   }
 }
 

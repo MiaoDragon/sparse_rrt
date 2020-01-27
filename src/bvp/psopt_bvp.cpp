@@ -137,9 +137,23 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     DMatrix states(state_n, num_steps);
     for (unsigned i=0; i < state_n; i+=1)
     {
-        DMatrix row(linspace(start[i], goal[i], num_steps));
-        row.Transpose();
-        states.SetRow(row, i+1);
+        // if this state is an angle, then map to -pi~pi
+        if (system->is_circular_topology()[i])
+        {
+            double dif = goal[i] - start[i];
+            dif = dif - 2*M_PI*ceil(floor(dif/M_PI)/2);
+            double wrapped_goal = start[i] + dif;
+            DMatrix row(linspace(start[i], wrapped_goal, num_steps));
+            row.Transpose();
+            states.SetRow(row, i+1);
+        }
+        else
+        {
+            DMatrix row(linspace(start[i], goal[i], num_steps));
+            row.Transpose();
+            states.SetRow(row, i+1);
+
+        }
     }
     //states.Save("state_init.txt");
     // dynamically initialize time based on (l/l_max)^2 * (t_max-t_min) + t_min

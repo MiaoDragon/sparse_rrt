@@ -252,12 +252,12 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
 
       if (i == 0 || i == 1)
       {
-          std::cout << "initial_states[i]: " << static_cast<double>(initial_states[i]) << std::endl;
+          std::cout << "initial_states[i]: " << (initial_states[i]).getADValue() << std::endl;
           e[i] = initial_states[i]-2*M_PI*ceil(floor(initial_states[i]/M_PI)/2);
-          std::cout << "wrapped initial states[i]: " << static_cast<double>(e[i]) << std::endl;
-          std::cout << "final_states[i]: " << static_cast<double>(final_states[i]) << std::endl;
+          std::cout << "wrapped initial states[i]: " << (e[i]).getADValue() << std::endl;
+          std::cout << "final_states[i]: " << (final_states[i]).getADValue() << std::endl;
           e[STATE_N+i] = final_states[i]-2*M_PI*ceil(floor(final_states[i]/M_PI)/2);
-          std::cout << "wrapped final states[i]: " << static_cast<double>(e[STATE_N+i]) << std::endl;
+          std::cout << "wrapped final states[i]: " << (e[STATE_N+i]).getADValue() << std::endl;
           //e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_states[i]/2/M_PI);
           //if (e[STATE_N+i] > M_PI)
           //{

@@ -49,12 +49,13 @@ PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int contro
         dist_calculator = new euclidean_distance(system_in->is_circular_topology());
         //TODO: use the distance function in the acrobot
     }
-    random_generator = RandomGenerator(0);
+    random_generator = new RandomGenerator(0);
 }
 
 PSOPT_BVP::~PSOPT_BVP()
 {
     delete dist_calculator;
+    delete random_generator;
 }
 void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* goal, int num_steps,
                                 int max_iter, double tmin, double tmax)
@@ -139,7 +140,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         for (unsigned j=0; j < num_steps; j+=1)
         {
             // randomly set control input
-            controls(i+1,j+1) = random_generator.uniform_random(control_bound[i].first, control_bound[i].second);
+            controls(i+1,j+1) = random_generator->uniform_random(control_bound[i].first, control_bound[i].second);
         }
     }
     problem.phases(1).guess.controls = controls;

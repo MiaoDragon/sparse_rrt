@@ -45,6 +45,6 @@ protected:
     events_f events;
     linkages_f linkages;
     const distance_t* dist_calculator;
-    RandomGenerator random_generator;
+    const RandomGenerator* random_generator;
 };
 #endif

@@ -142,7 +142,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         {
             double dif = goal[i] - start[i];
             dif = dif - 2*M_PI*ceil(floor(dif/M_PI)/2);
+            std::cout << i << "-th state, difference: " << dif << std::endl;
             double wrapped_goal = start[i] + dif;
+            std::cout << i << "-th state, wrapped_goal: " << wrapped_goal << std::endl;
             DMatrix row(linspace(start[i], wrapped_goal, num_steps));
             row.Transpose();
             states.SetRow(row, i+1);

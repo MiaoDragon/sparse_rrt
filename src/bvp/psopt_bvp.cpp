@@ -176,7 +176,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.derivatives = "automatic";
     algorithm.hessian = "exact";
     algorithm.nlp_iter_max = max_iter;
-    algorithm.nlp_tolerance = 1.e-4;
+    algorithm.nlp_tolerance = 1.e-6;
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
     psopt(solution, problem, algorithm);
@@ -212,6 +212,11 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.x.push_back(x_t);
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
+    }
+    // check if there is any error
+    if (solution.error_flag)
+    {
+        std::cout << "error occurred" << std::endl;
     }
     //std::cout << "]" << std::endl;
 }

@@ -132,7 +132,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
 
     problem.phases(1).guess.controls = zeros(control_n, num_steps);
-    problem.phases(1).guess.states = zeros(state_n, num_steps);
+    //problem.phases(1).guess.states = zeros(state_n, num_steps);
     // DMatrix index starts from 1
     DMatrix states(state_n, num_steps);
     for (unsigned i=0; i < state_n; i+=1)
@@ -157,6 +157,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
         }
     }
+    problem.phases(1).guess.states = states;
     //states.Save("state_init.txt");
     // dynamically initialize time based on (l/l_max)^2 * (t_max-t_min) + t_min
     double l = dist_calculator->distance(start, goal, state_n);

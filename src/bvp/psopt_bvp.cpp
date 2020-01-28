@@ -142,9 +142,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         {
             double dif = goal[i] - start[i];
             dif = dif - 2*M_PI*ceil(floor(dif/M_PI)/2);
-            std::cout << i << "-th state, difference: " << dif << std::endl;
+            //std::cout << i << "-th state, difference: " << dif << std::endl;
             double wrapped_goal = start[i] + dif;
-            std::cout << i << "-th state, wrapped_goal: " << wrapped_goal << std::endl;
+            //std::cout << i << "-th state, wrapped_goal: " << wrapped_goal << std::endl;
             DMatrix row(linspace(start[i], wrapped_goal, num_steps));
             row.Transpose();
             states.SetRow(row, i+1);
@@ -166,13 +166,13 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     // initialize to be one step forward
     double init_time = 0.002*num_steps;
 
-    std::cout << "start: [" << start[0] << ", " << start[1] << "]" << std::endl;
-    std::cout << "goal: [" << goal[0] << ", " << goal[1] << "]" << std::endl;
-    std::cout << "distance: " << l << std::endl;
-    std::cout << "max_distance: " << lmax << std::endl;
-    std::cout << "init_time: " << init_time << std::endl;
-    std::cout << "tmin: " << tmin << std::endl;
-    std::cout << "tmax: " << tmax << std::endl;
+    //std::cout << "start: [" << start[0] << ", " << start[1] << "]" << std::endl;
+    //std::cout << "goal: [" << goal[0] << ", " << goal[1] << "]" << std::endl;
+    //std::cout << "distance: " << l << std::endl;
+    //std::cout << "max_distance: " << lmax << std::endl;
+    //std::cout << "init_time: " << init_time << std::endl;
+    //std::cout << "tmin: " << tmin << std::endl;
+    //std::cout << "tmax: " << tmax << std::endl;
     problem.phases(1).guess.time = linspace(0.0, init_time, num_steps);
 
     algorithm.scaling = "automatic";

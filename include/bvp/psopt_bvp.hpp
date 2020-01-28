@@ -11,6 +11,7 @@
 #include <vector>
 #include "bvp/psopt_system.hpp"
 #include "systems/distance_functions.h"
+#include "utilities/random.hpp"
 
 typedef void (*dae_f)(adouble*, adouble*, adouble*, adouble*, adouble*, adouble&, adouble*, int, Workspace*);
 typedef adouble (*endpoint_cost_f)(adouble*, adouble*, adouble*, adouble&, adouble&, adouble*, int, Workspace*);
@@ -44,5 +45,6 @@ protected:
     events_f events;
     linkages_f linkages;
     const distance_t* dist_calculator;
+    RandomGenerator random_generator;
 };
 #endif

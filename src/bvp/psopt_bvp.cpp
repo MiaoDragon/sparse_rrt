@@ -58,7 +58,10 @@ PSOPT_BVP::~PSOPT_BVP()
     delete random_generator;
 }
 void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* goal, int num_steps,
-                                int max_iter, double tmin, double tmax)
+                                int max_iter, double tmin, double tmax,
+                                const std::vector<std::vector<double>> &x_init,
+                                const std::vector<std::vector<double>> &u_init,
+                                const std::vector<std::vector<double>> &t_init)
 {
 
     Alg algorithm;
@@ -140,13 +143,32 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         for (unsigned j=0; j < num_steps; j+=1)
         {
             // randomly set control input
+            controls(i+1,j+1) = u_init[j,i];
+        }
+    }
+    /**
+    for (unsigned i=0; i < control_n; i+=1)
+    {
+        for (unsigned j=0; j < num_steps; j+=1)
+        {
+            // randomly set control input
             controls(i+1,j+1) = random_generator->uniform_random(control_bound[i].first, control_bound[i].second);
         }
     }
+    */
     problem.phases(1).guess.controls = controls;
     //problem.phases(1).guess.states = zeros(state_n, num_steps);
     // DMatrix index starts from 1
     DMatrix states(state_n, num_steps);
+    for (unsigned i=0; i < state_n; i+=1)
+    {
+        for (unsigned j=0; j < num_steps; j+=1)
+        {
+            states[i+1,j+1] = x_init[j,i];
+        }
+    }
+    /**
+    // past initialization method
     for (unsigned i=0; i < state_n; i+=1)
     {
         // if this state is an angle, then map to -pi~pi
@@ -169,6 +191,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
         }
     }
+    */
     problem.phases(1).guess.states = states;
     //states.Save("state_init.txt");
     // dynamically initialize time based on (l/l_max)^2 * (t_max-t_min) + t_min
@@ -176,16 +199,12 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     double lmax = system->max_distance();
     //double init_time = pow(l/lmax, 1.8/state_n)*(tmax-tmin)+tmin;
     // initialize to be one step forward
-    double init_time = 0.002*num_steps;
-
-    //std::cout << "start: [" << start[0] << ", " << start[1] << "]" << std::endl;
-    //std::cout << "goal: [" << goal[0] << ", " << goal[1] << "]" << std::endl;
-    //std::cout << "distance: " << l << std::endl;
-    //std::cout << "max_distance: " << lmax << std::endl;
-    //std::cout << "init_time: " << init_time << std::endl;
-    //std::cout << "tmin: " << tmin << std::endl;
-    //std::cout << "tmax: " << tmax << std::endl;
-    problem.phases(1).guess.time = linspace(0.0, init_time, num_steps);
+    DMatrix init_time(num_steps);
+    for (unsigned i=0; i < num_steps; i++)
+    {
+        init_time[i+1] = t_init[i];
+    }
+    problem.phases(1).guess.time = init_time;
 
     algorithm.scaling = "automatic";
     algorithm.derivatives = "automatic";

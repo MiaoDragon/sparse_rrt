@@ -621,7 +621,8 @@ public:
         bvp_solver.reset();
     }
 
-    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, int min_time_steps, int max_time_steps, double integration_step)
+    py::object solve(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, double tmin, double tmax,
+                     py::safe_array<double>& x_init_py, py::safe_array<double>& u_init_py, py::safe_array<double>& t_init_py)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
@@ -637,11 +638,35 @@ public:
         // int num_steps = 10*this->state_dim;
         psopt_result_t res;
         //double tmin = integration_step*num_steps;
-        double tmin = min_time_steps*integration_step*num_steps;
-        double tmax = max_time_steps*integration_step*num_steps;
-        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
+        //double tmin = min_time_steps*integration_step*num_steps;
+        //double tmax = max_time_steps*integration_step*num_steps;
+        // initial
+        std::vector<std::vector<double>> x_init;
+        std::vector<std::vector<double>> u_init;
+        std::vector<double> t_init;
 
+        auto init_x_ref = x_init_py.unchecked<2>();
+        auto init_u_ref = u_init_py.unchecked<2>();
+        auto init_t_ref = t_init_py.unchecked<1>();
 
+        for (unsigned i=0; i < num_steps; i++)
+        {
+            std::vector<double> x_init_i;
+            std::vector<double> u_init_i;
+            for (unsigned j=0; j < size; j++)
+            {
+                x_init_i.push_back(init_x_ref(i,j));
+            }
+            for (unsigned j=0; j < control_dim; j++)
+            {
+                u_init_i.push_back(init_u_ref(i,j));
+            }
+            x_init.push_back(x_init_i);
+            u_init.push_back(u_init_i);
+            t_init.push_back(init_t_ref(i));
+        }
+
+        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax, x_init, u_init, t_init);
         std::vector<std::vector<double>> res_x = res.x;  // optimziation solution
         std::vector<std::vector<double>> res_u = res.u;  // optimziation solution
         std::vector<double> res_t;  // optimziation solution
@@ -680,7 +705,8 @@ public:
             (state_array, control_array, time_array));
     }
 
-    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int min_time_steps, int max_time_steps, double integration_step)
+    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, double tmin, double tmax,
+                       py::safe_array<double>& x_init_py, py::safe_array<double>& u_init_py, py::safe_array<double>& t_init_py)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
@@ -693,12 +719,34 @@ public:
             start[i] = start_data_py(i);
             goal[i] = goal_data_py(i);
         }
-        int num_steps = 10*this->state_dim;
+        // initial
+        std::vector<std::vector<double>> x_init;
+        std::vector<std::vector<double>> u_init;
+        std::vector<double> t_init;
+
+        auto init_x_ref = x_init_py.unchecked<2>();
+        auto init_u_ref = u_init_py.unchecked<2>();
+        auto init_t_ref = t_init_py.unchecked<1>();
+
+        for (unsigned i=0; i < num_steps; i++)
+        {
+            std::vector<double> x_init_i;
+            std::vector<double> u_init_i;
+            for (unsigned j=0; j < size; j++)
+            {
+                x_init_i.push_back(init_x_ref(i,j));
+            }
+            for (unsigned j=0; j < control_dim; j++)
+            {
+                u_init_i.push_back(init_u_ref(i,j));
+            }
+            x_init.push_back(x_init_i);
+            u_init.push_back(u_init_i);
+            t_init.push_back(init_t_ref(i));
+        }
+
         psopt_result_t res;
-        //double tmin = integration_step*num_steps;
-        double tmin = integration_step*this->state_dim;
-        double tmax = max_time_steps*integration_step*num_steps;
-        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax);
+        bvp_solver->solve(res, start, goal, num_steps, max_iter, tmin, tmax, x_init, u_init, t_init);
 
 
         std::vector<std::vector<double>> x_traj = res.x;  // optimziation solution
@@ -951,18 +999,23 @@ PYBIND11_MODULE(_sst_module, m) {
              "start"_a,
              "goal"_a,
              "max_iter"_a,
-             "min_time_steps"_a,
-             "max_time_steps"_a,
-             "integration_step"_a
+             "num_steps"_a,
+             "tmin"_a,
+             "tmax"_a,
+             "x_init"_a,
+             "u_init"_a,
+             "t_init"_a
          )
          .def("solve", &PSOPTBVPWrapper::solve,
              "start"_a,
              "goal"_a,
              "max_iter"_a,
              "num_steps"_a,
-             "min_time_steps"_a,
-             "max_time_steps"_a,
-             "integration_step"_a
+             "tmin"_a,
+             "tmax"_a,
+             "x_init"_a,
+             "u_init"_a,
+             "t_init"_a
          )
      ;
      py::class_<psopt_system_t> psopt_system(m, "PSOPTSystem", system);

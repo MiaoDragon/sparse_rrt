@@ -39,7 +39,7 @@ public:
           double tmin, double tmax,
           const std::vector<std::vector<double>> &x_init,
           const std::vector<std::vector<double>> &u_init,
-          const std::vector<std::vector<double>> &t_init);
+          const std::vector<double> &t_init);
 
 protected:
     int state_n;

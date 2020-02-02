@@ -234,7 +234,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
                                 int max_iter, double tmin, double tmax,
                                 const std::vector<std::vector<double>> &x_init,
                                 const std::vector<std::vector<double>> &u_init,
-                                const std::vector<std::vector<double>> &t_init)
+                                const std::vector<double> &t_init)
 {
 
     Alg algorithm;

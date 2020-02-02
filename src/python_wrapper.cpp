@@ -705,7 +705,8 @@ public:
             (state_array, control_array, time_array));
     }
 
-    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, double tmin, double tmax,
+    py::object steerTo(py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int max_iter, int num_steps, double integration_step,
+                       int min_time_steps, int max_time_steps, double tmin, double tmax,
                        py::safe_array<double>& x_init_py, py::safe_array<double>& u_init_py, py::safe_array<double>& t_init_py)
     {
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
@@ -1000,6 +1001,9 @@ PYBIND11_MODULE(_sst_module, m) {
              "goal"_a,
              "max_iter"_a,
              "num_steps"_a,
+             "integration_step"_a,
+             "min_time_steps"_a,
+             "max_time_steps"_a,
              "tmin"_a,
              "tmax"_a,
              "x_init"_a,

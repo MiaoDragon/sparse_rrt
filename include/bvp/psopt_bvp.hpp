@@ -33,6 +33,9 @@ public:
     PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in);
     ~PSOPT_BVP();
     void solve(psopt_result_t& res, const double* start, const double* goal, int num_steps, int max_iter,
+          double tmin, double tmax);
+
+    void solve(psopt_result_t& res, const double* start, const double* goal, int num_steps, int max_iter,
           double tmin, double tmax,
           const std::vector<std::vector<double>> &x_init,
           const std::vector<std::vector<double>> &u_init,

@@ -316,7 +316,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         for (unsigned j=0; j < num_steps; j+=1)
         {
             // randomly set control input
-            controls(i+1,j+1) = u_init[j,i];
+            controls(i+1,j+1) = u_init[j][i];
         }
     }
     /**
@@ -337,7 +337,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     {
         for (unsigned j=0; j < num_steps; j+=1)
         {
-            states[i+1,j+1] = x_init[j,i];
+            states(i+1,j+1) = x_init[j][i];
         }
     }
     /**
@@ -375,7 +375,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     DMatrix init_time(num_steps);
     for (unsigned i=0; i < num_steps; i++)
     {
-        init_time[i+1] = t_init[i];
+        init_time(i+1) = t_init[i];
     }
     problem.phases(1).guess.time = init_time;
 

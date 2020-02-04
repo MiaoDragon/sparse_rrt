@@ -231,8 +231,7 @@ adouble psopt_acrobot_t::endpoint_cost(adouble* initial_states, adouble* final_s
     // Since we already set endpoint constraint in events, we don't need it here
     // TODO: maybe we can set one end free, but try to reduce the cost only
     // Here we use the time as endpoint cost for minimum time control
-    //return tf;
-    return 0.;
+    return 0.1*tf;
 }
 
 adouble psopt_acrobot_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,

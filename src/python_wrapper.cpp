@@ -604,7 +604,7 @@ public:
 class SystemPropagator
 {
 public:
-    py::safe_array<double> propagate(system_interface* system, py::safe_aray<double>& start_py, py::safe_array<double>& control_py, double integration_step)
+    py::safe_array<double> propagate(system_interface* system, py::safe_array<double>& start_py, py::safe_array<double>& control_py, double integration_step)
     {
         auto start_data_py = start_py.unchecked<1>();
         auto control_data_py = control_py.unchecked<1>();

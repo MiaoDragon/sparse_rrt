@@ -1071,6 +1071,7 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
      py::class_<SystemPropagator>(m, "SystemPropagator")
+         .def(py::init<>())
          .def("propagate", &SystemPropagator::propagate,
              "system"_a,
              "start"_a,

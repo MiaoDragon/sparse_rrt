@@ -621,9 +621,9 @@ public:
         {
             std::cout << result_state[i] << ", ";
         }
-        std::cout << "]" std::endl;
+        std::cout << "]" << std::endl;
         // convert result to python
-        py::safe_array<double> res_state({state_size.size()});
+        py::safe_array<double> res_state({state_size});
         auto state_ref = res_state.mutable_unchecked<1>();
         for (unsigned i=0; i < state_size; i++)
         {
@@ -1070,8 +1070,7 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
-     py::class_<SystemPropagator> system_propagator(m, "SystemPropagator");
-     system_propagator
+     py::class_<SystemPropagator>(m, "SystemPropagator")
          .def("propagate", &SystemPropagator::propagate,
              "system"_a,
              "start"_a,

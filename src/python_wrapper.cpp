@@ -614,7 +614,7 @@ public:
         double* control = new double[control_size];
         double* result_state = new double[state_size];
         // copy start and control
-        for (unsigned i=0 i < state_size; i++)
+        for (unsigned i=0; i < state_size; i++)
         {
             start[i] = start_data_py(i);
         }

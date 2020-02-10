@@ -601,7 +601,7 @@ public:
 
 
 //******************propagate for dense waypoints*************
-class SystemPropogator
+class SystemPropagator
 {
 public:
     py::safe_array<double> propagate(system_interface* system, py::safe_aray<double>& start_py, py::safe_array<double>& control_py, double integration_step)
@@ -1070,9 +1070,8 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
-     py::class_<SystemPropogator> system_propagator(m, "SystemPropogator");
-     system_propagator
-         .def("propagate", &SystemPropogator::propagate,
+     py::class_<SystemPropagator>(m, "SystemPropagator")
+         .def("propagate", &SystemPropagator::propagate,
              "system"_a,
              "start"_a,
              "control"_a,

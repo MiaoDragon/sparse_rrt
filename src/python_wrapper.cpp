@@ -613,7 +613,7 @@ public:
         double* start = new double[state_size];
         double* control = new double[control_size];
         double* result_state = new double[state_size];
-        system->propagate(start_state, state_size, control, control_size, 1, result_state, integration_step);
+        system->propagate(start, state_size, control, control_size, 1, result_state, integration_step);
         // printout the result in c++
         std::cout << "after propagation in C++, state:" << std::endl;
         std::cout << "[";

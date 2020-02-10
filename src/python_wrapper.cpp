@@ -634,7 +634,7 @@ public:
         delete[] start;
         return res_state;
     }
-}
+};
 
 
 

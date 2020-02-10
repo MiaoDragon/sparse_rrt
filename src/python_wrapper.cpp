@@ -600,6 +600,44 @@ public:
  };
 
 
+//******************propagate for dense waypoints*************
+class SystemPropogator
+{
+public:
+    SystemPropogator(){}
+    py::safe_array<double> propagate(system_interface* system, py::safe_aray<double>& start_py, py::safe_array<double>& control_py, double integration_step)
+    {
+        auto start_data_py = start_py.unchecked<1>();
+        auto control_data_py = control_py.unchecked<1>();
+        int state_size = start_data_py.shape(0);
+        int control_size = control_data_py.shape(0);
+        double* start = new double[state_size];
+        double* control = new double[control_size];
+        double* result_state = new double[state_size];
+        system->propagate(start_state, state_size, control, control_size, 1, result_state, integration_step);
+        // printout the result in c++
+        std::cout << "after propagation in C++, state:" << std::endl;
+        std::cout << "[";
+        for (unsigned i=0; i < state_size; i++)
+        {
+            std::cout << result_state[i] << ", ";
+        }
+        std::cout << "]" std::endl;
+        // convert result to python
+        py::safe_array<double> res_state({state_size.size()});
+        auto state_ref = res_state.mutable_unchecked<1>();
+        for (unsigned i=0; i < state_size; i++)
+        {
+            state_ref(i) = result_state[i];
+        }
+        delete[] result_state;
+        delete[] control;
+        delete[] start;
+        return state_ref;
+    }
+}
+
+
 
 //*******************BVP Solver****************************
 class PSOPTBVPWrapper
@@ -1033,5 +1071,11 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
-
+     py::class_<SystemPropogator>(m, "SystemPropogator")
+            .def("propagate", &SystemPropogator::propagate,
+                "system"_a,
+                "start"_a,
+                "control"_a,
+                "integration_step"_a)
+    ;
 }

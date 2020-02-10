@@ -633,7 +633,7 @@ public:
         delete[] result_state;
         delete[] control;
         delete[] start;
-        return state_ref;
+        return res_state;
     }
 }
 
@@ -1076,6 +1076,7 @@ PYBIND11_MODULE(_sst_module, m) {
                 "system"_a,
                 "start"_a,
                 "control"_a,
-                "integration_step"_a)
+                "integration_step"_a
+            )
     ;
 }

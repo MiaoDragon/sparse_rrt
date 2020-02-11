@@ -302,7 +302,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     problem.phases(1).bounds.upper.EndTime = tmax;
 
 
-    problem.integrand_cost = integrand_cost;
+    //problem.integrand_cost = integrand_cost;  // register if there is integrand cost
     problem.endpoint_cost = endpoint_cost;
     problem.dae = dae;
     problem.events = events;
@@ -385,7 +385,8 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.nlp_iter_max = max_iter;
     algorithm.nlp_tolerance = 1.e-6;
     algorithm.nlp_method = "IPOPT";
-    algorithm.print_level = 0;
+    algorithm.print_level = 1;
+    algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);
 
     DMatrix x = solution.get_states_in_phase(1);

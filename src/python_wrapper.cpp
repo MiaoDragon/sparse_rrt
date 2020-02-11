@@ -625,13 +625,13 @@ public:
 
         system->propagate(start, state_size, control, control_size, 1, result_state, integration_step);
         // printout the result in c++
-        std::cout << "after propagation in C++, state:" << std::endl;
-        std::cout << "[";
-        for (unsigned i=0; i < state_size; i++)
-        {
-            std::cout << result_state[i] << ", ";
-        }
-        std::cout << "]" << std::endl;
+        //std::cout << "after propagation in C++, state:" << std::endl;
+        //std::cout << "[";
+        //for (unsigned i=0; i < state_size; i++)
+        //{
+        //    std::cout << result_state[i] << ", ";
+        //}
+        //std::cout << "]" << std::endl;
         // convert result to python
         py::safe_array<double> res_state({state_size});
         auto state_ref = res_state.mutable_unchecked<1>();

@@ -385,7 +385,8 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.nlp_iter_max = max_iter;
     algorithm.nlp_tolerance = 1.e-6;
     algorithm.nlp_method = "IPOPT";
-    algorithm.print_level = 1;
+    algorithm.print_level = 0;
+    algorithm.collocation_method = "trapezoidal";
     algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);
 

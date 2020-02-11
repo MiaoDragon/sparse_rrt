@@ -387,7 +387,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
     algorithm.collocation_method = "trapezoidal";
-    algorithm.mesh_refinement = "automatic";
+    //algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);
 
     DMatrix x = solution.get_states_in_phase(1);

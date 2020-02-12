@@ -303,7 +303,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
 
     //problem.integrand_cost = integrand_cost;  // register if there is integrand cost
-    problem.endpoint_cost = endpoint_cost;
+    //problem.endpoint_cost = endpoint_cost;
     problem.dae = dae;
     problem.events = events;
     problem.linkages = linkages;
@@ -383,7 +383,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.derivatives = "automatic";
     algorithm.hessian = "exact";
     algorithm.nlp_iter_max = max_iter;
-    algorithm.nlp_tolerance = 1.e-3;
+    algorithm.nlp_tolerance = 1.e-6;
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
     algorithm.collocation_method = "trapezoidal";

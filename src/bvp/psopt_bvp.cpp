@@ -388,6 +388,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.print_level = 0;
     algorithm.collocation_method = "trapezoidal";
     algorithm.diff_matrix = "central-differences";
+    algorithm.nsteps_error_integration = 4;
     //algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);
 

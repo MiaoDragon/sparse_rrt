@@ -254,7 +254,8 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       if (i == 0 || i == 1)
       {
           //std::cout << "initial_states[i]: " << (initial_states[i]).getValue() << std::endl;
-          e[i] = initial_states[i]-2*M_PI*ceil(floor(initial_states[i]/M_PI)/2);
+          //e[i] = initial_states[i]-2*M_PI*ceil(floor(initial_states[i]/M_PI)/2);
+          e[i] = initial_states[i];
           //std::cout << "wrapped initial states[i]: " << (e[i]).getValue() << std::endl;
           //std::cout << "final_states[i]: " << (final_states[i]).getValue() << std::endl;
           e[STATE_N+i] = final_states[i]-2*M_PI*ceil(floor(final_states[i]/M_PI)/2);

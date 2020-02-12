@@ -303,7 +303,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
 
     //problem.integrand_cost = integrand_cost;  // register if there is integrand cost
-    //problem.endpoint_cost = endpoint_cost;
+    problem.endpoint_cost = endpoint_cost;
     problem.dae = dae;
     problem.events = events;
     problem.linkages = linkages;

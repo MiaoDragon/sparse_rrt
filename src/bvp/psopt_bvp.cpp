@@ -106,8 +106,11 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         // specify the boundary
         problem.phases(1).bounds.lower.events(i) = start[i-1];
         problem.phases(1).bounds.upper.events(i) = start[i-1];
-        problem.phases(1).bounds.lower.events(state_n+i) = goal[i-1];
-        problem.phases(1).bounds.upper.events(state_n+i) = goal[i-1];
+        if (i==3 || i==4)
+        {
+            problem.phases(1).bounds.lower.events(state_n+i) = 0.;//goal[i-1];
+            problem.phases(1).bounds.upper.events(state_n+i) = 0.;//goal[i-1];
+        }
         /**
         if (system->is_circular_topology()[i])
         {

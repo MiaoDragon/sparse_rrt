@@ -388,7 +388,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
     algorithm.collocation_method = "trapezoidal";
-    algorithm.diff_matrix = "standard";  // options: "standard", "reduced-roundoff", "central-differences"
+    algorithm.diff_matrix = "reduced-roundoff";  // options: "standard", "reduced-roundoff", "central-differences"
     algorithm.nsteps_error_integration = 2;
     //algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);

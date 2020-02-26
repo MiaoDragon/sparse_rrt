@@ -470,7 +470,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     char node_string[40];
     sprintf(node_string, "[%d, %d]", num_steps/2, num_steps);
     std::cout << node_string << std::endl;
-    problem.phases(1).nodes = node_string;
+    problem.phases(1).nodes = num_steps;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number
     psopt_level2_setup(problem, algorithm);
 
@@ -604,7 +604,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.ode_tolerance = 1.e-2;  // default: 1e-3
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
-    //algorithm.collocation_method = "trapezoidal";
+    algorithm.collocation_method = "trapezoidal";
     algorithm.diff_matrix = "standard";  // options: "standard", "reduced-roundoff", "central-differences"
     algorithm.nsteps_error_integration = 2;
     //algorithm.mesh_refinement = "automatic";

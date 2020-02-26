@@ -601,12 +601,12 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.hessian = "exact";
     algorithm.nlp_iter_max = max_iter;
     algorithm.nlp_tolerance = 1.e-6;  // default: 1e-6
-    algorithm.ode_tolerance = 1.e-3;  // default: 1e-3
+    algorithm.ode_tolerance = 1.e-2;  // default: 1e-3
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
     //algorithm.collocation_method = "trapezoidal";
     algorithm.diff_matrix = "standard";  // options: "standard", "reduced-roundoff", "central-differences"
-    algorithm.nsteps_error_integration = 5;
+    algorithm.nsteps_error_integration = 2;
     //algorithm.mesh_refinement = "automatic";
     psopt(solution, problem, algorithm);
 

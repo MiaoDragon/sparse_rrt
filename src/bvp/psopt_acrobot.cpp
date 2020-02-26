@@ -251,27 +251,27 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       // the mapping to [0, 2pi] are equal
       //e[STATE_N+i] = final_states[i];
 
-      if (i == 0 || i == 1)
-      {
+      //if (i == 0 || i == 1)
+      //{
           //std::cout << "initial_states[i]: " << (initial_states[i]).getValue() << std::endl;
           //e[i] = initial_states[i]-2*M_PI*ceil(floor(initial_states[i]/M_PI)/2);
-          e[i] = initial_states[i];
+          //e[i] = initial_states[i];
           //std::cout << "wrapped initial states[i]: " << (e[i]).getValue() << std::endl;
           //std::cout << "final_states[i]: " << (final_states[i]).getValue() << std::endl;
-          e[STATE_N+i] = final_states[i]-2*M_PI*ceil(floor(final_states[i]/M_PI)/2);
+          //e[STATE_N+i] = final_states[i]-2*M_PI*ceil(floor(final_states[i]/M_PI)/2);
           //std::cout << "wrapped final states[i]: " << (e[STATE_N+i]).getValue() << std::endl;
           //e[STATE_N+i] = final_states[i]-2*M_PI*floor(final_states[i]/2/M_PI);
           //if (e[STATE_N+i] > M_PI)
           //{
           //      e[STATE_N+i] = e[STATE_N+i] - 2*M_PI;
           //}
-      }
-      else
-      {
+      //}
+      //else
+      //{
           e[i] = initial_states[i];
           //e[STATE_N+i] = 0.;
           e[STATE_N+i] = final_states[i];
-      }
+      //}
 
   }
 }

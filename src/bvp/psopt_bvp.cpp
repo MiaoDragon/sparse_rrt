@@ -644,9 +644,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     }
     //std::cout << "]" << std::endl;
     DMatrix epsilon = solution.get_relative_local_error_in_phase(1);
-    for (unsigned i=1; i <= num_steps; i+=1)
-    {
-        std::cout << "epsilon[" << i << "]: " << epsilon(i) << std::endl;
-    }
+    //for (unsigned i=1; i <= num_steps; i+=1)
+    //{
+    //    //std::cout << "epsilon[" << i << "]: " << epsilon(i) << std::endl;
+    //}
 }
 #endif

@@ -80,7 +80,10 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     // events: boundary condition of states
     problem.phases(1).nevents = state_n*2; // boundary condition
     problem.phases(1).npath = 0;  // path constraint
-    problem.phases(1).nodes = num_steps;
+    //problem.phases(1).nodes = num_steps;
+    char node_string[40];
+    sprintf(node_string, "[%d, %d, %d]", 1, 2, 4, num_steps/2, num_steps);
+    problem.phases(1).nodes = node_string;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number
     psopt_level2_setup(problem, algorithm);
 
@@ -253,7 +256,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     // events: boundary condition of states
     problem.phases(1).nevents = state_n*2; // boundary condition
     problem.phases(1).npath = 0;  // path constraint
-    problem.phases(1).nodes = num_steps;
+    char node_string[40];
+    sprintf(node_string, "[%d, %d, %d]", 1, 2, 4, num_steps/2, num_steps);
+    problem.phases(1).nodes = node_string;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number
     psopt_level2_setup(problem, algorithm);
 
@@ -384,10 +389,10 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.hessian = "exact";
     algorithm.nlp_iter_max = max_iter;
     algorithm.nlp_tolerance = 1.e-6;  // default: 1e-6
-    algorithm.ode_tolerance = 1.e-3;  // default: 1e-3
+    algorithm.ode_tolerance = 1.e-2;  // default: 1e-3
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
-    algorithm.collocation_method = "trapezoidal";
+    //algorithm.collocation_method = "trapezoidal";
     algorithm.diff_matrix = "standard";  // options: "standard", "reduced-roundoff", "central-differences"
     algorithm.nsteps_error_integration = 2;
     //algorithm.mesh_refinement = "automatic";

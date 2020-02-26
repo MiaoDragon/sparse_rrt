@@ -468,7 +468,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     problem.phases(1).nevents = state_n*2; // boundary condition
     problem.phases(1).npath = 0;  // path constraint
     char node_string[40];
-    sprintf(node_string, "[%d, %d, %d]", 4, num_steps/2, num_steps);
+    sprintf(node_string, "[%d, %d]", num_steps/2, num_steps);
     std::cout << node_string << std::endl;
     problem.phases(1).nodes = node_string;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number

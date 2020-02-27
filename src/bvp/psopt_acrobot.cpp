@@ -278,7 +278,7 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       //else
       //{
           e[i] = initial_states[i];
-          e[STATE_N+i] = final_states[i];
+          //e[STATE_N+i] = final_states[i];
           //e[STATE_N+i] = 0.;
       //}
   }

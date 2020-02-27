@@ -616,7 +616,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     algorithm.ode_tolerance = 1.e-1;  // default: 1e-3
     algorithm.nlp_method = "IPOPT";
     algorithm.print_level = 0;
-    algorithm.collocation_method = "trapezoidal";
+    algorithm.collocation_method = "linear";
     //algorithm.collocation_method = "linear";
     algorithm.diff_matrix = "standard";  // options: "standard", "reduced-roundoff", "central-differences"
     algorithm.nsteps_error_integration = 1;

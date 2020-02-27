@@ -472,6 +472,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     {
         user_goal[i] = goal[i];
     }
+    std::cout << "after copying over to user_goal" << std::endl;
     problem.user_data = (void*) user_goal;
 
     problem.phases(1).npath = 0;  // path constraint

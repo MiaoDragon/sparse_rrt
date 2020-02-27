@@ -234,11 +234,13 @@ adouble psopt_acrobot_t::endpoint_cost(adouble* initial_states, adouble* final_s
     //return 0.1*tf;
     //return 0.;
     double* goal = (double*) workspace->problem->user_data;
+    std::cout << "goal extracteed" << std::endl;
     adouble sum_of_square = 0;
     for (unsigned i=0; i < STATE_N; i++)
     {
         sum_of_square = sum_of_square + (final_states[i] - goal[i]) * (final_states[i] - goal[i]);
     }
+    std::cout << "after sum_of_square" << std::endl;
     return sum_of_square;
 }
 

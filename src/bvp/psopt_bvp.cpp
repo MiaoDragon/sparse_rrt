@@ -465,7 +465,15 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     problem.phases(1).nstates = state_n;
     problem.phases(1).ncontrols = control_n;
     // events: boundary condition of states
-    problem.phases(1).nevents = state_n*2; // boundary condition
+    problem.phases(1).nevents = state_n;  // use l2 distance to final state as events   //state_n*2; // boundary condition
+    // allocate terminal state as userdata
+    double* user_goal = new double[state_n];
+    for (unsigned i=0; i < state_n; i++)
+    {
+        user_goal[i] = goal[i];
+    }
+    problem.user_data = (void*) user_goal;
+
     problem.phases(1).npath = 0;  // path constraint
     char node_string[40];
     sprintf(node_string, "[%d, %d]", num_steps/2, num_steps);
@@ -496,8 +504,8 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         // specify the boundary
         problem.phases(1).bounds.lower.events(i) = start[i-1];
         problem.phases(1).bounds.upper.events(i) = start[i-1];
-        problem.phases(1).bounds.lower.events(state_n+i) = goal[i-1];
-        problem.phases(1).bounds.upper.events(state_n+i) = goal[i-1];
+        //problem.phases(1).bounds.lower.events(state_n+i) = goal[i-1];
+        //problem.phases(1).bounds.upper.events(state_n+i) = goal[i-1];
         /**
         if (system->is_circular_topology()[i])
         {
@@ -511,6 +519,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         }
         */
     }
+    //problem.phases(1).bounds.lower.events(state_n+1) = 0;
+    //problem.phases(1).bounds.lower.events(state_n+1) = 4;
+
 
     problem.phases(1).bounds.lower.StartTime = 0.0;
     problem.phases(1).bounds.upper.StartTime = 0.0;
@@ -648,5 +659,6 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //{
     //    //std::cout << "epsilon[" << i << "]: " << epsilon(i) << std::endl;
     //}
+    delete user_goal;
 }
 #endif

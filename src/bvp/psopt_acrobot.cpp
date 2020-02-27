@@ -231,8 +231,15 @@ adouble psopt_acrobot_t::endpoint_cost(adouble* initial_states, adouble* final_s
     // Since we already set endpoint constraint in events, we don't need it here
     // TODO: maybe we can set one end free, but try to reduce the cost only
     // Here we use the time as endpoint cost for minimum time control
-    return 0.1*tf;
+    //return 0.1*tf;
     //return 0.;
+    double* goal = (double*) workspace->problem->user_data;
+    adouble sum_of_square = 0;
+    for (unsigned i=0; i < STATE_N; i++)
+    {
+        sum_of_square = sum_of_square + (final_states[i] - goal[i]) * (final_states[i] - goal[i]);
+    }
+    return sum_of_square;
 }
 
 adouble psopt_acrobot_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
@@ -269,11 +276,11 @@ void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final
       //else
       //{
           e[i] = initial_states[i];
-          //e[STATE_N+i] = 0.;
           e[STATE_N+i] = final_states[i];
+          //e[STATE_N+i] = 0.;
       //}
-
   }
+
 }
 
 void psopt_acrobot_t::linkages(adouble* linkages, adouble* xad, Workspace* workspace)

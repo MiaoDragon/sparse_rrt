@@ -476,9 +476,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     problem.user_data = (void*) user_goal;
 
     problem.phases(1).npath = 0;  // path constraint
-    char node_string[40];
-    sprintf(node_string, "[%d, %d]", num_steps/2, num_steps);
-    std::cout << node_string << std::endl;
+    //char node_string[40];
+    //sprintf(node_string, "[%d, %d]", num_steps/2, num_steps);
+    //std::cout << node_string << std::endl;
     problem.phases(1).nodes = num_steps;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number
     psopt_level2_setup(problem, algorithm);

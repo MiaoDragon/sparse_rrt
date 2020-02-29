@@ -278,31 +278,23 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
     delete sample_control;
 }
 
-void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_steps, double integration_step)
+void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_state, double* goal_state, int num_iters, int num_steps, double step_sz,
+    const std::vector<std::vector<double>> &x_init,
+    const std::vector<std::vector<double>> &u_init,
+    const std::vector<double> &t_init)
 {
     /**
-    * generate random sample
+    * solve BVP(x_start, x_goal, x_init, u_init, t_init) -> xs, us, ts
+    * propagate and add to tree
     **/
-    double* sample_state = new double[this->state_dimension];
-	this->random_state(sample_state);
-
-    sst_node_t* nearest = nearest_vertex(sample_state);
-
-    // try to connect from nearest to input_sample_state
-    // convert from double array to VectorXd
-    const double* start_x = nearest->get_point();
-    double* end_x = sample_state;
-    int num_steps = 6*this->state_dimension;
-    //int num_steps = 6*this->state_dimension;
-    // initialize bvp pointer if it is nullptr
+    sst_node_t* nearest = nearest_vertex(start_state);
     if (bvp_solver == NULL)
     {
         bvp_solver = new PSOPT_BVP(system, this->state_dimension, this->control_dimension);
     }
-
-    //OptResults res = bvp_solver->solve(start_x, end_x, 100);
     psopt_result_t res;
-    bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*num_steps, 50*max_time_steps*integration_step*num_steps);
+    bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
+                      x_init, u_init, t_init);
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
     std::vector<double> t_traj;
@@ -310,45 +302,18 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
     {
         t_traj.push_back(res.t[i+1] - res.t[i]);
     }
-    //TODO: do something with the trajectories
-    // simulate forward using the action trajectory, regardless if the traj opt is successful or not
+
+    // try to connect from nearest to input_sample_state
+    // convert from double array to VectorXd
     sst_node_t* x_tree = nearest;
-    // double* result_x = new double[this->state_dimension];
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / integration_step);
-        double* control_ptr = u_traj[i].data();
-        int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-        int num_j = num_dis / num_steps + 1;
         double res_t = t_traj[i] - num_dis * integration_step;
-        //std::cout << "num_j: " << num_j << std::endl;
-        for (unsigned j=0; j < num_j; j++)
+        for (unsigned j=0; j < num_dis; j++)
         {
-            int time_step = num_steps;
-            if (j == num_j-1)
-            {
-                time_step = num_dis % num_steps;
-            }
-            bool val = true;
-            if (time_step == 0)
-            {
-                if (res_t <= 0.000001)
-                {
-                    // too small
-                    break;
-                }
-                else
-                {
-                    val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-  						  1, sample_state, res_t);
-  			    }
-  		    }
-  		    else
-  		    {
-                val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-  				          time_step, sample_state, integration_step);
-  		    }
-             //std::cout << "after propagation... val: " << val << std::endl;
+            val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+					  num_dis, end_state, integration_step);
             // add the new state to tree
             if (!val)
             {
@@ -356,7 +321,7 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
                 x_tree = NULL;
                 break;
             }
-            sst_node_t* new_x_tree = add_to_tree(sample_state, control_ptr, x_tree, time_step*integration_step);
+            sst_node_t* new_x_tree = add_to_tree(end_state, control_ptr, x_tree, num_dis*integration_step);
             //std::cout << "after adding into tree" << std::endl;
             //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
             x_tree = new_x_tree;
@@ -365,17 +330,22 @@ void sst_t::step_bvp(psopt_system_t* system, int min_time_steps, int max_time_st
             {
                 break;
             }
-
         }
         if (!x_tree)
         {
             break;
         }
-
+        val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+                  1, end_state, res_t);
+        if (!val)
+        {
+            x_tree = NULL;
+            break;
+        }
     }
-    //std::cout << "after creating new nodes" << std::endl;
-    delete[] sample_state;
 }
+
+
 sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query

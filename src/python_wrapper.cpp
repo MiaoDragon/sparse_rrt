@@ -348,6 +348,69 @@ public:
                         sst_delta_near, sst_delta_drain)
         );
     }
+    py::safe_array<double> step_bvp(system_interface* system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+        const py::safe_array<double> &x_init_py,
+        const py::safe_array<double> &u_init_py,
+        const py::safe_array<double> &t_init_py)
+    {
+        auto start_data_py = start_py.unchecked<1>();
+        auto goal_data_py = goal_py.unchecked<1>();
+        auto x_init_data = x_init_py.unchecked<2>();
+        auto u_init_data = u_init_py.unchecked<2>();
+        auto t_init_data = t_init_py.unchecked<2>();
+
+        int state_size = start_data_py.shape(0);
+
+        double* start_state = new double[state_size];
+        double* goal_state = new double[state_size];
+        std::vector<std::vector<double>> x_init;
+        std::vector<std::vector<double>> u_init;
+        std::vector<double> t_init;
+        // copy start and control
+        for (unsigned i=0; i < state_size; i++)
+        {
+            start_state[i] = start_data_py(i);
+            goal_state[i] = goal_data_py(i);
+        }
+        for (unsigned i=0; i < x_init_data.shape(0); i++)
+        {
+            std::vector<double> x_init_i;
+            for (unsigned j=0; j < x_init_data.shape(1); j++)
+            {
+                x_init_i.push_back(x_init_data(i,j));
+            }
+
+            std::vector<double> u_init_i;
+            for (unsigned j=0; j < u_init_data.shape(1); j++)
+            {
+                u_init_i.push_back(u_init_data(i,j));
+            }
+
+            x_init.push_back(x_init_i);
+            u_init.push_back(u_init_i);
+            t_init.push_back(t_init(i));
+        }
+
+        // propagate and add to tree
+        double* end_state = new double[state_size];
+        // initialize with start_state
+        for (unsigned i=0; i < state_size; i++)
+        {
+            end_state[i] = start_state[i];
+        }
+        planner->step_bvp(system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
+                          x_init, u_init, t_init);
+
+        py::safe_array<double> res_state({state_size});
+        auto state_ref = res_state.mutable_unchecked<1>();
+        for (unsigned i=0; i < state_size; i++)
+        {
+            state_ref(i) = end_state[i];
+        }
+        // pass end_state
+        delete end_state;
+        return res_state;
+    }
 private:
 
 	/**
@@ -973,7 +1036,7 @@ PYBIND11_MODULE(_sst_module, m) {
    planner
         .def("step_with_sample", &PlannerWrapper::step_with_sample)
         .def("step", &PlannerWrapper::step)
-        .def("step_bvp", &PlannerWrapper::step_bvp)
+        //.def("step_bvp", &PlannerWrapper::step_bvp)
         .def("visualize_tree", &PlannerWrapper::visualize_tree_wrapper,
             "system"_a,
             "image_width"_a=500,
@@ -1031,6 +1094,7 @@ PYBIND11_MODULE(_sst_module, m) {
             "sst_delta_near"_a,
             "sst_delta_drain"_a
         )
+        .def("step_bvp", &SSTWrapper::step_bvp)
    ;
 
     py::class_<PSOPTBVPWrapper>(m, "PSOPTBVPWrapper")

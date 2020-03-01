@@ -377,7 +377,8 @@ public:
         }
         std::cout << "x_init_data.shape(0): " << x_init_data.shape(0) << std::endl;
         std::cout << "x_init_data.shape(1): " << x_init_data.shape(1) << std::endl;
-        std::cout << "u_init_data.shape(0): " << x_init_data.shape(0) << std::endl;
+        std::cout << "u_init_data.shape(0): " << u_init_data.shape(0) << std::endl;
+        std::cout << "u_init_data.shape(1): " << u_init_data.shape(1) << std::endl;
 
         for (unsigned i=0; i < x_init_data.shape(0); i++)
         {

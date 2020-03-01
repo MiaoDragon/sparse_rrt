@@ -310,8 +310,8 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
     double* u_traj_i = new double[this->control_dimension];
     for (unsigned i=0; i < num_steps-1; i++)
     {
-        int num_dis = std::floor(t_traj[i] / integration_step);
-        double res_t = t_traj[i] - num_dis * integration_step;
+        int num_dis = std::floor(t_traj[i] / step_sz);
+        double res_t = t_traj[i] - num_dis * step_sz;
         bool val = true;
         for (unsigned j=0; j < this->control_dimension; j++)
         {
@@ -321,7 +321,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
         for (unsigned j=0; j < num_dis; j++)
         {
             val = system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
-					  num_dis, end_state, integration_step);
+					  1, end_state, step_sz);
             // add the new state to tree
             if (!val)
             {
@@ -329,7 +329,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
                 x_tree = NULL;
                 break;
             }
-            sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, num_dis*integration_step);
+            sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, step_sz);
             //std::cout << "after adding into tree" << std::endl;
             //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
             x_tree = new_x_tree;

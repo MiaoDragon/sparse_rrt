@@ -306,13 +306,21 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
     // try to connect from nearest to input_sample_state
     // convert from double array to VectorXd
     sst_node_t* x_tree = nearest;
+    //double* x_traj_i = new double[this->state_dimension];
+    double* u_traj_i = new double[this->control_dimension];
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / integration_step);
         double res_t = t_traj[i] - num_dis * integration_step;
+        bool val = true;
+        for (unsigned j=0; j < this->control_dimension; j++)
+        {
+            u_traj_i[j] = u_traj[i][j];
+        }
+
         for (unsigned j=0; j < num_dis; j++)
         {
-            val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+            val = system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
 					  num_dis, end_state, integration_step);
             // add the new state to tree
             if (!val)
@@ -321,7 +329,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
                 x_tree = NULL;
                 break;
             }
-            sst_node_t* new_x_tree = add_to_tree(end_state, control_ptr, x_tree, num_dis*integration_step);
+            sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, num_dis*integration_step);
             //std::cout << "after adding into tree" << std::endl;
             //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
             x_tree = new_x_tree;
@@ -335,14 +343,21 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
         {
             break;
         }
-        val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
+        val = system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
                   1, end_state, res_t);
         if (!val)
         {
             x_tree = NULL;
             break;
         }
+        sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, res_t);
+        x_tree = new_x_tree;
+        if (!x_tree)
+        {
+            break;
+        }
     }
+    delete u_traj_i;
 }
 
 

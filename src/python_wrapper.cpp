@@ -386,7 +386,8 @@ public:
             {
                 x_init_i.push_back(x_init_data(i,j));
             }
-
+            std::cout << "when i=" << i << std::endl;
+            std::cout << "before u_init_i" << std::endl;
             std::vector<double> u_init_i;
             for (unsigned j=0; j < u_init_data.shape(1); j++)
             {

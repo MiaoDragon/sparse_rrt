@@ -368,6 +368,7 @@ public:
         std::vector<std::vector<double>> x_init;
         std::vector<std::vector<double>> u_init;
         std::vector<double> t_init;
+        std::cout << "before copying" << std::endl;
         // copy start and control
         for (unsigned i=0; i < state_size; i++)
         {

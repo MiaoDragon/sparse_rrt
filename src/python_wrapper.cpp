@@ -394,6 +394,7 @@ public:
         }
 
         psopt_result_t step_res;
+        std::cout << "before step_bvp" << std::endl;
         planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
         std::cout << "after step_bvp" << std::endl;
@@ -416,7 +417,7 @@ public:
                 {
                     control_ref(i,j) = step_res.u[i][j];
                 }
-                time_ref(i) = step_res.t[i];                
+                time_ref(i) = step_res.t[i];
             }
         }
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>

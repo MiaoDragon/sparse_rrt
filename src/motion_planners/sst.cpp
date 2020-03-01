@@ -278,7 +278,7 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
     delete sample_control;
 }
 
-void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_state, double* goal_state, int num_iters, int num_steps, double step_sz,
+void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, double* end_state, double* start_state, double* goal_state, int num_iters, int num_steps, double step_sz,
     const std::vector<std::vector<double>> &x_init,
     const std::vector<std::vector<double>> &u_init,
     const std::vector<double> &t_init)
@@ -290,7 +290,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
     sst_node_t* nearest = nearest_vertex(start_state);
     if (bvp_solver == NULL)
     {
-        bvp_solver = new PSOPT_BVP(system, this->state_dimension, this->control_dimension);
+        bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
     }
     psopt_result_t res;
     bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
@@ -320,7 +320,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
 
         for (unsigned j=0; j < num_dis; j++)
         {
-            val = system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
+            val = propagate_system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
 					  1, end_state, step_sz);
             // add the new state to tree
             if (!val)
@@ -343,7 +343,7 @@ void sst_t::step_bvp(psopt_system_t* system, double* end_state, double* start_st
         {
             break;
         }
-        val = system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
+        val = propagate_system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
                   1, end_state, res_t);
         if (!val)
         {

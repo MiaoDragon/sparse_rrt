@@ -37,7 +37,6 @@
 #include "bvp/psopt_cart_pole.hpp"
 #include "bvp/psopt_point.hpp"
 #include "bvp/psopt_acrobot.hpp"
-#include "bvp/psopt_acrobot_obs.hpp"
 
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
@@ -351,7 +350,7 @@ public:
                         sst_delta_near, sst_delta_drain)
         );
     }
-    py::safe_array<double> step_bvp(psopt_system_t* system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    py::safe_array<double> step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py)
@@ -401,7 +400,7 @@ public:
         {
             end_state[i] = start_state[i];
         }
-        planner->step_bvp(system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
+        planner->step_bvp(propagate_system, psopt_system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
 
         py::safe_array<double> res_state({state_size});
@@ -1152,13 +1151,6 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
-     py::class_<psopt_acrobot_obs_t>(m, "PSOPTAcrobotObs", psopt_system)
-     .def(py::init<const py::safe_array<double> &,
-                   double>(),
-         "obstacle_list"_a,
-         "obstacle_width"_a
-     )
-     ;
      py::class_<SystemPropagator>(m, "SystemPropagator")
          .def(py::init<>())
          .def("propagate", &SystemPropagator::propagate,

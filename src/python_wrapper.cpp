@@ -359,7 +359,7 @@ public:
         auto goal_data_py = goal_py.unchecked<1>();
         auto x_init_data = x_init_py.unchecked<2>();
         auto u_init_data = u_init_py.unchecked<2>();
-        auto t_init_data = t_init_py.unchecked<2>();
+        auto t_init_data = t_init_py.unchecked<1>();
 
         int state_size = start_data_py.shape(0);
 

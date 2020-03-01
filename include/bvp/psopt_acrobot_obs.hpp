@@ -99,6 +99,9 @@ public:
 protected:
 	double* deriv;
 	void update_derivative(const double* control);
+	// for obstacle
+	std::vector<std::vector<double>> obs_list;
+
 	bool lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);
 };
 

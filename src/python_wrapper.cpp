@@ -396,7 +396,7 @@ public:
         psopt_result_t step_res;
         planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
-
+        std::cout << "after step_bvp" << std::endl;
         py::safe_array<double> res_state({step_res.x.size(), x_init[0].size()});
         py::safe_array<double> res_control({step_res.u.size(), u_init[0].size()});
         py::safe_array<double> res_time({step_res.t.size()});
@@ -410,11 +410,14 @@ public:
             {
                 state_ref(i,j) = step_res.x[i][j];
             }
-            for (unsigned j=0; j < u_init_data.shape(1); j++)
+            if (i < step_res.x.size()-1)
             {
-                control_ref(i,j) = step_res.u[i][j];
+                for (unsigned j=0; j < u_init_data.shape(1); j++)
+                {
+                    control_ref(i,j) = step_res.u[i][j];
+                }
+                time_ref(i) = step_res.t[i];                
             }
-            time_ref(i) = step_res.t[i];
         }
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
             (res_state, res_control, res_time));

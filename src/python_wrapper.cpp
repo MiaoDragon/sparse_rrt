@@ -1151,6 +1151,13 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
+     py::class_<psopt_acrobot_t>(m, "PSOPTAcrobotObs", psopt_system)
+     .def(py::init<const py::safe_array<double> &,
+                   double>(),
+         "obstacle_list"_a,
+         "obstacle_width"_a
+     )
+     ;
      py::class_<SystemPropagator>(m, "SystemPropagator")
          .def(py::init<>())
          .def("propagate", &SystemPropagator::propagate,

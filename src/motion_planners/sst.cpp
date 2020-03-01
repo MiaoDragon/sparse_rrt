@@ -307,6 +307,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     // convert from double array to VectorXd
     sst_node_t* x_tree = nearest;
     //double* x_traj_i = new double[this->state_dimension];
+    double* state_t = new double[this->state_dimension];
     double* end_state = new double[this->state_dimension];
     double* u_traj_i = new double[this->control_dimension];
 
@@ -314,14 +315,14 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     for (unsigned k=0; k < this->state_dimension; k++)
     {
         res_x_i.push_back(x_tree->get_point()[k]);
+        state_t[k] = start_state[k];
     }
     step_res.x.push_back(res_x_i);
-
+    bool val = true;
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / step_sz);
         double res_t = t_traj[i] - num_dis * step_sz;
-        bool val = true;
         for (unsigned j=0; j < this->control_dimension; j++)
         {
             u_traj_i[j] = u_traj[i][j];
@@ -329,13 +330,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
         for (unsigned j=0; j < num_dis; j++)
         {
-            val = propagate_system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
+            val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
 					  1, end_state, step_sz);
             // add the new state to tree
             if (!val)
             {
                 // not valid state, no point going further, not adding to tree, stop right here
-                x_tree = NULL;
                 break;
             }
             std::vector<double> res_x_i;
@@ -351,26 +351,19 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             step_res.x.push_back(res_x_i);
             step_res.u.push_back(res_u_i);
             step_res.t.push_back(step_sz);
-
-            sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, step_sz);
-            //std::cout << "after adding into tree" << std::endl;
-            //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
-            x_tree = new_x_tree;
-            // if the created tree node is nullptr, stop right there
-            if (!x_tree)
+            for unsigned k=0; k < this->state_dimension; k++)
             {
-                break;
+                state_t[k] = end_state[k];
             }
         }
-        if (!x_tree)
+        if (!val)
         {
             break;
         }
-        val = propagate_system->propagate(x_tree->get_point(), this->state_dimension, u_traj_i, this->control_dimension,
+        val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
                   1, end_state, res_t);
         if (!val)
         {
-            x_tree = NULL;
             break;
         }
         std::vector<double> res_x_i;
@@ -378,6 +371,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         for (unsigned k=0; k < this->state_dimension; k++)
         {
             res_x_i.push_back(end_state[k]);
+            state_t[k] = end_state[k];
         }
         for (unsigned k=0; k < this->control_dimension; k++)
         {
@@ -387,13 +381,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         step_res.u.push_back(res_u_i);
         step_res.t.push_back(res_t);
 
-        sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, res_t);
-        x_tree = new_x_tree;
-        if (!x_tree)
-        {
-            break;
-        }
     }
+    // add the last valid node to tree
+    sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
+    x_tree = new_x_tree;
+
     delete u_traj_i;
     delete end_state;
 }

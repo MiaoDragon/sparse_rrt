@@ -388,7 +388,7 @@ public:
 
             x_init.push_back(x_init_i);
             u_init.push_back(u_init_i);
-            t_init.push_back(t_init(i));
+            t_init.push_back(t_init[i]);
         }
 
         // propagate and add to tree
@@ -417,6 +417,11 @@ private:
 	 * @brief Captured distance computer python object to prevent its premature death
 	 */
     py::object  _distance_computer_py;
+protected:
+	/**
+	 * @brief Created planner object
+	 */
+    std::unique_ptr<sst_t> planner;
 };
 
 

@@ -375,6 +375,10 @@ public:
             start_state[i] = start_data_py(i);
             goal_state[i] = goal_data_py(i);
         }
+        std::cout << "x_init_data.shape(0): " << x_init_data.shape(0) << std::endl;
+        std::cout << "x_init_data.shape(1): " << x_init_data.shape(1) << std::endl;
+        std::cout << "u_init_data.shape(0): " << x_init_data.shape(0) << std::endl;
+
         for (unsigned i=0; i < x_init_data.shape(0); i++)
         {
             std::vector<double> x_init_i;

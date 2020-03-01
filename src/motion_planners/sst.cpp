@@ -348,9 +348,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             {
                 res_u_i.push_back(u_traj_i[k]);
             }
-            bvp_res.x.push_back(res_x_i);
-            bvp_res.u.push_back(res_u_i);
-            bvp_res.t.push_back(step_sz);
+            step_res.x.push_back(res_x_i);
+            step_res.u.push_back(res_u_i);
+            step_res.t.push_back(step_sz);
 
             sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, step_sz);
             //std::cout << "after adding into tree" << std::endl;
@@ -383,9 +383,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             res_u_i.push_back(u_traj_i[k]);
         }
-        bvp_res.x.push_back(res_x_i);
-        bvp_res.u.push_back(res_u_i);
-        bvp_res.t.push_back(res_t);
+        step_res.x.push_back(res_x_i);
+        step_res.u.push_back(res_u_i);
+        step_res.t.push_back(res_t);
 
         sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, res_t);
         x_tree = new_x_tree;

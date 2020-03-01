@@ -319,10 +319,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     }
     step_res.x.push_back(res_x_i);
     bool val = true;
+    double res_t;
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / step_sz);
-        double res_t = t_traj[i] - num_dis * step_sz;
+        res_t = t_traj[i] - num_dis * step_sz;
         for (unsigned j=0; j < this->control_dimension; j++)
         {
             u_traj_i[j] = u_traj[i][j];

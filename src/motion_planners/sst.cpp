@@ -352,7 +352,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             step_res.x.push_back(res_x_i);
             step_res.u.push_back(res_u_i);
             step_res.t.push_back(step_sz);
-            for unsigned k=0; k < this->state_dimension; k++)
+            for (unsigned k=0; k < this->state_dimension; k++)
             {
                 state_t[k] = end_state[k];
             }

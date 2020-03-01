@@ -350,7 +350,7 @@ public:
                         sst_delta_near, sst_delta_drain)
         );
     }
-    py::safe_array<double> step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py)
@@ -393,25 +393,31 @@ public:
             t_init.push_back(t_init[i]);
         }
 
-        // propagate and add to tree
-        double* end_state = new double[state_size];
-        // initialize with start_state
-        for (unsigned i=0; i < state_size; i++)
-        {
-            end_state[i] = start_state[i];
-        }
-        planner->step_bvp(propagate_system, bvp_system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
+        psopt_result_t step_res;
+        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
 
-        py::safe_array<double> res_state({state_size});
-        auto state_ref = res_state.mutable_unchecked<1>();
-        for (unsigned i=0; i < state_size; i++)
+        py::safe_array<double> res_state({step_res.x.size(),state_size});
+        py::safe_array<double> res_control({step_res.u.size(),u_init_data.shape(1)});
+        py::safe_array<double> res_time({step_res.t.size()});
+
+        auto state_ref = res_state.mutable_unchecked<2>();
+        auto control_ref = res_control.mutable_unchecked<2>();
+        auto time_ref = res_time.mutable_unchecked<1>();
+        for (unsigned i=0; i < step_res.x.size(); i++)
         {
-            state_ref(i) = end_state[i];
+            for (unsigned j=0; j < state_size; j++)
+            {
+                state_ref(i,j) = step_res.x[i][j];
+            }
+            for (unsigned j=0; j < u_init_data.shape(1); j++)
+            {
+                control_ref(i,j) = step_res.u[i][j];
+            }
+            time_ref(i) = step_res.t[i];
         }
-        // pass end_state
-        delete end_state;
-        return res_state;
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (res_state, res_control, res_time))
     }
 private:
 

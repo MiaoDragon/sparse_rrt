@@ -278,7 +278,7 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
     delete sample_control;
 }
 
-void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, double* end_state, double* start_state, double* goal_state, int num_iters, int num_steps, double step_sz,
+void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, double* start_state, double* goal_state, int num_iters, int num_steps, double step_sz,
     const std::vector<std::vector<double>> &x_init,
     const std::vector<std::vector<double>> &u_init,
     const std::vector<double> &t_init)
@@ -307,7 +307,16 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     // convert from double array to VectorXd
     sst_node_t* x_tree = nearest;
     //double* x_traj_i = new double[this->state_dimension];
+    double* end_state = new double[this->state_dimension];
     double* u_traj_i = new double[this->control_dimension];
+
+    std::vector<double> res_x_i;
+    for (unsigned k=0; k < this->state_dimension; k++)
+    {
+        res_x_i.push_back(x_tree->get_point()[k]);
+    }
+    step_res.x.push_back(res_x_i);
+
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / step_sz);
@@ -329,6 +338,20 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
                 x_tree = NULL;
                 break;
             }
+            std::vector<double> res_x_i;
+            std::vector<double> res_u_i;
+            for (unsigned k=0; k < this->state_dimension; k++)
+            {
+                res_x_i.push_back(end_state[k]);
+            }
+            for (unsigned k=0; k < this->control_dimension; k++)
+            {
+                res_u_i.push_back(u_traj_i[k]);
+            }
+            bvp_res.x.push_back(res_x_i);
+            bvp_res.u.push_back(res_u_i);
+            bvp_res.t.push_back(step_sz);
+
             sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, step_sz);
             //std::cout << "after adding into tree" << std::endl;
             //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
@@ -350,6 +373,20 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             x_tree = NULL;
             break;
         }
+        std::vector<double> res_x_i;
+        std::vector<double> res_u_i;
+        for (unsigned k=0; k < this->state_dimension; k++)
+        {
+            res_x_i.push_back(end_state[k]);
+        }
+        for (unsigned k=0; k < this->control_dimension; k++)
+        {
+            res_u_i.push_back(u_traj_i[k]);
+        }
+        bvp_res.x.push_back(res_x_i);
+        bvp_res.u.push_back(res_u_i);
+        bvp_res.t.push_back(res_t);
+
         sst_node_t* new_x_tree = add_to_tree(end_state, u_traj_i, x_tree, res_t);
         x_tree = new_x_tree;
         if (!x_tree)
@@ -358,6 +395,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         }
     }
     delete u_traj_i;
+    delete end_state;
 }
 
 

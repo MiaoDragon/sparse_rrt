@@ -146,9 +146,11 @@ public:
     void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
+    /**
     void step_bvp(psopt_system_t& system, int min_time_steps, int max_time_steps, double integration_step) {
         planner->step_bvp(&system, min_time_steps, max_time_steps, integration_step);
     }
+    **/
 
     /**
      * @brief Generate SVG visualization of the planning tree
@@ -348,7 +350,7 @@ public:
                         sst_delta_near, sst_delta_drain)
         );
     }
-    py::safe_array<double> step_bvp(system_interface* system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    py::safe_array<double> step_bvp(psopt_system_t* system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py)

@@ -368,18 +368,12 @@ public:
         std::vector<std::vector<double>> x_init;
         std::vector<std::vector<double>> u_init;
         std::vector<double> t_init;
-        std::cout << "before copying" << std::endl;
         // copy start and control
         for (unsigned i=0; i < state_size; i++)
         {
             start_state[i] = start_data_py(i);
             goal_state[i] = goal_data_py(i);
         }
-        std::cout << "x_init_data.shape(0): " << x_init_data.shape(0) << std::endl;
-        std::cout << "x_init_data.shape(1): " << x_init_data.shape(1) << std::endl;
-        std::cout << "u_init_data.shape(0): " << u_init_data.shape(0) << std::endl;
-        std::cout << "u_init_data.shape(1): " << u_init_data.shape(1) << std::endl;
-
         for (unsigned i=0; i < x_init_data.shape(0); i++)
         {
             std::vector<double> x_init_i;
@@ -387,8 +381,6 @@ public:
             {
                 x_init_i.push_back(x_init_data(i,j));
             }
-            std::cout << "when i=" << i << std::endl;
-            std::cout << "before u_init_i" << std::endl;
             std::vector<double> u_init_i;
             for (unsigned j=0; j < u_init_data.shape(1); j++)
             {
@@ -397,14 +389,13 @@ public:
 
             x_init.push_back(x_init_i);
             u_init.push_back(u_init_i);
-            t_init.push_back(t_init[i]);
+            t_init.push_back(t_init_data(i));
         }
 
         psopt_result_t step_res;
-        std::cout << "before step_bvp" << std::endl;
+
         planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
-        std::cout << "after step_bvp" << std::endl;
         py::safe_array<double> res_state({step_res.x.size(), x_init[0].size()});
         py::safe_array<double> res_control({step_res.u.size(), u_init[0].size()});
         py::safe_array<double> res_time({step_res.t.size()});

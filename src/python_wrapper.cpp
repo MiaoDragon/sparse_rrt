@@ -37,6 +37,7 @@
 #include "bvp/psopt_cart_pole.hpp"
 #include "bvp/psopt_point.hpp"
 #include "bvp/psopt_acrobot.hpp"
+#include "bvp/psopt_acrobot_obs.hpp"
 
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
@@ -1151,7 +1152,7 @@ PYBIND11_MODULE(_sst_module, m) {
      py::class_<psopt_pendulum_t>(m, "PSOPTPendulum", psopt_system).def(py::init<>());
      py::class_<psopt_point_t>(m, "PSOPTPoint", psopt_system).def(py::init<>());
      py::class_<psopt_acrobot_t>(m, "PSOPTAcrobot", psopt_system).def(py::init<>());
-     py::class_<psopt_acrobot_t>(m, "PSOPTAcrobotObs", psopt_system)
+     py::class_<psopt_acrobot_obs_t>(m, "PSOPTAcrobotObs", psopt_system)
      .def(py::init<const py::safe_array<double> &,
                    double>(),
          "obstacle_list"_a,

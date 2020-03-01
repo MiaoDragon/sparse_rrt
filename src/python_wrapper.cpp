@@ -417,7 +417,7 @@ public:
             time_ref(i) = step_res.t[i];
         }
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-            (res_state, res_control, res_time))
+            (res_state, res_control, res_time));
     }
 private:
 

@@ -400,7 +400,7 @@ public:
         {
             end_state[i] = start_state[i];
         }
-        planner->step_bvp(propagate_system, psopt_system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
+        planner->step_bvp(propagate_system, bvp_system, end_state, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
 
         py::safe_array<double> res_state({state_size});

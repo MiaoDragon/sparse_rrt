@@ -397,8 +397,9 @@ public:
         planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
                           x_init, u_init, t_init);
 
-        py::safe_array<double> res_state({step_res.x.size(),state_size});
-        py::safe_array<double> res_control({step_res.u.size(),u_init_data.shape(1)});
+
+        py::safe_array<double> res_state({step_res.x.size(), state_size});
+        py::safe_array<double> res_control({step_res.u.size(), u_init_data.shape(1)});
         py::safe_array<double> res_time({step_res.t.size()});
 
         auto state_ref = res_state.mutable_unchecked<2>();

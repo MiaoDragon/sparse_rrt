@@ -229,7 +229,7 @@ void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     * solve BVP(x_start, x_goal, x_init, u_init, t_init) -> xs, us, ts
     * propagate and add to tree
     **/
-    rrt_node_t** nearest = nearest_vertex(start_state);
+    rrt_node_t* nearest = nearest_vertex(start_state);
     if (bvp_solver == NULL)
     {
         bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
@@ -333,7 +333,7 @@ void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 		tree_edge_t(u_traj_i, this->control_dimension, res_t),
 		x_tree->get_cost() + res_t)
 	));
-	metric.add_node(new_x_tree;
+	metric.add_node(new_x_tree);
     x_tree = new_x_tree;
 
     delete u_traj_i;

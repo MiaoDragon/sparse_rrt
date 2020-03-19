@@ -143,9 +143,9 @@ public:
         return new_state_py;
     }
 
-    void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {
+    void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step) {
         std::cout << "calling step" << std::endl;
-        planner->step(&system, min_time_steps, max_time_steps, integration_step);
+        planner->step(system, min_time_steps, max_time_steps, integration_step);
     }
     /**
     void step_bvp(psopt_system_t& system, int min_time_steps, int max_time_steps, double integration_step) {

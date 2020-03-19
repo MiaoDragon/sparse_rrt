@@ -83,6 +83,7 @@ sst_t::sst_t(
     witness_nodes.push_back(first_witness_sample);
     // initialize BVP solver
     bvp_solver = NULL;
+    std::out << "initialized SST Wrapper" << std::endl;
 }
 
 sst_t::~sst_t() {

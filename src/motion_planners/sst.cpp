@@ -274,6 +274,7 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
 	{
 		add_to_tree(sample_state, sample_control, nearest, duration);
 	}
+    std::cout << "after step in C++" << std::endl;
     delete sample_state;
     delete sample_control;
 }

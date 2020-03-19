@@ -147,11 +147,11 @@ public:
         std::cout << "calling step" << std::endl;
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
-    /**
-    void step_bvp(psopt_system_t& system, int min_time_steps, int max_time_steps, double integration_step) {
-        planner->step_bvp(&system, min_time_steps, max_time_steps, integration_step);
-    }
-    **/
+
+    virtual py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+        const py::safe_array<double> &x_init_py,
+        const py::safe_array<double> &u_init_py,
+        const py::safe_array<double> &t_init_py){}
 
     /**
      * @brief Generate SVG visualization of the planning tree
@@ -498,6 +498,77 @@ public:
                         distance_f,
                         random_seed)
         );
+    }
+    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+        const py::safe_array<double> &x_init_py,
+        const py::safe_array<double> &u_init_py,
+        const py::safe_array<double> &t_init_py)
+    {
+        auto start_data_py = start_py.unchecked<1>();
+        auto goal_data_py = goal_py.unchecked<1>();
+        auto x_init_data = x_init_py.unchecked<2>();
+        auto u_init_data = u_init_py.unchecked<2>();
+        auto t_init_data = t_init_py.unchecked<1>();
+
+        int state_size = start_data_py.shape(0);
+
+        double* start_state = new double[state_size];
+        double* goal_state = new double[state_size];
+        std::vector<std::vector<double>> x_init;
+        std::vector<std::vector<double>> u_init;
+        std::vector<double> t_init;
+        // copy start and control
+        for (unsigned i=0; i < state_size; i++)
+        {
+            start_state[i] = start_data_py(i);
+            goal_state[i] = goal_data_py(i);
+        }
+        for (unsigned i=0; i < x_init_data.shape(0); i++)
+        {
+            std::vector<double> x_init_i;
+            for (unsigned j=0; j < x_init_data.shape(1); j++)
+            {
+                x_init_i.push_back(x_init_data(i,j));
+            }
+            std::vector<double> u_init_i;
+            for (unsigned j=0; j < u_init_data.shape(1); j++)
+            {
+                u_init_i.push_back(u_init_data(i,j));
+            }
+
+            x_init.push_back(x_init_i);
+            u_init.push_back(u_init_i);
+            t_init.push_back(t_init_data(i));
+        }
+
+        psopt_result_t step_res;
+
+        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
+                          x_init, u_init, t_init);
+        py::safe_array<double> res_state({step_res.x.size(), x_init[0].size()});
+        py::safe_array<double> res_control({step_res.u.size(), u_init[0].size()});
+        py::safe_array<double> res_time({step_res.t.size()});
+
+        auto state_ref = res_state.mutable_unchecked<2>();
+        auto control_ref = res_control.mutable_unchecked<2>();
+        auto time_ref = res_time.mutable_unchecked<1>();
+        for (unsigned i=0; i < step_res.x.size(); i++)
+        {
+            for (unsigned j=0; j < state_size; j++)
+            {
+                state_ref(i,j) = step_res.x[i][j];
+            }
+            if (i < step_res.x.size()-1)
+            {
+                for (unsigned j=0; j < u_init_data.shape(1); j++)
+                {
+                    control_ref(i,j) = step_res.u[i][j];
+                }
+                time_ref(i) = step_res.t[i];
+            }
+        }
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (res_state, res_control, res_time));
     }
 private:
 
@@ -1052,7 +1123,7 @@ PYBIND11_MODULE(_sst_module, m) {
    planner
         .def("step_with_sample", &PlannerWrapper::step_with_sample)
         .def("step", &PlannerWrapper::step)
-        //.def("step_bvp", &PlannerWrapper::step_bvp)
+        .def("step_bvp", &PlannerWrapper::step_bvp)
         .def("visualize_tree", &PlannerWrapper::visualize_tree_wrapper,
             "system"_a,
             "image_width"_a=500,

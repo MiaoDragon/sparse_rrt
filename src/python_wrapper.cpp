@@ -144,7 +144,7 @@ public:
     }
 
     void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {
-        std::cout << "calling step" << std::endl;
+        //std::cout << "calling step" << std::endl;
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
 

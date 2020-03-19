@@ -262,7 +262,7 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
      * Propagate for random time with constant random control from the closest node
      * If resulting state is valid, add a resulting state into the tree and perform sst-specific graph manipulations
      */
-    std::cout << "start of step  in C++" << std::endl;
+    //std::cout << "start of step  in C++" << std::endl;
     double* sample_state = new double[this->state_dimension];
     double* sample_control = new double[this->control_dimension];
 	this->random_state(sample_state);
@@ -270,14 +270,14 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
     sst_node_t* nearest = nearest_vertex(sample_state);
 	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
     double duration = num_steps*integration_step;
-    std::cout << "before propagating in C++" << std::endl;
+    //std::cout << "before propagating in C++" << std::endl;
 	if(system->propagate(
 	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
 	    num_steps, sample_state, integration_step))
 	{
 		add_to_tree(sample_state, sample_control, nearest, duration);
 	}
-    std::cout << "after step in C++" << std::endl;
+    //std::cout << "after step in C++" << std::endl;
     delete sample_state;
     delete sample_control;
 }

@@ -428,11 +428,11 @@ private:
 	 * @brief Captured distance computer python object to prevent its premature death
 	 */
     py::object  _distance_computer_py;
-protected:
+//protected:
 	/**
 	 * @brief Created planner object
 	 */
-    std::unique_ptr<sst_t> planner;
+//    std::unique_ptr<sst_t> planner;
 };
 
 

@@ -69,6 +69,9 @@ public:
 	    std::copy(in_goal, in_goal + this->state_dimension, goal_state);
 	}
 
+	virtual std::unique_ptr<planner_t> clone() const = 0;		
+
+
 	virtual ~planner_t()
 	{
 	    delete[] start_state;

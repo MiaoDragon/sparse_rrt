@@ -94,6 +94,13 @@ public:
 		// initialize BVP solver
 	    bvp_solver = NULL;
 	}
+
+	virtual std::unique_ptr<planner_t> clone() const override
+	{
+		return std::unique_ptr<planner_t>(new planner_t(*this));
+	}
+
+
 	virtual ~rrt_t(){
         delete this->root;
         this->root = nullptr;

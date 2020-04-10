@@ -19,6 +19,8 @@
 #include "motion_planners/planner.hpp"
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"
+#include <memory>
+
 
 class sample_node_t;
 

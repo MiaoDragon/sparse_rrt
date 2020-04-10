@@ -19,6 +19,7 @@
 #include "motion_planners/planner.hpp"
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"
+#include <memory>
 
 /**
  * @brief A special storage node for RRT.

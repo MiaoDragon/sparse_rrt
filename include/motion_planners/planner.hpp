@@ -23,6 +23,8 @@
 #include "utilities/random.hpp"
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"
+#include <memory>
+
 /**
  * @brief The base class for motion planners.
  * @details The base class for motion planners. This class provides
@@ -69,7 +71,7 @@ public:
 	    std::copy(in_goal, in_goal + this->state_dimension, goal_state);
 	}
 
-	virtual std::unique_ptr<planner_t> clone() const = 0;		
+	virtual std::unique_ptr<planner_t> clone() const = 0;
 
 
 	virtual ~planner_t()

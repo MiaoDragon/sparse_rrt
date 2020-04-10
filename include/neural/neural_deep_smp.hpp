@@ -7,6 +7,7 @@
 #include <math.h>       /* floor */
 #include <stdlib.h>     /* srand, rand */
 #include <random>
+#include <memory>
 
 #define _USE_MATH_DEFINES
 

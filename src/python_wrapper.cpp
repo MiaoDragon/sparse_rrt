@@ -1172,7 +1172,7 @@ protected:
     std::shared_ptr<MPNetSMP> neural_smp;
     std::shared_ptr<system_t> system;
 
-}
+};
 
 
 /**

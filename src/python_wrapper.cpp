@@ -1121,14 +1121,14 @@ public:
         planner_t *planner;
         if (planner_name == "sst")
         {
-            planner = new sst(&start_data_py(0), &goal_data_py(0),
+            planner = new sst_t(&start_data_py(0), &goal_data_py(0),
                 	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                           distance_f, 0, delta_near, delta_drain);
 
         }
         else if (planner_name == "rrt")
         {
-            planner = new rrt(&start_data_py(0), &goal_data_py(0),
+            planner = new rrt_t(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                       distance_f, 0);
 

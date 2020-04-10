@@ -1361,6 +1361,7 @@ PYBIND11_MODULE(_sst_module, m) {
              "start_state"_a,
              "goal_state"_a,
              "max_iteration"_a,
+             "goal_radius"_a,
              "distance"_a,
              "delta_near"_a,
              "delta_drain"_a

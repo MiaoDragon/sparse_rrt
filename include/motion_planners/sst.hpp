@@ -182,11 +182,6 @@ public:
 		  unsigned int random_seed,
 		  double delta_near, double delta_drain);
 
-  	virtual std::unique_ptr<planner_t> clone() const override
-  	{
-  		return std::unique_ptr<planner_t>(new planner_t(*this));
-  	}
-
 	virtual ~sst_t();
 
 	/**

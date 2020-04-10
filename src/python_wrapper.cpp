@@ -30,6 +30,7 @@
 
 #include "motion_planners/sst.hpp"
 #include "motion_planners/rrt.hpp"
+#include "motion_planners/tree_node.hpp"
 
 #include "bvp/psopt_bvp.hpp"
 #include "bvp/psopt_system.hpp"

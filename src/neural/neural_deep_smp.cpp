@@ -117,7 +117,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
 
     torch::Tensor mlp_input_tensor;
     // Note the order of the cat
-    mlp_input_tensor = torch::cat({obs_enc,sg}, 1).to(at::kCUDA);
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
     std::vector<torch::jit::IValue> mlp_input;
@@ -152,7 +152,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     #endif
 }
 
-void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_j& res);
+void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
 {
     /**
     x_init:
@@ -260,7 +260,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
             informer(obs, state_t, next_state, next_state);
         }
         // obtain init
-        traj_j init_traj;
+        traj_t init_traj;
         init_informer(obs, state_t, next_state, init_traj);
         psopt_result_t res;
         double* state_t_ptr = new double[state_dim];

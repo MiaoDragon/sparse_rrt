@@ -193,17 +193,17 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 }
             }
         }
-        delta_x[i] = delta_x[i] / (num_steps-1);
+        delta_x[i] = delta_x[i] / (this->num_steps-1);
     }
     std::normal_distribution<double> distribution(0.0,0.02);
     // create x_init from delta_x
-    for (unsigned i=0; i<num_steps-1; i++)
+    for (unsigned i=0; i<this->num_steps-1; i++)
     {
         std::vector<double> state_i;
         for (unsigned j=0; j < this->state_dim; j++)
         {
             state_i.push_back(start_state[j] + delta_x[j] * (i+1));
-            if (i != num_steps-1)
+            if (i != this->num_steps-1)
             {
                 // add randomness
                 state_i[j] = state_i[j] + distribution(*generator);
@@ -214,7 +214,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 
     // obtain u_init by unform sampling
     std::uniform_real_distribution<double> uni_distribution(0.0,1.0);
-    for (unsigned i=0; i<num_steps; i++)
+    for (unsigned i=0; i<this->num_steps; i++)
     {
         std::vector<double> control_i;
         for (unsigned j=0; j < control_dim; j++)
@@ -225,9 +225,9 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     }
 
     // obtain t_init by setting to step_sz
-    for (unsigned i=0; i<num_steps; i++)
+    for (unsigned i=0; i<this->num_steps; i++)
     {
-        res.t.push_back(step_sz);
+        res.t.push_back(this->step_sz);
     }
 }
 
@@ -271,7 +271,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
             next_state_ptr[j] = next_state[j];
         }
 
-        this->SMP->step_bvp(system.get(), psopt_system.get(), res, state_t_ptr, next_state_ptr, psopt_num_iters, psopt_num_steps, psopt_step_sz,
+        this->SMP->step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
         if (init_traj.u.size() == 0)
         {
@@ -286,7 +286,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
     }
     // check if solved
     this->SMP->get_solution(res_x, res_u, res_t);
-    if (solution_x.size() != 0)
+    if (res_x.size() != 0)
     {
         // solved
         return;

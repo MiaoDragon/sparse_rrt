@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(SparseRRT)
 
 list(APPEND CMAKE_PREFIX_PATH
-    ${PROJECT_SOURCE_DIR}/../deps/libtorch
+    ${PROJECT_SOURCE_DIR}/deps/libtorch
     /usr/local/cuda-10.1)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

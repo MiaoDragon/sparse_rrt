@@ -55,7 +55,7 @@ void MPNetSMP::unnormalize(const std::vector<double>& state, std::vector<double>
     }
 }
 
-torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state)
+torch::Tensor MPNetSMP::getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state)
 {
     std::vector<double> normalized_start_vec;
     this->normalize(start_state, normalized_start_vec);

@@ -173,7 +173,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     for (unsigned i=0; i<this->state_dim; i++)
     {
         delta_x[i] = goal_state[i] - start_state[i];
-        if (circular[i])
+        if (this->is_circular[i])
         {
             delta_x[i] = delta_x[i] - floor(delta_x[i] / (2*M_PI))*(2*M_PI);
             if (delta_x[i] > M_PI)

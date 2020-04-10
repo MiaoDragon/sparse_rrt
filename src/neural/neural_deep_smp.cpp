@@ -206,7 +206,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
             if (i != this->psopt_num_steps-1)
             {
                 // add randomness
-                state_i[j] = state_i[j] + distribution(*generator);
+                state_i[j] = state_i[j] + distribution(generator);
             }
         }
         res.x.push_back(state_i);

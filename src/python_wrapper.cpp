@@ -41,7 +41,7 @@
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
 
-#include "neural_deep_smp.hpp"
+#include "neural/neural_deep_smp.hpp"
 
 #include "utilities/random.hpp"
 #include <torch/torch.h>

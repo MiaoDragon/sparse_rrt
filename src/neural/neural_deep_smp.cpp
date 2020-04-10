@@ -1,7 +1,7 @@
 #include "neural/neural_deep_smp.hpp"
 
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
-                   int num_iter_in, int num_steps_in, double step_sz_in,
+                   int num_iters_in, int num_steps_in, double step_sz_in,
                    system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
                    )
                    : system(&system_in)
@@ -19,14 +19,14 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
     control_dim = system->get_control_dimension();
     for (unsigned i=0; i < state_dim; i++)
     {
-        lower_bound.push_back(system->get_state_bounds[i].first);
-        upper_bound.push_back(system->get_state_bounds[i].second);
+        lower_bound.push_back(system->get_state_bounds()[i].first);
+        upper_bound.push_back(system->get_state_bounds()[i].second);
         bound.push_back((upper_bound[i]-lower_bound[i]) / 2);
     }
     for (unsigned i=0; i < control_dim; i++)
     {
-        control_lower_bound.push_back(system->get_control_bounds[i].first);
-        control_upper_bound.push_back(system->get_control_bounds[i].second);
+        control_lower_bound.push_back(system->get_control_bounds()[i].first);
+        control_upper_bound.push_back(system->get_control_bounds()[i].second);
     }
     is_circular = system->is_circular_topology();
 }
@@ -112,7 +112,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
         std::cout << "state dimension: "  << dim << std::endl;
     #endif
 
-    torch::Tensor sg = getStartGoalTensor(start, goal);
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;

@@ -28,7 +28,7 @@ class MPNetSMP
 public:
     /** \brief Constructor */
     MPNetSMP(std::string mlp_path, std::string encoder_path,
-             int num_iter_in, int num_steps_in, double step_sz_in,
+             int num_iters_in, int num_steps_in, double step_sz_in,
              system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
              );
     void plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
@@ -64,7 +64,6 @@ protected:
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);
     torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state);
-    void lvc(StatePtrVec& path, StatePtrVec& res);
 
 };
 

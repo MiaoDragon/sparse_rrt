@@ -1120,14 +1120,14 @@ public:
         // construct planner by name
         if (planner_name == "sst")
         {
-            sst_t planner = sst_t(&start_data_py(0), &goal_data_py(0),
+            sst_t planner(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                       distance_f, 0, delta_near, delta_drain);
 
         }
         else if (planner_name == "rrt")
         {
-            rrt_t planner = rrt_t(&start_data_py(0), &goal_data_py(0),
+            rrt_t planner(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                       distance_f, 0);
 

@@ -4,9 +4,7 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    int num_iter_in, int num_steps_in, double step_sz_in,
                    system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
                    )
-                   : num_steps(num_steps_in)
-                   , step_sz(step_sz_in)
-                   , system(&system_in)
+                   : system(&system_in)
                    , psopt_system(&psopt_system_in)
                    , psopt_num_iters(num_iters_in)
                    , psopt_num_steps(num_steps_in)

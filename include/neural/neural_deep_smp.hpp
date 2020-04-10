@@ -9,11 +9,13 @@
 #include <random>
 #include <memory>
 
+
+#include "systems/system.hpp"
+#include "bvp/psopt_system.hpp"
+#include "motion_planners/planner.hpp"
 #define _USE_MATH_DEFINES
 
 
-using namespace ompl;
-typedef std::vector<ompl::base::State *> StatePtrVec;
 struct traj_t
 {
     std::vector<std::vector<double>> x;  // (T x X)
@@ -40,8 +42,8 @@ protected:
     int _max_replan;
     int _max_length;
     int state_dim, control_dim;
-    int num_steps;
-    double step_sz;
+    double psopt_step_sz;
+    int psopt_num_iters, psopt_num_steps;
     //at::Tensor obs_enc; // two dimensional or one dimensional
     std::shared_ptr<torch::jit::script::Module> encoder;
     std::shared_ptr<torch::jit::script::Module> MLP;
@@ -58,7 +60,7 @@ protected:
     std::default_random_engine generator;
     // MPNet specific:
     virtual void informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state);
-    virtual void init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_j& res);
+    virtual void init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);
     torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state);

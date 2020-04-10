@@ -1118,16 +1118,17 @@ public:
             };
 
         // construct planner by name
+        planner_t *planner;
         if (planner_name == "sst")
         {
-            sst_t planner(&start_data_py(0), &goal_data_py(0),
-            	      goal_radius, system->get_state_bounds, system->get_control_bounds,
-                      distance_f, 0, delta_near, delta_drain);
+            planner = new sst(&start_data_py(0), &goal_data_py(0),
+                	      goal_radius, system->get_state_bounds, system->get_control_bounds,
+                          distance_f, 0, delta_near, delta_drain);
 
         }
         else if (planner_name == "rrt")
         {
-            rrt_t planner(&start_data_py(0), &goal_data_py(0),
+            planner = new rrt(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                       distance_f, 0);
 
@@ -1138,7 +1139,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
 
-        neural_smp->plan(planner, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+        neural_smp->plan(*planner, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
@@ -1160,6 +1161,7 @@ public:
         for (unsigned int i = 0; i < res_t.size(); ++i) {
             time_ref(i) = res_t[i];
         }
+        delete planner;
         // return flag, available flags, states, controls, time
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
             (state_array, control_array, time_array));

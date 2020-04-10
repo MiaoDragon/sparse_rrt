@@ -1082,7 +1082,7 @@ public:
                   )
 
     {
-        system.reset(system_in);
+        system.reset(&system_in);
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, num_iter_in, num_steps_in, step_sz_in, system_in, psopt_system_in));
     }
     py::object plan(std::string& planner_name, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,

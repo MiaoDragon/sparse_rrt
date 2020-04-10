@@ -193,17 +193,17 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 }
             }
         }
-        delta_x[i] = delta_x[i] / (this->num_steps-1);
+        delta_x[i] = delta_x[i] / (this->psopt_num_steps-1);
     }
     std::normal_distribution<double> distribution(0.0,0.02);
     // create x_init from delta_x
-    for (unsigned i=0; i<this->num_steps-1; i++)
+    for (unsigned i=0; i<this->psopt_num_steps-1; i++)
     {
         std::vector<double> state_i;
         for (unsigned j=0; j < this->state_dim; j++)
         {
             state_i.push_back(start_state[j] + delta_x[j] * (i+1));
-            if (i != this->num_steps-1)
+            if (i != this->psopt_num_steps-1)
             {
                 // add randomness
                 state_i[j] = state_i[j] + distribution(*generator);
@@ -214,7 +214,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 
     // obtain u_init by unform sampling
     std::uniform_real_distribution<double> uni_distribution(0.0,1.0);
-    for (unsigned i=0; i<this->num_steps; i++)
+    for (unsigned i=0; i<this->psopt_num_steps; i++)
     {
         std::vector<double> control_i;
         for (unsigned j=0; j < control_dim; j++)
@@ -225,9 +225,9 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     }
 
     // obtain t_init by setting to step_sz
-    for (unsigned i=0; i<this->num_steps; i++)
+    for (unsigned i=0; i<this->psopt_num_steps; i++)
     {
-        res.t.push_back(this->step_sz);
+        res.t.push_back(this->psopt_step_sz);
     }
 }
 

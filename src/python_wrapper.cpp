@@ -1086,7 +1086,7 @@ public:
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, num_iter_in, num_steps_in, step_sz_in, system_in, psopt_system_in));
     }
     py::object plan(std::string& planner_name, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
-                    double in_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
+                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 
         // load data from python
@@ -1120,16 +1120,16 @@ public:
         // construct planner by name
         if (planner_name == "sst")
         {
-            planner_t planner = sst_t(&start_data_py(0), &goal_data_py(0),
+            sst_t planner = sst_t(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
                       distance_f, 0, delta_near, delta_drain);
 
         }
         else if (planner_name == "rrt")
         {
-            planner_t planner = rrt_t(&start_data_py(0), &goal_data_py(0),
+            rrt_t planner = rrt_t(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds, system->get_control_bounds,
-                      distance_f, 0;
+                      distance_f, 0);
 
         }
 
@@ -1138,7 +1138,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
 
-        neural_smp->plan(SMP, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+        neural_smp->plan(planner, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});

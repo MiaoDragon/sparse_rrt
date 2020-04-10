@@ -40,7 +40,7 @@ MPNetSMP::~MPNetSMP()
 
 void MPNetSMP::normalize(const std::vector<double>& state, std::vector<double>& res)
 {
-    for (int i=0; i<state_dim; i++)
+    for (int i=0; i<this->state_dim; i++)
     {
         res.push_back((state[i]-lower_bound[i])/bound[i]-1.0);
     }
@@ -49,7 +49,7 @@ void MPNetSMP::unnormalize(const std::vector<double>& state, std::vector<double>
 {
     // normalize in the 3D state space first
     //std::vector<double> res;
-    for (int i=0; i<state_dim; i++)
+    for (int i=0; i<this->state_dim; i++)
     {
         res.push_back((state[i]+1.0)*bound[i]+lower_bound[i]);
     }
@@ -58,19 +58,19 @@ void MPNetSMP::unnormalize(const std::vector<double>& state, std::vector<double>
 torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state)
 {
     std::vector<double> normalized_start_vec;
-    normalize(start_state, normalized_start_vec);
+    this->normalize(start_state, normalized_start_vec);
     std::vector<double> normalized_goal_vec;
-    normalize(goal_state, normalized_goal_vec);
+    this->normalize(goal_state, normalized_goal_vec);
     // double->float
     std::vector<float> float_normalized_start_vec;
     std::vector<float> float_normalized_goal_vec;
-    for (unsigned i=0; i<state_dim; i++)
+    for (unsigned i=0; i<this->state_dim; i++)
     {
         float_normalized_start_vec.push_back(float(normalized_start_vec[i]));
         float_normalized_goal_vec.push_back(float(normalized_goal_vec[i]));
     }
-    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {1, state_dim});
-    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {1, state_dim});
+    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {1, this->state_dim});
+    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {1, this->state_dim});
 
     #ifdef DEBUG
         std::cout << "Start Vec: \n" << start_state << "\n";
@@ -106,7 +106,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     #endif
 
     //int dim = si_->getStateDimension();
-    int dim = state_dim;
+    int dim = this->state_dim;
     // get start, goal in tensor form
     #ifdef DEBUG
         std::cout << "state dimension: "  << dim << std::endl;
@@ -133,7 +133,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
         state_vec.push_back(res_a[0][i]);
     }
     std::vector<double> unnormalized_state_vec;
-    unnormalize(state_vec, unnormalized_state_vec);
+    this->unnormalize(state_vec, unnormalized_state_vec);
     #ifdef DEBUG
         std::cout << "after planning..." << std::endl;
         std::cout << "tensor..." << std::endl;
@@ -152,7 +152,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     #endif
 }
 
-void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
+void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res)
 {
     /**
     x_init:
@@ -169,8 +169,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     */
 
     // calculate x_init
-    std::vector<double> delta_x(state_dim);
-    for (unsigned i=0; i<state_dim; i++)
+    std::vector<double> delta_x(this->state_dim);
+    for (unsigned i=0; i<this->state_dim; i++)
     {
         delta_x[i] = goal_state[i] - start_state[i];
         if (circular[i])
@@ -200,7 +200,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     for (unsigned i=0; i<num_steps-1; i++)
     {
         std::vector<double> state_i;
-        for (unsigned j=0; j < state_dim; j++)
+        for (unsigned j=0; j < this->state_dim; j++)
         {
             state_i.push_back(start_state[j] + delta_x[j] * (i+1));
             if (i != num_steps-1)
@@ -257,21 +257,21 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         }
         else
         {
-            informer(obs, state_t, next_state, next_state);
+            this->informer(obs, state_t, next_state, next_state);
         }
         // obtain init
         traj_t init_traj;
-        init_informer(obs, state_t, next_state, init_traj);
+        this->init_informer(obs, state_t, next_state, init_traj);
         psopt_result_t res;
-        double* state_t_ptr = new double[state_dim];
-        double* next_state_ptr = new double[state_dim];
-        for (unsigned j=0; j < state_dim; j++)
+        double* state_t_ptr = new double[this->state_dim];
+        double* next_state_ptr = new double[this->state_dim];
+        for (unsigned j=0; j < this->state_dim; j++)
         {
             state_t_ptr[j] = state_t[j];
             next_state_ptr[j] = next_state[j];
         }
 
-        SMP->step_bvp(system.get(), psopt_system.get(), res, state_t_ptr, next_state_ptr, psopt_num_iters, psopt_num_steps, psopt_step_sz,
+        this->SMP->step_bvp(system.get(), psopt_system.get(), res, state_t_ptr, next_state_ptr, psopt_num_iters, psopt_num_steps, psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
         if (init_traj.u.size() == 0)
         {
@@ -285,7 +285,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         }
     }
     // check if solved
-    SMP->get_solution(res_x, res_u, res_t);
+    this->SMP->get_solution(res_x, res_u, res_t);
     if (solution_x.size() != 0)
     {
         // solved

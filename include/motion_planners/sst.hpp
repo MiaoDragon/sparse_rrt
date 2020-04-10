@@ -184,7 +184,7 @@ public:
   	{
   		return std::unique_ptr<planner_t>(new planner_t(*this));
   	}
-	
+
 	virtual ~sst_t();
 
 	/**

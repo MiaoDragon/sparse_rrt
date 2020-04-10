@@ -41,7 +41,13 @@
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
 
+#include "neural_deep_smp.hpp"
+
 #include "utilities/random.hpp"
+#include <torch/torch.h>
+#include <torch/script.h>
+
+
 
 namespace pybind11 {
     template <typename T>
@@ -1066,6 +1072,107 @@ protected:
 };
 
 
+//*******************neural planner****************************
+class DeepSMPWrapper
+{
+public:
+    DeepSMPWrapper(std::string& mlp_path, std::string& encoder_path,
+                       int num_iter_in, int num_steps_in, double step_sz_in,
+                       system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
+                  )
+
+    {
+        system.reset(system_in);
+        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, num_iter_in, num_steps_in, step_sz_in, system_in, psopt_system_in));
+    }
+    py::object plan(std::string& planner_name, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
+                    double in_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
+    {
+
+        // load data from python
+        auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
+        auto goal_data_py = goal_py.unchecked<1>();
+        auto obs_data_py = obs_py.unchecked<1>();  // first load the flattened data, and then reshape
+
+        std::vector<double> start_state;
+        std::vector<double> goal_state;
+        for (unsigned i=0; i < start_data_py.shape(0); i++)
+        {
+            start_state[i] = start_data_py(i);
+            goal_state[i] = goal_data_py(i);
+        }
+        std::vector<float> obs_vec;
+        for (unsigned i=0; i < obs_data_py.shape(0); i++)
+        {
+            obs_vec[i] = float(obs_data_py(i));
+        }
+        torch::Tensor obs_tensor = torch::from_blob(obs_vec.data(), {1,1,32,32});
+
+        double* start_array;
+        double* goal_array;
+
+        distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
+        std::function<double(const double*, const double*, unsigned int)>  distance_f =
+            [distance_computer] (const double* p0, const double* p1, unsigned int dims) {
+                return distance_computer->distance(p0, p1, dims);
+            };
+
+        // construct planner by name
+        if (planner_name == "sst")
+        {
+            planner_t planner = sst_t(&start_data_py(0), &goal_data_py(0),
+            	      goal_radius, system->get_state_bounds, system->get_control_bounds,
+                      distance_f, 0, delta_near, delta_drain);
+
+        }
+        else if (planner_name == "rrt")
+        {
+            planner_t planner = rrt_t(&start_data_py(0), &goal_data_py(0),
+            	      goal_radius, system->get_state_bounds, system->get_control_bounds,
+                      distance_f, 0;
+
+        }
+
+        // plan
+        std::vector<std::vector<double>> res_x;
+        std::vector<std::vector<double>> res_u;
+        std::vector<double> res_t;
+
+        neural_smp->plan(SMP, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+                         res_x, res_u, res_t);
+
+        py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
+        py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
+        py::safe_array<double> time_array({res_t.size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_x.size(); ++i) {
+            for (unsigned int j = 0; j < res_x[0].size(); ++j) {
+                state_ref(i, j) = res_x[i][j];
+            }
+        }
+        auto control_ref = control_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_u.size(); ++i) {
+            for (unsigned int j = 0; j < res_u[0].size(); ++j) {
+                control_ref(i, j) = res_u[i][j];
+            }
+        }
+        auto time_ref = time_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < res_t.size(); ++i) {
+            time_ref(i) = res_t[i];
+        }
+        // return flag, available flags, states, controls, time
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, control_array, time_array));
+
+
+    }
+protected:
+    std::shared_ptr<MPNetSMP> neural_smp;
+    std::shared_ptr<system_t> system;
+
+}
+
+
 /**
  * @brief pybind module
  * @details pybind module for all planners, systems and interfaces
@@ -1240,4 +1347,21 @@ PYBIND11_MODULE(_sst_module, m) {
              "integration_step"_a
         )
     ;
+    py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
+        .def(py::init<std::string&, std::string&, int, int, double,
+                      system_t&, psopt_system_t&>(),
+                      "mlp_path"_a, "encoder_path"_a, "num_iter"_a, "num_steps"_a, "step_sz"_a,
+                      "system"_a, "psopt_system"_a
+             )
+        .def("plan", &DeepSMPWrapper::plan,
+             "planner_name"_a,
+             "obs"_a,
+             "start_state"_a,
+             "goal_state"_a,
+             "max_iteration"_a,
+             "distance"_a,
+             "delta_near"_a,
+             "delta_drain"_a
+            )
+     ;
 }

@@ -1,15 +1,17 @@
-MPNetSMP::MPNetSMP(planner_t& planner, std::string mlp_path, std::string encoder_path,
-                   int num_steps_in, double step_sz_in,
+#include "neural/neural_deep_smp.hpp"
+
+MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
+                   int num_iter_in, int num_steps_in, double step_sz_in,
                    system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
                    )
                    : num_steps(num_steps_in)
                    , step_sz(step_sz_in)
                    , system(&system_in)
                    , psopt_system(&psopt_system_in)
+                   , psopt_num_iters(num_iters_in)
+                   , psopt_num_steps(num_steps_in)
+                   , psopt_step_sz(step_sz_in)
 {
-    // planner
-    SMP.reset(planner.clone());
-
     // neural network
     MLP.reset(new torch::jit::script::Module(torch::jit::load(mlp_path)));
     encoder.reset(new torch::jit::script::Module(torch::jit::load(encoder_path)));
@@ -33,7 +35,6 @@ MPNetSMP::MPNetSMP(planner_t& planner, std::string mlp_path, std::string encoder
 
 MPNetSMP::~MPNetSMP()
 {
-    SMP.reset();
     MLP.reset();
     encoder.reset();
 }
@@ -233,7 +234,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration)
+void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
+                    std::vector<std::vector<double>> res_x, std::vector<std::vector<double>> res_u, std::vector<double> res_t)
 {
     /**
         each iteration:
@@ -246,4 +248,49 @@ void MPNetSMP::plan(at::Tensor obs, std::vector<double> start_state, std::vector
             else:
                 x_t = x_t_1
     */
+    std::vector<double> state_t = start_state;
+    for (unsigned i=0; i<max_iteration; i++)
+    {
+        std::vector<double> next_state;
+        if (i % 10 == 0)
+        {
+            // sample the goal instead
+            next_state = goal_state;
+        }
+        else
+        {
+            informer(obs, state_t, next_state, next_state);
+        }
+        // obtain init
+        traj_j init_traj;
+        init_informer(obs, state_t, next_state, init_traj);
+        psopt_result_t res;
+        double* state_t_ptr = new double[state_dim];
+        double* next_state_ptr = new double[state_dim];
+        for (unsigned j=0; j < state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+            next_state_ptr[j] = next_state[j];
+        }
+
+        SMP->step_bvp(system.get(), psopt_system.get(), res, state_t_ptr, next_state_ptr, psopt_num_iters, psopt_num_steps, psopt_step_sz,
+   	     init_traj.x, init_traj.u, init_traj.t);
+        if (init_traj.u.size() == 0)
+        {
+            // not valid path
+            state_t = start_state;
+        }
+        else
+        {
+            // use the endpoint
+            state_t = init_traj.x.back();
+        }
+    }
+    // check if solved
+    SMP->get_solution(res_x, res_u, res_t);
+    if (solution_x.size() != 0)
+    {
+        // solved
+        return;
+    }
 }

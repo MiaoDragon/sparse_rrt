@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(SparseRRT)
 
+list(APPEND CMAKE_PREFIX_PATH
+    ${PROJECT_SOURCE_DIR}/../deps/libtorch
+    /usr/local/cuda-10.1)
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_CXX_FLAGS "-std=c++1y ${CMAKE_CXX_FLAGS}")
@@ -72,13 +76,18 @@ execute_process(
 #    OUTPUT_STRIP_TRAILING_WHITESPACE
 #)
 
+set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-10.1")
+find_package(Torch REQUIRED)
+
 
 include_directories(
         # ${Numpy_INCLUDE_DIRS}  # this should come before PYTHON includes because it also contains system numpy
         ${PYTHON_INCLUDE_DIRS}
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/deps/pybind11/include"
+        ${TORCH_INCLUDE_DIRS}
         )
+message("found torch library path: " "${TORCH_LIBRARIES}")
 
 
 set(SOURCE_FILES
@@ -103,7 +112,9 @@ set(SOURCE_FILES
         src/bvp/psopt_pendulum.cpp
         src/bvp/psopt_acrobot.cpp
         src/bvp/psopt_point.cpp
-        src/bvp/psopt_system.cpp)
+        src/bvp/psopt_system.cpp
+        src/neural/neural_deep_smp.cpp
+)
 
 add_library(${PROJECT_NAME} STATIC
     ${SOURCE_FILES})
@@ -116,7 +127,7 @@ include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
 
 
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
-target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME})
+target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME} ${TORCH_LIBRARIES})
 
 
 # Don't prepend wrapper library name with lib and add to Python libs.

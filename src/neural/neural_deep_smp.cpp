@@ -2,7 +2,7 @@
 
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    int num_iters_in, int num_steps_in, double step_sz_in,
-                   system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
+                   system_t& system_in, psopt_system_t& psopt_system_in  //TODO: add clone to make code more secure
                    )
                    : system(&system_in)
                    , psopt_system(&psopt_system_in)

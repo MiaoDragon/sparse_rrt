@@ -29,7 +29,7 @@ public:
     /** \brief Constructor */
     MPNetSMP(std::string mlp_path, std::string encoder_path,
              int num_iters_in, int num_steps_in, double step_sz_in,
-             system_t& system_in, psopt_system_t& psopt_system_in,  //TODO: add clone to make code more secure
+             system_t& system_in, psopt_system_t& psopt_system_in  //TODO: add clone to make code more secure
              );
     void plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
               std::vector<std::vector<double>> res_x, std::vector<std::vector<double>> res_u, std::vector<double> res_t);

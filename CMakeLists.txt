@@ -134,7 +134,7 @@ add_library(sst_module SHARED
 # Add compilation for psopt
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
 set(CMAKE_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=1 ${CMAKE_CXX_FLAGS}")
-message("D_GLIBCXX_USE_CXX11_ABI" ${D_GLIBCXX_USE_CXX11_ABI})
+message("D_GLIBCXX_USE_CXX11_ABI" "${D_GLIBCXX_USE_CXX11_ABI}")
 
 
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)

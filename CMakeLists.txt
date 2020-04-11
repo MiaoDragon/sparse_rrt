@@ -10,6 +10,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_CXX_FLAGS "-std=c++14 -D_GLIBCXX_USE_CXX11_ABI=1 ${CMAKE_CXX_FLAGS}")
 #set(CMAKE_CXX_FLAGS "-std=c++1y ${CMAKE_CXX_FLAGS}")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+SET(CMAKE_C_LINK_EXECUTABLE ${CMAKE_CXX_LINK_EXECUTABLE})
+
 
 set(INCLUDE_DIRECTORIES include)
 
@@ -90,6 +92,11 @@ include_directories(
         )
 message("found torch library path: " "${TORCH_LIBRARIES}")
 
+set(INCLUDE_DIR
+    ${PYTHON_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/deps/pybind11/include
+    ${TORCH_INCLUDE_DIRS})
 
 set(SOURCE_FILES
         src/motion_planners/rrt.cpp
@@ -126,6 +133,8 @@ add_library(sst_module SHARED
 
 # Add compilation for psopt
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
+
+message("D_GLIBCXX_USE_CXX11_ABI" ${D_GLIBCXX_USE_CXX11_ABI})
 
 
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)

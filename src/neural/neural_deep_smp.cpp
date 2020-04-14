@@ -1,5 +1,5 @@
 #include "neural/neural_deep_smp.hpp"
-
+#define DEBUG 1
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    int num_iters_in, int num_steps_in, double step_sz_in,
                    system_t& system_in, psopt_system_t& psopt_system_in  //TODO: add clone to make code more secure
@@ -249,6 +249,9 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
     std::vector<double> state_t = start_state;
     for (unsigned i=0; i<max_iteration; i++)
     {
+        #ifdef DEBUG
+            std::cout << "iteration " << i << std::endl;
+        #endif
         std::vector<double> next_state;
         if (i % 10 == 0)
         {

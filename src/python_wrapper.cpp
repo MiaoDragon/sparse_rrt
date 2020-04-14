@@ -1107,10 +1107,13 @@ public:
         {
             obs_vec[i] = float(obs_data_py(i));
         }
+        std::cout << "vector to torch obs vector.." << std::endl;
         torch::Tensor obs_tensor = torch::from_blob(obs_vec.data(), {1,1,32,32});
 
         double* start_array;
         double* goal_array;
+
+        std::cout << "creating distance function.." << std::endl;
 
         distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
         std::function<double(const double*, const double*, unsigned int)>  distance_f =
@@ -1120,6 +1123,7 @@ public:
 
         // construct planner by name
         planner_t *planner;
+        std::cout << "creating new planner..." << std::endl;
         if (planner_name == "sst")
         {
             planner = new sst_t(&start_data_py(0), &goal_data_py(0),

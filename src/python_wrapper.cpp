@@ -1139,7 +1139,7 @@ public:
         std::vector<std::vector<double>> res_x;
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
-
+        std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan(*planner, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 

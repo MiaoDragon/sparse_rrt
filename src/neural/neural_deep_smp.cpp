@@ -186,6 +186,9 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     */
 
     // calculate x_init
+    #ifdef DEBUG
+        std::cout << "inside init_informer..." << std::endl;
+    #endif
     std::vector<double> delta_x(this->state_dim);
     for (unsigned i=0; i<this->state_dim; i++)
     {
@@ -246,6 +249,10 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     {
         res.t.push_back(this->psopt_step_sz);
     }
+    #ifdef DEBUG
+        std::cout << "complete init_informer." << std::endl;
+    #endif
+
 }
 
 
@@ -269,7 +276,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
         #endif
-        std::vector<double> next_state;
+        std::vector<double> next_state(state_dim);
         if (i % 10 == 0)
         {
             // sample the goal instead

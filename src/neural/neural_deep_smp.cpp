@@ -24,6 +24,9 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
     // obtain bound from system
     state_dim = system->get_state_dimension();
     control_dim = system->get_control_dimension();
+    #ifdef DEBUG
+        std::cout << "loaded dims" << std::endl;
+    #endif
     for (unsigned i=0; i < state_dim; i++)
     {
         lower_bound.push_back(system->get_state_bounds()[i].first);
@@ -35,6 +38,9 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
         control_lower_bound.push_back(system->get_control_bounds()[i].first);
         control_upper_bound.push_back(system->get_control_bounds()[i].second);
     }
+    #ifdef DEBUG
+        std::cout << "copied bounds" << std::endl;
+    #endif
     is_circular = system->is_circular_topology();
 }
 

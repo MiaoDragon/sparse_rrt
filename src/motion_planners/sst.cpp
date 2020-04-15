@@ -291,9 +291,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     * solve BVP(x_start, x_goal, x_init, u_init, t_init) -> xs, us, ts
     * propagate and add to tree
     **/
-    #ifdef DEBUG
-        std::cout << "inside sst: step_bvp" << std::endl;
-    #endif
+    std::cout << "inside sst: step_bvp" << std::endl;
+    std::cout << "system->state_dim: " << propagate_system->get_state_dimension() << std::endl;
+
     sst_node_t* nearest = nearest_vertex(start_state);
     if (bvp_solver == NULL)
     {

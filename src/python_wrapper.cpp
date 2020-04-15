@@ -1151,7 +1151,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan(*planner, system, psopt_system, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+        neural_smp->plan(planner, system, psopt_system, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});

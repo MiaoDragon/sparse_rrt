@@ -254,7 +254,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
+void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
@@ -303,7 +303,7 @@ void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_syst
             std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
         #endif
-        SMP.step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
@@ -320,7 +320,7 @@ void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_syst
         }
     }
     // check if solved
-    SMP.get_solution(res_x, res_u, res_t);
+    SMP->get_solution(res_x, res_u, res_t);
     if (res_x.size() != 0)
     {
         // solved

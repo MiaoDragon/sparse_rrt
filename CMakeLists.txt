@@ -137,7 +137,7 @@ message("D_GLIBCXX_USE_CXX11_ABI" "${D_GLIBCXX_USE_CXX11_ABI}")
 message(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
-target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME} ${TORCH_LIBRARIES})
+target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${PROJECT_NAME} ${TORCH_LIBRARIES} "-Wl,--stack,10000000")
 
 
 # Don't prepend wrapper library name with lib and add to Python libs.

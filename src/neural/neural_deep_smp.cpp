@@ -299,6 +299,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         }
         #ifdef DEBUG
             std::cout << "after copying state" << std::endl;
+            std::cout << "SMP.sst_delta_near:" << SMP.sst_delta_near << std::endl;
         #endif
         SMP.step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);

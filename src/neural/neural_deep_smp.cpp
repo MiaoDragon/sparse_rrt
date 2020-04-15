@@ -26,6 +26,7 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
     control_dim = system->get_control_dimension();
     #ifdef DEBUG
         std::cout << "loaded dims" << std::endl;
+        std::cout << "state_dim:" << state_dim << std::endl;
     #endif
     for (unsigned i=0; i < state_dim; i++)
     {

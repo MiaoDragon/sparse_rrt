@@ -704,12 +704,16 @@ public:
              system_obs.reset(
                      new cart_pole_obs_t(obs_list, width)
              );
+             state_dimension = 4;
+     		control_dimension = 1;
          }
          else if (env_name == "acrobot")
          {
              system_obs.reset(
                      new two_link_acrobot_obs_t(obs_list, width)
              );
+             state_dimension = 4;
+     		control_dimension = 1;
          }
     }
 

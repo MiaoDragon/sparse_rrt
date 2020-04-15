@@ -254,8 +254,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
-                    std::vector<std::vector<double>> res_x, std::vector<std::vector<double>> res_u, std::vector<double> res_t)
+void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
         each iteration:

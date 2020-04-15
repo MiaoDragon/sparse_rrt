@@ -1083,8 +1083,11 @@ public:
                   )
 
     {
+        std::cout << "creating SMPWrapper" << std::endl;
         system.reset(&system_in);
+        std::cout << "craeted system" << std::endl;
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, num_iter_in, num_steps_in, step_sz_in, system_in, psopt_system_in));
+        std::cout << "created smp module" << std::endl;
     }
     py::object plan(std::string& planner_name, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)

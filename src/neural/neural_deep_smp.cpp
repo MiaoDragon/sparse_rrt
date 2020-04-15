@@ -215,7 +215,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     }
     std::normal_distribution<double> distribution(0.0,0.02);
     // create x_init from delta_x
-    for (unsigned i=0; i<this->psopt_num_steps-1; i++)
+    for (unsigned i=0; i<this->psopt_num_steps; i++)
     {
         std::vector<double> state_i;
         for (unsigned j=0; j < this->state_dim; j++)
@@ -300,7 +300,7 @@ void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_syst
             std::cout << "SMP.state_dimension:" << SMP.get_state_dimension() << std::endl;
             std::cout << "system address:" << system << std::endl;
             std::cout << "system->state_dim: " << system->get_state_dimension() << std::endl;
-            std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;            
+            std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
         #endif
         SMP.step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,

@@ -1108,8 +1108,8 @@ public:
         std::cout << start_data_py.shape(0) << std::endl;
         for (unsigned i=0; i < start_data_py.shape(0); i++)
         {
-            start_state[i] = start_data_py(i);
-            goal_state[i] = goal_data_py(i);
+            start_state.push_back(start_data_py(i));
+            goal_state.push_back(goal_data_py(i));
         }
         std::cout << "before copying obs_vec.." << std::endl;
         std::vector<float> obs_vec;

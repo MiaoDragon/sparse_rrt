@@ -31,7 +31,7 @@ public:
              system_t* system,
              int num_iters_in, int num_steps_in, double step_sz_in
              );
-    void plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
+    void plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
               std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
     ~MPNetSMP();
 

@@ -1104,6 +1104,7 @@ public:
 
         std::vector<double> start_state;
         std::vector<double> goal_state;
+        std::cout << "before copying state.." << std::endl;
         for (unsigned i=0; i < start_data_py.shape(0); i++)
         {
             start_state[i] = start_data_py(i);

@@ -297,9 +297,14 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
             state_t_ptr[j] = state_t[j];
             next_state_ptr[j] = next_state[j];
         }
-
+        #ifdef DEBUG
+            std::cout << "after copying state" << std::endl;
+        #endif
         this->SMP->step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
+         #ifdef DEBUG
+             std::cout << "after step_bvp" << std::endl;
+         #endif
         if (init_traj.u.size() == 0)
         {
             // not valid path

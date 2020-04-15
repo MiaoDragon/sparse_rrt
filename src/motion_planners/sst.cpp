@@ -283,9 +283,9 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
 }
 
 void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,
-    const std::vector<std::vector<double>> &x_init,
-    const std::vector<std::vector<double>> &u_init,
-    const std::vector<double> &t_init)
+    std::vector<std::vector<double>> &x_init,
+    std::vector<std::vector<double>> &u_init,
+    std::vector<double> &t_init)
 {
     /**
     * solve BVP(x_start, x_goal, x_init, u_init, t_init) -> xs, us, ts

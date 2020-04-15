@@ -1115,7 +1115,7 @@ public:
         std::vector<float> obs_vec;
         for (unsigned i=0; i < obs_data_py.shape(0); i++)
         {
-            obs_vec[i] = float(obs_data_py(i));
+            obs_vec.push_back(float(obs_data_py(i)));
         }
         std::cout << "vector to torch obs vector.." << std::endl;
         torch::Tensor obs_tensor = torch::from_blob(obs_vec.data(), {1,1,32,32});

@@ -12,6 +12,9 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
 {
     // neural network
     MLP.reset(new torch::jit::script::Module(torch::jit::load(mlp_path)));
+    #ifdef DEBUG
+        std::cout << "loaded MLP" << std::endl;
+    #endif
     encoder.reset(new torch::jit::script::Module(torch::jit::load(encoder_path)));
 
     #ifdef DEBUG

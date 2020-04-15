@@ -300,7 +300,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         #ifdef DEBUG
             std::cout << "after copying state" << std::endl;
         #endif
-        this->SMP->step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+        SMP.step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
@@ -317,7 +317,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
         }
     }
     // check if solved
-    this->SMP->get_solution(res_x, res_u, res_t);
+    SMP.get_solution(res_x, res_u, res_t);
     if (res_x.size() != 0)
     {
         // solved

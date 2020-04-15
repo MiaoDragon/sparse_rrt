@@ -2,7 +2,7 @@
 #define DEBUG 1
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    system_t* system,
-                   int num_iters_in, int num_steps_in, double step_sz_in,
+                   int num_iters_in, int num_steps_in, double step_sz_in
                    )
                    : psopt_num_iters(num_iters_in)
                    , psopt_num_steps(num_steps_in)

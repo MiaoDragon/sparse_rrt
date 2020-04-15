@@ -1083,17 +1083,14 @@ class DeepSMPWrapper
 public:
     DeepSMPWrapper(std::string& mlp_path, std::string& encoder_path,
                        int num_iter_in, int num_steps_in, double step_sz_in,
-                       system_t& system_in, psopt_system_t& psopt_system_in  //TODO: add clone to make code more secure
+                       system_t* system_in
                   )
 
     {
-        std::cout << "creating SMPWrapper" << std::endl;
-        system.reset(&system_in);
-        std::cout << "craeted system" << std::endl;
-        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, num_iter_in, num_steps_in, step_sz_in, system_in, psopt_system_in));
+        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
         std::cout << "created smp module" << std::endl;
     }
-    py::object plan(std::string& planner_name, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
+    py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 
@@ -1154,7 +1151,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan(*planner, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+        neural_smp->plan(*planner, system, psopt_system, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
@@ -1185,7 +1182,6 @@ public:
     }
 protected:
     std::shared_ptr<MPNetSMP> neural_smp;
-    std::shared_ptr<system_t> system;
 
 };
 
@@ -1366,11 +1362,13 @@ PYBIND11_MODULE(_sst_module, m) {
     ;
     py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
         .def(py::init<std::string&, std::string&, int, int, double,
-                      system_t&, psopt_system_t&>(),
+                      system_t*>(),
                       "mlp_path"_a, "encoder_path"_a, "num_iter"_a, "num_steps"_a, "step_sz"_a,
-                      "system"_a, "psopt_system"_a
+                      "system"_a
              )
         .def("plan", &DeepSMPWrapper::plan,
+              "system"_a,
+              "psopt_system"_a,
              "planner_name"_a,
              "obs"_a,
              "start_state"_a,

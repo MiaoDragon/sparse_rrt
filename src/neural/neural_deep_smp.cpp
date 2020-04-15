@@ -1,12 +1,10 @@
 #include "neural/neural_deep_smp.hpp"
 #define DEBUG 1
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
+                   system_t* system,
                    int num_iters_in, int num_steps_in, double step_sz_in,
-                   system_t& system_in, psopt_system_t& psopt_system_in  //TODO: add clone to make code more secure
                    )
-                   : system(&system_in)
-                   , psopt_system(&psopt_system_in)
-                   , psopt_num_iters(num_iters_in)
+                   : psopt_num_iters(num_iters_in)
                    , psopt_num_steps(num_steps_in)
                    , psopt_step_sz(step_sz_in)
 {
@@ -256,7 +254,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
+void MPNetSMP::plan(planner_t& SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor obs, std::vector<double> start_state, std::vector<double> goal_state, int max_iteration, double goal_radius,
                     std::vector<std::vector<double>> res_x, std::vector<std::vector<double>> res_u, std::vector<double> res_t)
 {
     /**
@@ -301,7 +299,7 @@ void MPNetSMP::plan(planner_t& SMP, at::Tensor obs, std::vector<double> start_st
             std::cout << "after copying state" << std::endl;
             std::cout << "SMP.state_dimension:" << SMP.get_state_dimension() << std::endl;
         #endif
-        SMP.step_bvp(this->system.get(), this->psopt_system.get(), res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+        SMP.step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;

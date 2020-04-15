@@ -31,6 +31,9 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
     {
         lower_bound.push_back(system->get_state_bounds()[i].first);
         upper_bound.push_back(system->get_state_bounds()[i].second);
+        #ifdef DEBUG
+            std::cout << "lower_bound[i]" << lower_bound[i] << std::endl;
+        #endif
         bound.push_back((upper_bound[i]-lower_bound[i]) / 2);
     }
     for (unsigned i=0; i < control_dim; i++)

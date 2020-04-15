@@ -300,8 +300,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
     }
     psopt_result_t res;
+    std::cout << "sst: before solve... "<< std::endl;
     bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
+    std::cout << "sst: after solve. "<< std::endl;
+
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
     std::vector<double> t_traj;

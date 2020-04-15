@@ -457,7 +457,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
     //problem.name = "Time  Varying state constraint problem";
     //problem.outfilename = "stc1.txt";
-    std::cout << "bvp: x_Init[0]" << x_init[0] << std::endl;
+    std::cout << "bvp: x_Init[0]: [" << x_init[0] <<", " << x_init[1]<<", " << x_init[2]<<", " << x_init[3]<<"] "  << std::endl;
     problem.nphases = 1;
     problem.nlinkages = 0;
     psopt_level1_setup(problem);

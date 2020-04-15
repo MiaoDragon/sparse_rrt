@@ -297,7 +297,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         }
         #ifdef DEBUG
             std::cout << "after copying state" << std::endl;
-            std::cout << "SMP.state_dimension:" << SMP.get_state_dimension() << std::endl;
+            std::cout << "SMP.state_dimension:" << SMP->get_state_dimension() << std::endl;
             std::cout << "system address:" << system << std::endl;
             std::cout << "system->state_dim: " << system->get_state_dimension() << std::endl;
             std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;

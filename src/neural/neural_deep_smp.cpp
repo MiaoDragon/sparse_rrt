@@ -14,6 +14,10 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
     MLP.reset(new torch::jit::script::Module(torch::jit::load(mlp_path)));
     encoder.reset(new torch::jit::script::Module(torch::jit::load(encoder_path)));
 
+    #ifdef DEBUG
+        std::cout << "loaded modules" << std::endl;
+    #endif
+
     // obtain bound from system
     state_dim = system->get_state_dimension();
     control_dim = system->get_control_dimension();

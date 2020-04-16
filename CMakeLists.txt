@@ -128,8 +128,7 @@ add_library(${PROJECT_NAME} STATIC
     ${SOURCE_FILES})
 
 add_library(sst_module SHARED
-    ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp
-    ${SOURCE_FILES})
+    ${PROJECT_SOURCE_DIR}/src/python_wrapper.cpp)
 
 # Add compilation for psopt
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)

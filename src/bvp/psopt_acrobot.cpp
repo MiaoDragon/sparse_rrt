@@ -194,6 +194,7 @@ std::vector<bool> psopt_acrobot_t::is_circular_topology() const {
 void psopt_acrobot_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
                            adouble& time, adouble* xad, int iphase, Workspace* workspace)
 {
+    std::cout << "states: [" << states[0] << ", " << states[1] << ", " << states[2] << ", "<< states[3] << "]"<< std::endl;
     adouble theta2 = states[STATE_THETA_2];
     adouble theta1 = states[STATE_THETA_1] - M_PI / 2;
     adouble theta1dot = states[STATE_V_1];

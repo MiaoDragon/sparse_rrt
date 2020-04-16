@@ -136,7 +136,7 @@ add_library(sst_module SHARED
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
 message("D_GLIBCXX_USE_CXX11_ABI" "${D_GLIBCXX_USE_CXX11_ABI}")
 message(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
+message("TORCH LIBRARIES: " ${TORCH_LIBRARIES})
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${PROJECT_NAME})
 

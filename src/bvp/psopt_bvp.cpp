@@ -491,7 +491,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         // specify the boundary
         problem.phases(1).bounds.lower.states(i) = state_bound[i-1].first;
         problem.phases(1).bounds.upper.states(i) = state_bound[i-1].second;
-        std::cout << "state_bound[" << i-1 << "]: " << state_bound[i-1].first << ", " state_bound[i-1].second << std::endl;
+        std::cout << "state_bound[" << i-1 << "]: " << state_bound[i-1].first << ", " << state_bound[i-1].second << std::endl;
     }
 
     // obtain boundary for control

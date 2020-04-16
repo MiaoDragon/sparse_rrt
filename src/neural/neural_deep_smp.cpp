@@ -270,6 +270,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
+    at::Tensor obs_enc = encoder->forward(obs).toTensor();
     for (unsigned i=0; i<max_iteration; i++)
     {
         #ifdef DEBUG
@@ -283,11 +284,11 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         }
         else
         {
-            this->informer(obs, state_t, next_state, next_state);
+            this->informer(obs_enc, state_t, next_state, next_state);
         }
         // obtain init
         traj_t init_traj;
-        this->init_informer(obs, state_t, next_state, init_traj);
+        this->init_informer(obs_enc, state_t, next_state, init_traj);
         psopt_result_t res;
         double* state_t_ptr = new double[this->state_dim];
         double* next_state_ptr = new double[this->state_dim];

@@ -345,6 +345,13 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     {
         int num_dis = std::floor(t_traj[i] / step_sz);
         res_t = t_traj[i] - num_dis * step_sz;
+        #ifdef DEBUG
+        std::cout << "step_bvp propagating..." << std::endl;
+        std::cout << "i=" << i << std::endl;
+        std::cout << "num_dis=" << num_dis << ", t_traj[i]=" << t_traj[i] << std::endl;
+        std::cout << "res_t=" << res_t << std::endl;
+
+        #endif
         for (unsigned j=0; j < this->control_dimension; j++)
         {
             u_traj_i[j] = u_traj[i][j];

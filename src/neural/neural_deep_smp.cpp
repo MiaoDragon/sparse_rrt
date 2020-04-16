@@ -270,7 +270,12 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    at::Tensor obs_enc = encoder->forward(obs).toTensor();
+    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+
+    std::vector<torch::jit::IValue> obs_input;
+    obs_input.push_back(obs_tensor);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
     for (unsigned i=0; i<max_iteration; i++)
     {
         #ifdef DEBUG

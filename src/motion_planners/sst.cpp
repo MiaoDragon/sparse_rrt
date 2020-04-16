@@ -83,7 +83,7 @@ sst_t::sst_t(
     witness_nodes.push_back(first_witness_sample);
     // initialize BVP solver
     bvp_solver = NULL;
-    std::cout << "initialized SST Wrapper" << std::endl;
+    //std::cout << "initialized SST Wrapper" << std::endl;
 }
 
 sst_t::~sst_t() {
@@ -291,8 +291,8 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     * solve BVP(x_start, x_goal, x_init, u_init, t_init) -> xs, us, ts
     * propagate and add to tree
     **/
-    std::cout << "inside sst: step_bvp" << std::endl;
-    std::cout << "system->state_dim: " << bvp_system->get_state_dimension() << std::endl;
+    //std::cout << "inside sst: step_bvp" << std::endl;
+    //std::cout << "system->state_dim: " << bvp_system->get_state_dimension() << std::endl;
 
     sst_node_t* nearest = nearest_vertex(start_state);
     if (bvp_solver == NULL)
@@ -300,10 +300,10 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
     }
     psopt_result_t res;
-    std::cout << "sst: before solve... "<< std::endl;
+    //std::cout << "sst: before solve... "<< std::endl;
     bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
-    std::cout << "sst: after solve. "<< std::endl;
+    //std::cout << "sst: after solve. "<< std::endl;
 
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
@@ -330,7 +330,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     step_res.x.push_back(res_x_i);
     bool val = true;
     double res_t;
-    std::cout << "sst: after copying res "<< std::endl;
+    //std::cout << "sst: after copying res "<< std::endl;
 
     for (unsigned i=0; i < num_steps-1; i++)
     {
@@ -401,7 +401,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
     delete u_traj_i;
     delete end_state;
-    std::cout << "after sst: step_bvp" << std::endl;
+    //std::cout << "after sst: step_bvp" << std::endl;
 }
 
 

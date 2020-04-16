@@ -259,6 +259,8 @@ adouble psopt_acrobot_t::integrand_cost(adouble* states, adouble* controls, adou
 void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
             adouble& tf, adouble* xad, int iphase, Workspace* workspace)
 {
+    std::cout << "initial_states: [" << initial_states[0] << ", " << initial_states[1] << ", " << initial_states[2] << ", "<< initial_states[3] << "]"<< std::endl;
+
   for (unsigned i=0; i < STATE_N; i++)
   {
       // it is angle then allow them to have 2pi difference

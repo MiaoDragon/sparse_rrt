@@ -568,7 +568,8 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     {
         for (unsigned j=0; j < num_steps; j+=1)
         {
-            std::cout << "x_init[" << j << "][" << i << "]=" << states(i+1,j+1) << std::endl;
+            std::cout << "init_states[" << j << "][" << i << "]=" << states(i+1,j+1) << std::endl;
+            std::cout << "x_init[" << j << "][" << i << "]=" <<  x_init[j][i] << std::endl;
             states(i+1,j+1) = x_init[j][i];
         }
     }

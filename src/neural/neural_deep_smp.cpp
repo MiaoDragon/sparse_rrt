@@ -243,9 +243,10 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     }
 
     // obtain t_init by setting to step_sz
-    for (unsigned i=0; i<this->psopt_num_steps; i++)
+    res.t.push_back(0.);
+    for (unsigned i=1; i<this->psopt_num_steps; i++)
     {
-        res.t.push_back(this->psopt_step_sz);
+        res.t.push_back(res.t[i-1]+this->psopt_step_sz);
     }
     #ifdef DEBUG
         std::cout << "complete init_informer." << std::endl;

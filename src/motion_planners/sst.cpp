@@ -330,6 +330,8 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     step_res.x.push_back(res_x_i);
     bool val = true;
     double res_t;
+    std::cout << "sst: after copying res "<< std::endl;
+
     for (unsigned i=0; i < num_steps-1; i++)
     {
         int num_dis = std::floor(t_traj[i] / step_sz);

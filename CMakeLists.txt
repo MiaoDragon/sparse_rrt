@@ -138,7 +138,9 @@ message("D_GLIBCXX_USE_CXX11_ABI" "${D_GLIBCXX_USE_CXX11_ABI}")
 message(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 message("TORCH LIBRARIES: " ${TORCH_LIBRARIES})
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
-target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${PROJECT_NAME})
+#target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${PROJECT_NAME})
+target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
+                    ${FIND_FBLAS} ${FIND_CBLAS})
 
 
 # Don't prepend wrapper library name with lib and add to Python libs.

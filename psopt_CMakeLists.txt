@@ -29,7 +29,7 @@ set(DMATRIX_LIBS "${DMATRIXDIR}/lib/libdmatrix.a")
 
 set(CXX "/usr/bin/g++")
 #set(CXXFLAGS "-O0 -g -I${USERHOME}/adolc_base/include -I${SNOPTDIR}/include -I${DMATRIXDIR}/include -I${SNOPTDIR}/cppexamples -I${PSOPTSRCDIR} -DLAPACK -DUNIX -DSPARSE_MATRIX -DUSE_IPOPT -I${CXSPARSE}/Include -I${CXSPARSE}/../SuiteSparse_config -I${LUSOL} ${IPOPTINCDIR} -fomit-frame-pointer -pipe -DNDEBUG -pedantic-errors -Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -fPIC -DHAVE_MALLOC -std=c++11")
-set(CXXFLAGS "CXXFLAGS -O0 -g -I${USERHOME}/adolc_base/include -I${SNOPTDIR}/include -I${DMATRIXDIR}/include -I${SNOPTDIR}/cppexamples -I${PSOPTSRCDIR} -DLAPACK -DUNIX -DSPARSE_MATRIX -DUSE_IPOPT -I${CXSPARSE}/Include -I${CXSPARSE}/../SuiteSparse_config -I${LUSOL} ${IPOPTINCDIR} -fomit-frame-pointer -pipe -DNDEBUG -Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -fPIC -DHAVE_MALLOC -std=c++11")
+set(CXXFLAGS "-O0 -g -I${USERHOME}/adolc_base/include -I${SNOPTDIR}/include -I${DMATRIXDIR}/include -I${SNOPTDIR}/cppexamples -I${PSOPTSRCDIR} -DLAPACK -DUNIX -DSPARSE_MATRIX -DUSE_IPOPT -I${CXSPARSE}/Include -I${CXSPARSE}/../SuiteSparse_config -I${LUSOL} ${IPOPTINCDIR} -fomit-frame-pointer -pipe -DNDEBUG -Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -fPIC -DHAVE_MALLOC -std=c++11")
 
 set(LDFLAGS "-Wl,--rpath -Wl,${prefix}/lib")
 #set(FLIBS "-lm -lf2c  -llapack -lf77blas -lcblas")

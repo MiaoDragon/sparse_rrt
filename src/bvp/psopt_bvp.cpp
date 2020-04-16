@@ -486,6 +486,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     std::cout << "after level2 setup" << std::endl;
     // obtain boundary from system
     std::vector<std::pair<double, double>> state_bound = system->get_state_bounds();
+    std::cout << "state_bound:" << state_bound << std::endl;
     for (unsigned i=1; i <= state_n; i+=1)
     {
         // specify the boundary

@@ -399,6 +399,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
     delete u_traj_i;
     delete end_state;
+    std::cout << "after sst: step_bvp" << std::endl;
 }
 
 

@@ -194,7 +194,7 @@ std::vector<bool> psopt_acrobot_t::is_circular_topology() const {
 void psopt_acrobot_t::dynamics(adouble* derivatives, adouble* path, adouble* states, adouble* controls, adouble* parameters,
                            adouble& time, adouble* xad, int iphase, Workspace* workspace)
 {
-    std::cout << "states: [" << states[0] << ", " << states[1] << ", " << states[2] << ", "<< states[3] << "]"<< std::endl;
+    //std::cout << "states: [" << states[0] << ", " << states[1] << ", " << states[2] << ", "<< states[3] << "]"<< std::endl;
     adouble theta2 = states[STATE_THETA_2];
     adouble theta1 = states[STATE_THETA_1] - M_PI / 2;
     adouble theta1dot = states[STATE_V_1];
@@ -235,17 +235,17 @@ adouble psopt_acrobot_t::endpoint_cost(adouble* initial_states, adouble* final_s
     //return 0.1*tf;
     //return 0.;
     double* goal = (double*) workspace->problem->user_data;
-    std::cout << "goal: [" << goal[0] << ", " << goal[1] << ", " << goal[2] << ", "<< goal[3] << "]"<< std::endl;
+    //std::cout << "goal: [" << goal[0] << ", " << goal[1] << ", " << goal[2] << ", "<< goal[3] << "]"<< std::endl;
     //std::cout << "goal extracteed" << std::endl;
     adouble sum_of_square = 0;
     for (unsigned i=0; i < STATE_N; i++)
     {
         sum_of_square = sum_of_square + (final_states[i] - goal[i]) * (final_states[i] - goal[i]);
     }
-    std::cout << "final_states: [" << final_states[0] << ", " << final_states[1] << ", " << final_states[2] << ", "<< final_states[3] << "]"<< std::endl;
+    //std::cout << "final_states: [" << final_states[0] << ", " << final_states[1] << ", " << final_states[2] << ", "<< final_states[3] << "]"<< std::endl;
 
-    std::cout << "after sum_of_square" << std::endl;
-    std::cout << sum_of_square << std::endl;
+    //std::cout << "after sum_of_square" << std::endl;
+    //std::cout << sum_of_square << std::endl;
     return sum_of_square;
 }
 
@@ -259,7 +259,7 @@ adouble psopt_acrobot_t::integrand_cost(adouble* states, adouble* controls, adou
 void psopt_acrobot_t::events(adouble* e, adouble* initial_states, adouble* final_states, adouble* parameters, adouble& t0,
             adouble& tf, adouble* xad, int iphase, Workspace* workspace)
 {
-    std::cout << "initial_states: [" << initial_states[0] << ", " << initial_states[1] << ", " << initial_states[2] << ", "<< initial_states[3] << "]"<< std::endl;
+    //std::cout << "initial_states: [" << initial_states[0] << ", " << initial_states[1] << ", " << initial_states[2] << ", "<< initial_states[3] << "]"<< std::endl;
 
   for (unsigned i=0; i < STATE_N; i++)
   {

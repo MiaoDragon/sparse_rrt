@@ -1101,26 +1101,26 @@ public:
 
         std::vector<double> start_state;
         std::vector<double> goal_state;
-        std::cout << "before copying state.." << std::endl;
-        std::cout << start_data_py.shape(0) << std::endl;
+        //std::cout << "before copying state.." << std::endl;
+        //std::cout << start_data_py.shape(0) << std::endl;
         for (unsigned i=0; i < start_data_py.shape(0); i++)
         {
             start_state.push_back(start_data_py(i));
             goal_state.push_back(goal_data_py(i));
         }
-        std::cout << "before copying obs_vec.." << std::endl;
+        //std::cout << "before copying obs_vec.." << std::endl;
         std::vector<float> obs_vec;
         for (unsigned i=0; i < obs_data_py.shape(0); i++)
         {
             obs_vec.push_back(float(obs_data_py(i)));
         }
-        std::cout << "vector to torch obs vector.." << std::endl;
+        //std::cout << "vector to torch obs vector.." << std::endl;
         torch::Tensor obs_tensor = torch::from_blob(obs_vec.data(), {1,1,32,32});
 
         double* start_array;
         double* goal_array;
 
-        std::cout << "creating distance function.." << std::endl;
+        //std::cout << "creating distance function.." << std::endl;
 
         distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
         std::function<double(const double*, const double*, unsigned int)>  distance_f =
@@ -1130,7 +1130,7 @@ public:
 
         // construct planner by name
         planner_t *planner;
-        std::cout << "creating new planner..." << std::endl;
+        //std::cout << "creating new planner..." << std::endl;
         if (planner_name == "sst")
         {
             planner = new sst_t(&start_data_py(0), &goal_data_py(0),
@@ -1150,7 +1150,7 @@ public:
         std::vector<std::vector<double>> res_x;
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
-        std::cout << "neural_smp planning" << std::endl;
+        //std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan(planner, system, psopt_system, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
 

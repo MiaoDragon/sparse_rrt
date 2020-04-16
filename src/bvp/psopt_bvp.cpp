@@ -418,18 +418,18 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //u.Save("bvp_u.txt");
     //t.Save("bvp_t.txt");
     // DMatrix -> double vector
-    std::cout << "[";
+    //std::cout << "[";
     for (unsigned i=0; i < num_steps; i+=1)
     {
         std::vector<double> x_t;
         std::vector<double> u_t;
-        std::cout << "[";
+        //std::cout << "[";
         for (unsigned j=0; j < state_n; j+=1)
         {
             x_t.push_back(x(j+1,i+1));
-            std::cout << x(j+1,i+1) << ", ";
+            //std::cout << x(j+1,i+1) << ", ";
         }
-        std::cout << "], " << std::endl;
+        //std::cout << "], " << std::endl;
         for (unsigned j=0; j < control_n; j+=1)
         {
             u_t.push_back(u(j+1,i+1));
@@ -438,7 +438,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
     }
-    std::cout << "]" << std::endl;
+    //std::cout << "]" << std::endl;
 }
 
 
@@ -457,7 +457,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
 
     //problem.name = "Time  Varying state constraint problem";
     //problem.outfilename = "stc1.txt";
-    std::cout << "bvp: x_Init[0]: [" << x_init[0][0] <<", " << x_init[0][1]<<", " << x_init[0][2]<<", " << x_init[0][3]<<"] "  << std::endl;
+    //std::cout << "bvp: x_Init[0]: [" << x_init[0][0] <<", " << x_init[0][1]<<", " << x_init[0][2]<<", " << x_init[0][3]<<"] "  << std::endl;
     problem.nphases = 1;
     problem.nlinkages = 0;
     psopt_level1_setup(problem);
@@ -481,9 +481,9 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //std::cout << node_string << std::endl;
     problem.phases(1).nodes = num_steps;
     //problem.phases(1).nodes = "[20 50]";  // use string as a sequence, and int as a desired number
-    std::cout << "before level2 setup" << std::endl;
+    //std::cout << "before level2 setup" << std::endl;
     psopt_level2_setup(problem, algorithm);
-    std::cout << "after level2 setup" << std::endl;
+    //std::cout << "after level2 setup" << std::endl;
     // obtain boundary from system
     std::vector<std::pair<double, double>> state_bound = system->get_state_bounds();
     for (unsigned i=1; i <= state_n; i+=1)
@@ -491,7 +491,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         // specify the boundary
         problem.phases(1).bounds.lower.states(i) = state_bound[i-1].first;
         problem.phases(1).bounds.upper.states(i) = state_bound[i-1].second;
-        std::cout << "state_bound[" << i-1 << "]: " << state_bound[i-1].first << ", " << state_bound[i-1].second << std::endl;
+        //std::cout << "state_bound[" << i-1 << "]: " << state_bound[i-1].first << ", " << state_bound[i-1].second << std::endl;
     }
 
     // obtain boundary for control
@@ -564,14 +564,14 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //problem.phases(1).guess.states = zeros(state_n, num_steps);
     // DMatrix index starts from 1
     DMatrix states(state_n, num_steps);
-    std::cout << "init x:" << std::endl;
+    //std::cout << "init x:" << std::endl;
     for (unsigned i=0; i < state_n; i+=1)
     {
         for (unsigned j=0; j < num_steps; j+=1)
         {
             states(i+1,j+1) = x_init[j][i];
-            std::cout << "init_states[" << j << "][" << i << "]=" << states(i+1,j+1) << std::endl;
-            std::cout << "x_init[" << j << "][" << i << "]=" <<  x_init[j][i] << std::endl;
+            //std::cout << "init_states[" << j << "][" << i << "]=" << states(i+1,j+1) << std::endl;
+            //std::cout << "x_init[" << j << "][" << i << "]=" <<  x_init[j][i] << std::endl;
 
         }
     }
@@ -641,19 +641,19 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //u.Save("bvp_u.txt");
     //t.Save("bvp_t.txt");
     // DMatrix -> double vector
-    std::cout << "bvp result" << std::endl;
-    std::cout << "[";
+    //std::cout << "bvp result" << std::endl;
+    //std::cout << "[";
     for (unsigned i=0; i < num_steps; i+=1)
     {
         std::vector<double> x_t;
         std::vector<double> u_t;
-        std::cout << "[";
+        //std::cout << "[";
         for (unsigned j=0; j < state_n; j+=1)
         {
             x_t.push_back(x(j+1,i+1));
-            std::cout << x(j+1,i+1) << ", ";
+            //std::cout << x(j+1,i+1) << ", ";
         }
-        std::cout << "], " << std::endl;
+        //std::cout << "], " << std::endl;
         for (unsigned j=0; j < control_n; j+=1)
         {
             u_t.push_back(u(j+1,i+1));
@@ -662,7 +662,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
     }
-    std::cout << "]" << std::endl;
+    //std::cout << "]" << std::endl;
     DMatrix epsilon = solution.get_relative_local_error_in_phase(1);
     //for (unsigned i=1; i <= num_steps; i+=1)
     //{

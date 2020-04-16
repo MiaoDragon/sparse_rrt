@@ -1,5 +1,4 @@
 #include "neural/neural_deep_smp.hpp"
-#define DEBUG 1
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    system_t* system,
                    int num_iters_in, int num_steps_in, double step_sz_in

@@ -636,18 +636,19 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //u.Save("bvp_u.txt");
     //t.Save("bvp_t.txt");
     // DMatrix -> double vector
-    //std::cout << "[";
+    std::cout << "bvp result" << std::endl;
+    std::cout << "[";
     for (unsigned i=0; i < num_steps; i+=1)
     {
         std::vector<double> x_t;
         std::vector<double> u_t;
-        //std::cout << "[";
+        std::cout << "[";
         for (unsigned j=0; j < state_n; j+=1)
         {
             x_t.push_back(x(j+1,i+1));
-            //std::cout << x(j+1,i+1) << ", ";
+            std::cout << x(j+1,i+1) << ", ";
         }
-        //std::cout << "], " << std::endl;
+        std::cout << "], " << std::endl;
         for (unsigned j=0; j < control_n; j+=1)
         {
             u_t.push_back(u(j+1,i+1));
@@ -656,7 +657,7 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
         res.u.push_back(u_t);
         res.t.push_back(t(1,i+1));
     }
-    //std::cout << "]" << std::endl;
+    std::cout << "]" << std::endl;
     DMatrix epsilon = solution.get_relative_local_error_in_phase(1);
     //for (unsigned i=1; i <= num_steps; i+=1)
     //{

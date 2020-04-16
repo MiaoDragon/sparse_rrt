@@ -327,6 +327,9 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     }
     // check if solved
     SMP->get_solution(res_x, res_u, res_t);
+    // visualize
+
+
     if (res_x.size() != 0)
     {
         // solved

@@ -45,3 +45,6 @@ class RRT(visualize_wrapper(_sst_module.RRTWrapper)):
     RRT planner (baseline)
     '''
     pass
+
+class DeepSMPWrapper(visualize_wrapper(_sst_module.DeepSMPWrapper)):
+    pass

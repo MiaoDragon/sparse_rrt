@@ -1088,6 +1088,7 @@ public:
 
     {
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
+        planner.reset();
         std::cout << "created smp module" << std::endl;
     }
     py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
@@ -1129,20 +1130,19 @@ public:
             };
 
         // construct planner by name
-        planner_t *planner;
         //std::cout << "creating new planner..." << std::endl;
         if (planner_name == "sst")
         {
-            planner = new sst_t(&start_data_py(0), &goal_data_py(0),
+            planner.reset(new sst_t(&start_data_py(0), &goal_data_py(0),
                 	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
-                          distance_f, 0, delta_near, delta_drain);
+                          distance_f, 0, delta_near, delta_drain));
 
         }
         else if (planner_name == "rrt")
         {
-            planner = new rrt_t(&start_data_py(0), &goal_data_py(0),
+            planner.reset(new rrt_t(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
-                      distance_f, 0);
+                      distance_f, 0));
 
         }
 
@@ -1173,15 +1173,63 @@ public:
         for (unsigned int i = 0; i < res_t.size(); ++i) {
             time_ref(i) = res_t[i];
         }
-        delete planner;
+        //delete planner;
         // return flag, available flags, states, controls, time
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
             (state_array, control_array, time_array));
-
-
     }
+
+
+    std::string visualize_nodes_wrapper(
+        system_interface& system,
+        int image_width,
+        int image_height,
+        double node_diameter,
+        double solution_node_diameter)
+    {
+        std::vector<std::vector<double>> solution_path;
+        std::vector<std::vector<double>> controls;
+        std::vector<double> costs;
+        planner->get_solution(solution_path, controls, costs);
+
+        using namespace std::placeholders;
+        std::string document_body = visualize_nodes(
+            planner->get_root(), solution_path,
+            std::bind(&system_t::visualize_point, &system, _1, planner->get_state_dimension()),
+            planner->get_start_state(),
+            planner->get_goal_state(),
+            image_width, image_height, node_diameter, solution_node_diameter);
+
+        return std::move(document_body);
+    }
+
+    std::string visualize_tree_wrapper(
+        system_interface& system,
+        int image_width,
+        int image_height,
+        double solution_node_diameter,
+        double solution_line_width,
+        double tree_line_width)
+    {
+        std::vector<std::vector<double>> solution_path;
+        std::vector<std::vector<double>> controls;
+        std::vector<double> costs;
+        planner->get_solution(solution_path, controls, costs);
+
+        using namespace std::placeholders;
+        std::string document_body = visualize_tree(
+            planner->get_root(), solution_path,
+            std::bind(&system_t::visualize_point, &system, _1, planner->get_state_dimension()),
+            planner->get_start_state(), planner->get_goal_state(),
+            image_width, image_height, solution_node_diameter, solution_line_width, tree_line_width);
+
+        return std::move(document_body);
+    }
+
+
 protected:
     std::shared_ptr<MPNetSMP> neural_smp;
+    std::shared_ptr<planner_t> planner;
 
 };
 
@@ -1378,6 +1426,21 @@ PYBIND11_MODULE(_sst_module, m) {
              "distance"_a,
              "delta_near"_a,
              "delta_drain"_a
+            )
+        .def("visualize_nodes", &DeepSMPWrapper::visualize_nodes_wrapper,
+            "system"_a,
+            "image_width"_a=500,
+            "image_height"_a=500,
+            "node_diameter"_a=5,
+            "solution_node_diameter"_a=4
+            )
+        .def("visualize_tree", &DeepSMPWrapper::visualize_tree_wrapper,
+            "system"_a,
+            "image_width"_a=500,
+            "image_height"_a=500,
+            "solution_node_diameter"_a=4.,
+            "solution_line_width"_a=3,
+            "tree_line_width"_a=0.5
             )
      ;
 }

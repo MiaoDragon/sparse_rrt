@@ -14,6 +14,7 @@
 
 //## TODO
 //  add eigen dependency to the package
+#define DEBUG 1
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "bvp/psopt_bvp.hpp"
@@ -308,9 +309,17 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
     std::vector<double> t_traj;
+    #ifdef DEBUG
+    std::cout << "solution of bvp solver: t_traj" << std::endl;
+    #endif
+
     for (unsigned i=0; i < num_steps-1; i+=1)
     {
         t_traj.push_back(res.t[i+1] - res.t[i]);
+        #ifdef DEBUG
+        std::cout << "res.t[" << i << "]: " << res.t[i] << std::endl;
+        std::cout << "t_traj[" << i << "]: " << t_traj[i] << std::endl;
+        #endif
     }
 
     // try to connect from nearest to input_sample_state
@@ -349,6 +358,10 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             if (!val)
             {
                 // not valid state, no point going further, not adding to tree, stop right here
+                #ifdef DEBUG
+                std::cout << "invalid propagation in step_bvp" << std::endl;
+                std::cout << "j=" << j << std::endl;
+                #endif
                 break;
             }
             std::vector<double> res_x_i;
@@ -394,11 +407,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         step_res.u.push_back(res_u_i);
         step_res.t.push_back(res_t);
 
-    }
-    // add the last valid node to tree
-    sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
-    x_tree = new_x_tree;
+        // add the last valid node to tree, with the same control for t_traj[i] time
+        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, t_traj[i]);
+        x_tree = new_x_tree;
 
+
+    }
     delete u_traj_i;
     delete end_state;
     //std::cout << "after sst: step_bvp" << std::endl;

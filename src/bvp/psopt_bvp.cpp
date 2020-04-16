@@ -6,7 +6,7 @@
 #include "bvp/psopt_system.hpp"
 
 #include <iostream>
-PSOPT_BVP::PSOPT_BVP(const psopt_system_t* system_in, int state_n_in, int control_n_in)
+PSOPT_BVP::PSOPT_BVP(psopt_system_t* system_in, int state_n_in, int control_n_in)
 : state_n(state_n_in)
 , control_n(control_n_in)
 , system(system_in)

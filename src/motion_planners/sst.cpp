@@ -403,8 +403,18 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
                   1, end_state, res_t);
         if (!val)
         {
+            #ifdef DEBUG
+            std::cout << "invalid propagation in step_bvp" << std::endl;
+            std::cout << "res_t=" << res_t << std::endl;
+            #endif
             break;
         }
+        #ifdef DEBUG
+        std::cout << "after propagation in step_bvp" << std::endl;
+        std::cout << "res_t=" << res_t << std::endl;
+        std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
+        std::cout << "start_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
+        #endif
         std::vector<double> res_x_i;
         std::vector<double> res_u_i;
         for (unsigned k=0; k < this->state_dimension; k++)

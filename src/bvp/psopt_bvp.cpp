@@ -563,10 +563,12 @@ void PSOPT_BVP::solve(psopt_result_t& res, const double* start, const double* go
     //problem.phases(1).guess.states = zeros(state_n, num_steps);
     // DMatrix index starts from 1
     DMatrix states(state_n, num_steps);
+    std::cout << "init x:" << std::endl;
     for (unsigned i=0; i < state_n; i+=1)
     {
         for (unsigned j=0; j < num_steps; j+=1)
         {
+            std::cout << "x_init[" << j << "][" << i << "]=" << states(i+1,j+1) << std::endl;
             states(i+1,j+1) = x_init[j][i];
         }
     }

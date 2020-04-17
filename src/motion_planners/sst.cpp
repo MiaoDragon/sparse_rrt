@@ -104,7 +104,11 @@ sst_t::~sst_t() {
 void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::vector<std::vector<double>>& controls, std::vector<double>& costs)
 {
 	if(best_goal==NULL)
-		return;
+    {
+        std::cout << "haven't found a path yet." << std::endl;
+        std::cout << "number of nodes: " << number_of_nodes << std::endl;
+    	return;
+    }
 	sst_node_t* nearest_path_node = best_goal;
 
 	//now nearest_path_node should be the closest node to the goal state

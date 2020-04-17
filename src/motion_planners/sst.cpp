@@ -660,8 +660,10 @@ void sst_t::branch_and_bound(sst_node_t* node)
             #ifdef DEBUG_BRANCH_BOUND
             // print node point
             std::cout << "branch_and_bound state=" << "[" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3]<< "]"  << std::endl;
-            if node->get_witness() == NULL:
+            if (node->get_witness() == NULL)
+            {
                 std::cout << "witness is NULL" << std::endl;
+            }
             #endif
 	    	node->get_witness()->set_representative(NULL);
 	    	metric.remove_node(node);

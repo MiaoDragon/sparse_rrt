@@ -1159,29 +1159,32 @@ public:
             py::safe_array<double> state_array({0, 0});
             py::safe_array<double> control_array({0, 0});
             py::safe_array<double> time_array({0});
+            //delete planner;
+            // return flag, available flags, states, controls, time
+            return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+                (state_array, control_array, time_array));
         }
-        else
-        {
-            py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
-            py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
-            py::safe_array<double> time_array({res_t.size()});
-            auto state_ref = state_array.mutable_unchecked<2>();
-            for (unsigned int i = 0; i < res_x.size(); ++i) {
-                for (unsigned int j = 0; j < res_x[0].size(); ++j) {
-                    state_ref(i, j) = res_x[i][j];
-                }
-            }
-            auto control_ref = control_array.mutable_unchecked<2>();
-            for (unsigned int i = 0; i < res_u.size(); ++i) {
-                for (unsigned int j = 0; j < res_u[0].size(); ++j) {
-                    control_ref(i, j) = res_u[i][j];
-                }
-            }
-            auto time_ref = time_array.mutable_unchecked<1>();
-            for (unsigned int i = 0; i < res_t.size(); ++i) {
-                time_ref(i) = res_t[i];
+
+        py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
+        py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
+        py::safe_array<double> time_array({res_t.size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_x.size(); ++i) {
+            for (unsigned int j = 0; j < res_x[0].size(); ++j) {
+                state_ref(i, j) = res_x[i][j];
             }
         }
+        auto control_ref = control_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_u.size(); ++i) {
+            for (unsigned int j = 0; j < res_u[0].size(); ++j) {
+                control_ref(i, j) = res_u[i][j];
+            }
+        }
+        auto time_ref = time_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < res_t.size(); ++i) {
+            time_ref(i) = res_t[i];
+        }
+
         //delete planner;
         // return flag, available flags, states, controls, time
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>

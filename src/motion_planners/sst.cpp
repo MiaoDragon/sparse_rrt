@@ -613,17 +613,19 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 			metric.add_node(node);
 		}
 	}
-    // failed the prior test, then remove it
-    //optimization for sparsity
-    node->make_inactive();
-    sst_node_t* iter = node;
-    while( is_leaf(iter) && !iter->is_active() && !is_best_goal(iter))
+    else
     {
-        sst_node_t* next = (sst_node_t*)iter->get_parent();
-        remove_leaf(iter);
-        iter = next;
+        // failed the prior test, then remove it
+        //optimization for sparsity
+        node->make_inactive();
+        sst_node_t* iter = node;
+        while( is_leaf(iter) && !iter->is_active() && !is_best_goal(iter))
+        {
+            sst_node_t* next = (sst_node_t*)iter->get_parent();
+            remove_leaf(iter);
+            iter = next;
+        }
     }
-
 }
 
 

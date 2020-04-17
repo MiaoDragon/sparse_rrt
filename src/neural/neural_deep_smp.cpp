@@ -1,3 +1,4 @@
+#define DEBUG
 #include "neural/neural_deep_smp.hpp"
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    system_t* system,
@@ -122,9 +123,6 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     //int dim = si_->getStateDimension();
     int dim = this->state_dim;
     // get start, goal in tensor form
-    #ifdef DEBUG
-        std::cout << "state dimension: "  << dim << std::endl;
-    #endif
 
     torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
@@ -148,16 +146,12 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     }
     std::vector<double> unnormalized_state_vec;
     this->unnormalize(state_vec, unnormalized_state_vec);
-    #ifdef DEBUG
-        std::cout << "after planning..." << std::endl;
-        std::cout << "tensor..." << std::endl;
-    #endif
     for (int i = 0; i < dim; i++)
     {
         //TODO: better assign by using angleAxis
         //next->as<base::RealVectorStateSpace::StateType>()->values[i] = res_a[0][i];
         #ifdef DEBUG
-            std::cout << "res_a[0][" << i << "]: " << res_a[0][i] << std::endl;
+            //std::cout << "res_a[0][" << i << "]: " << res_a[0][i] << std::endl;
         #endif
         next_state[i] = unnormalized_state_vec[i];
     }
@@ -283,6 +277,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     {
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
+            std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
         std::vector<double> next_state(state_dim);
         if (i % 10 == 0)
@@ -318,6 +313,9 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
          #endif
         if (res.u.size() == 0)
         {
+            #ifdef DEBUG
+                std::cout << "step_bvp unsuccessful." << std::endl;
+            #endif
             // not valid path
             state_t = start_state;
         }
@@ -325,6 +323,19 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         {
             // use the endpoint
             state_t = res.x.back();
+            #ifdef DEBUG
+                std::cout << "step_bvp successful." << std::endl;
+                // print out the result of bvp
+                for (unsigned j=0; j < res.x.size(); j++)
+                {
+                    std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
+                }
+                for (unsigned j=0; j < res.t.size(); j++)
+                {
+                    std::cout << "res.t[" << j << " = " << res.t << std::endl;
+                }
+            #endif
+
         }
     }
     // check if solved

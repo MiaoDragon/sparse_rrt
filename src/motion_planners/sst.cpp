@@ -436,13 +436,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         total_t += t_traj[i];
         x_tree = new_x_tree;
 
-
     }
     // add the last valid node to tree, with the same control for t_traj[i] time
     if (total_t > 0.)
     {
         // if at least move on step further, add to representative states
-        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, total_t);
+        sst_node_t* new_x_tree = bvp_make_representative(state_t, x_tree);
         x_tree = new_x_tree;
     }
 
@@ -563,6 +562,69 @@ sst_node_t* sst_t::bvp_add_to_tree_without_opt(const double* sample_state, const
     }
     */
     return new_node;
+}
+
+void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node)
+{
+    // check if the node is valid ()
+    //check to see if a sample exists within the vicinity of the new node
+    node->make_active();
+    sample_node_t* witness_sample = find_witness(sample_state);
+
+    sst_node_t* representative = witness_sample->get_representative();
+	if(representative==NULL || representative->get_cost() > node->get_cost())
+	{
+		if(best_goal==NULL || node->get_cost() <= best_goal->get_cost())
+		{
+			//passed the test
+	        if(best_goal==NULL && this->distance(node->get_point(), goal_state, this->state_dimension)<goal_radius)
+	        {
+	        	best_goal = node;
+	        	branch_and_bound((sst_node_t*)root);
+	        }
+	        else if(best_goal!=NULL && best_goal->get_cost() > node->get_cost() &&
+	                this->distance(node->get_point(), goal_state, this->state_dimension)<goal_radius)
+	        {
+	        	best_goal = node;
+	        	branch_and_bound((sst_node_t*)root);
+	        }
+
+            // Acquire representative again - it can be different
+            representative = witness_sample->get_representative();
+			if(representative!=NULL)
+			{
+				//optimization for sparsity
+				if(representative->is_active())
+				{
+					metric.remove_node(representative);
+					representative->make_inactive();
+				}
+
+	            sst_node_t* iter = representative;
+	            while( is_leaf(iter) && !iter->is_active() && !is_best_goal(iter))
+	            {
+	                sst_node_t* next = (sst_node_t*)iter->get_parent();
+	                remove_leaf(iter);
+	                iter = next;
+	            }
+
+			}
+			witness_sample->set_representative(node);
+			node->set_witness(witness_sample);
+			metric.add_node(node);
+		}
+	}
+    // failed the prior test, then remove it
+    //optimization for sparsity
+    node->make_inactive();
+    sst_node_t* iter = node;
+    while( is_leaf(iter) && !iter->is_active() && !is_best_goal(iter))
+    {
+        sst_node_t* next = (sst_node_t*)iter->get_parent();
+        remove_leaf(iter);
+        iter = next;
+    }
+
 }
 
 

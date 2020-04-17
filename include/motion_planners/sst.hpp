@@ -63,6 +63,10 @@ public:
 	    this->active = false;
 	}
 
+	void make_active()
+	{
+		this->active = true;
+	}
     /**
 	 * @brief Set a witness node for this point
 	 * @details Set a witness node for this point
@@ -232,6 +236,12 @@ protected:
 	 * Notice: need to set the node as inactive, as we don't use them for calculating representative or witness
 	 */
 	sst_node_t* bvp_add_to_tree_without_opt(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration);
+
+	/**
+	 * try to make the last added intermediate nodes representative. Delete it if condition not hold
+	 */
+	void bvp_make_representative(const double* sample_state, sst_node_t* node);
+
 
 
 	/**

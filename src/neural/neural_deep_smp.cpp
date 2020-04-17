@@ -150,12 +150,11 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     {
         //TODO: better assign by using angleAxis
         //next->as<base::RealVectorStateSpace::StateType>()->values[i] = res_a[0][i];
-        #ifdef DEBUG
-            //std::cout << "res_a[0][" << i << "]: " << res_a[0][i] << std::endl;
-        #endif
+
         next_state[i] = unnormalized_state_vec[i];
     }
     #ifdef DEBUG
+        std::cout << "next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
         std::cout << "finished mpnet_predict." << std::endl;
     #endif
 }
@@ -220,6 +219,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 state_i[j] = state_i[j] + distribution(generator);
             }
         }
+        std::cout << "x_init[" << i << " = [" << state_i[i][0] << ", " << state_i[i][1] << ", " << state_i[i][2] << ", " << state_i[i][3] <<"]" << std::endl;
+
         res.x.push_back(state_i);
     }
 

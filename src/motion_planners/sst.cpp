@@ -14,7 +14,7 @@
 
 //## TODO
 //  add eigen dependency to the package
-#define DEBUG 1
+//#define DEBUG 1
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "bvp/psopt_bvp.hpp"

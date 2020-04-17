@@ -281,14 +281,19 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
         std::vector<double> next_state(state_dim);
-        if (i % 10 == 0)
+        if (i % 20 == 0)
         {
             // sample the goal instead
             next_state = goal_state;
         }
+        else if (i % 10 == 0)
+        {
+            // sample the goal instead
+            next_state = goal_inform_state;
+        }
         else
         {
-            this->informer(obs_enc, state_t, goal_state, next_state);
+            this->informer(obs_enc, state_t, goal_inform_state, next_state);
         }
         // obtain init
         traj_t init_traj;

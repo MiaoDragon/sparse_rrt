@@ -310,7 +310,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     //double* x_traj_i = new double[this->state_dimension];
     double* state_t = new double[this->state_dimension];
     // copy the nearest => state_t as our bvp starting point
-    for (unsigned i=0; i < this->dimension; i++)
+    for (unsigned i=0; i < this->state_dimension; i++)
     {
         state_t[i] = x_tree->get_point()[i];
     }

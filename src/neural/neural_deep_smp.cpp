@@ -275,6 +275,10 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
     at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    double* state_t_ptr = new double[this->state_dim];
+    double* next_state_ptr = new double[this->state_dim];
+
+
     for (unsigned i=0; i<max_iteration; i++)
     {
         #ifdef DEBUG
@@ -288,14 +292,12 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         }
         else
         {
-            this->informer(obs_enc, state_t, next_state, next_state);
+            this->informer(obs_enc, state_t, goal_state, next_state);
         }
         // obtain init
         traj_t init_traj;
         this->init_informer(obs_enc, state_t, next_state, init_traj);
         psopt_result_t res;
-        double* state_t_ptr = new double[this->state_dim];
-        double* next_state_ptr = new double[this->state_dim];
         for (unsigned j=0; j < this->state_dim; j++)
         {
             state_t_ptr[j] = state_t[j];
@@ -314,7 +316,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
          #endif
-        if (init_traj.u.size() == 0)
+        if (res.u.size() == 0)
         {
             // not valid path
             state_t = start_state;
@@ -322,14 +324,15 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         else
         {
             // use the endpoint
-            state_t = init_traj.x.back();
+            state_t = res.x.back();
         }
     }
     // check if solved
     SMP->get_solution(res_x, res_u, res_t);
     // visualize
 
-
+    delete state_t_ptr;
+    delete next_state_ptr;
     if (res_x.size() != 0)
     {
         // solved

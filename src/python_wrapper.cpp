@@ -1156,9 +1156,9 @@ public:
         if (res_x.empty())
         {
             // solution is not found
-            py::safe_array<double> state_array({0, 0});
-            py::safe_array<double> control_array({0, 0});
-            py::safe_array<double> time_array({0});
+            py::safe_array<double> state_array;
+            py::safe_array<double> control_array;
+            py::safe_array<double> time_array;
             //delete planner;
             // return flag, available flags, states, controls, time
             return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>

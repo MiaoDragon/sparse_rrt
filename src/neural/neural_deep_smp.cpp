@@ -1,4 +1,4 @@
-#define DEBUG
+#define DEBUG 1
 #include "neural/neural_deep_smp.hpp"
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    system_t* system,

@@ -248,7 +248,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, int max_iteration, double goal_radius,
+void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int max_iteration, double goal_radius,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
@@ -301,7 +302,6 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         #ifdef DEBUG
             std::cout << "after copying state" << std::endl;
             std::cout << "SMP.state_dimension:" << SMP->get_state_dimension() << std::endl;
-            std::cout << "system address:" << system << std::endl;
             std::cout << "system->state_dim: " << system->get_state_dimension() << std::endl;
             std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 

@@ -1091,23 +1091,26 @@ public:
         planner.reset();
         std::cout << "created smp module" << std::endl;
     }
-    py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py,
+    py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 
         // load data from python
         auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
         auto goal_data_py = goal_py.unchecked<1>();
+        auto goal_inform_data_py = goal_inform_py.unchecked<1>();
         auto obs_data_py = obs_py.unchecked<1>();  // first load the flattened data, and then reshape
 
         std::vector<double> start_state;
         std::vector<double> goal_state;
+        std::vector<double> goal_inform_state;
         //std::cout << "before copying state.." << std::endl;
         //std::cout << start_data_py.shape(0) << std::endl;
         for (unsigned i=0; i < start_data_py.shape(0); i++)
         {
             start_state.push_back(start_data_py(i));
             goal_state.push_back(goal_data_py(i));
+            goal_inform_state.push_back(goal_inform_data_py(i));
         }
         //std::cout << "before copying obs_vec.." << std::endl;
         std::vector<float> obs_vec;
@@ -1151,7 +1154,7 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         //std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, max_iteration, goal_radius,
+        neural_smp->plan(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
         if (res_x.empty())
         {

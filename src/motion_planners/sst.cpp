@@ -300,14 +300,28 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     //std::cout << "inside sst: step_bvp" << std::endl;
     //std::cout << "system->state_dim: " << bvp_system->get_state_dimension() << std::endl;
 
+    // start_state: input sampled state, may not be in the stored tree
+    // here we find the nearest node to the start_state, and solve the bvp with the nearest_node
+    // try to connect from nearest to sampled goal state
+    // convert from double array to VectorXd
+
     sst_node_t* nearest = nearest_vertex(start_state);
+    sst_node_t* x_tree = nearest;
+    //double* x_traj_i = new double[this->state_dimension];
+    double* state_t = new double[this->state_dimension];
+    // copy the nearest => state_t as our bvp starting point
+    for (unsigned i=0; i < this->dimension; i++)
+    {
+        state_t[i] = x_tree->get_point()[i];
+    }
+
     if (bvp_solver == NULL)
     {
         bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
     }
     psopt_result_t res;
     //std::cout << "sst: before solve... "<< std::endl;
-    bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
+    bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
     //std::cout << "sst: after solve. "<< std::endl;
 
@@ -327,22 +341,19 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         #endif
     }
 
-    // try to connect from nearest to input_sample_state
-    // convert from double array to VectorXd
-    sst_node_t* x_tree = nearest;
-    //double* x_traj_i = new double[this->state_dimension];
-    double* state_t = new double[this->state_dimension];
     double* end_state = new double[this->state_dimension];
     double* u_traj_i = new double[this->control_dimension];
 
+
+    // propagating to obtain the trajectory that follows the dynamics
+    // should use starting point as the nearest tree, i.e. state_t
     std::vector<double> res_x_i;
     for (unsigned k=0; k < this->state_dimension; k++)
     {
-        res_x_i.push_back(x_tree->get_point()[k]);
-        state_t[k] = start_state[k];
+        res_x_i.push_back(state_t[k]);
     }
     step_res.x.push_back(res_x_i);
-    bool val = true;
+    bool val = true; // if valid propagation or not
     double res_t;
     double total_t = 0.;
     //std::cout << "sst: after copying res "<< std::endl;
@@ -356,7 +367,6 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         std::cout << "i=" << i << std::endl;
         std::cout << "num_dis=" << num_dis << ", t_traj[i]=" << t_traj[i] << std::endl;
         std::cout << "res_t=" << res_t << std::endl;
-
         #endif
         for (unsigned j=0; j < this->control_dimension; j++)
         {

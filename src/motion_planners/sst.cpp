@@ -15,6 +15,7 @@
 //## TODO
 //  add eigen dependency to the package
 //#define DEBUG 1
+#define DEBUG_BRANCH_BOUND 1
 #include "motion_planners/sst.hpp"
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "bvp/psopt_bvp.hpp"
@@ -656,6 +657,12 @@ void sst_t::branch_and_bound(sst_node_t* node)
     {
     	if(node->is_active())
     	{
+            #ifdef DEBUG_BRANCH_BOUND
+            // print node point
+            std::cout << "branch_and_bound state=" << "[" << node->get_point[0] << ", " << node->get_point[1] << ", " << node->get_point[2] << ", " << node->get_point[3]<< "]"  << std::endl;
+            if node->get_witness() == NULL:
+                std::cout << "witness is NULL" << std::endl;
+            #endif
 	    	node->get_witness()->set_representative(NULL);
 	    	metric.remove_node(node);
 	    }

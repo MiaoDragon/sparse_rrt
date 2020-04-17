@@ -568,7 +568,6 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 {
     // check if the node is valid ()
     //check to see if a sample exists within the vicinity of the new node
-    node->make_active();
     sample_node_t* witness_sample = find_witness(sample_state);
 
     sst_node_t* representative = witness_sample->get_representative();
@@ -577,6 +576,7 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 		if(best_goal==NULL || node->get_cost() <= best_goal->get_cost())
 		{
 			//passed the test
+            node->make_active();
 	        if(best_goal==NULL && this->distance(node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {
 	        	best_goal = node;

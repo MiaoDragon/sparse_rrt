@@ -212,8 +212,8 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
         std::vector<double> state_i;
         for (unsigned j=0; j < this->state_dim; j++)
         {
-            state_i.push_back(start_state[j] + delta_x[j] * (i+1));
-            if (i != this->psopt_num_steps-1)
+            state_i.push_back(start_state[j] + delta_x[j] * i);
+            if (i != 0 && i != this->psopt_num_steps-1)
             {
                 // add randomness
                 state_i[j] = state_i[j] + distribution(generator);

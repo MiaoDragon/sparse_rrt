@@ -300,11 +300,8 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
             next_state_ptr[j] = next_state[j];
         }
         #ifdef DEBUG
-            std::cout << "after copying state" << std::endl;
-            std::cout << "SMP.state_dimension:" << SMP->get_state_dimension() << std::endl;
-            std::cout << "system->state_dim: " << system->get_state_dimension() << std::endl;
-            std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-
+            //std::cout << "after copying state" << std::endl;
+            //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
         #endif
         SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	     init_traj.x, init_traj.u, init_traj.t);

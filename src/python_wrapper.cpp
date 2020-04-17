@@ -1436,6 +1436,7 @@ PYBIND11_MODULE(_sst_module, m) {
              "obs"_a,
              "start_state"_a,
              "goal_state"_a,
+             "goal_inform_state"_a,
              "max_iteration"_a,
              "goal_radius"_a,
              "distance"_a,

@@ -217,12 +217,22 @@ protected:
 	 */
 	sst_node_t* nearest_vertex(const double* sample_state);
 
+
 	/**
 	 * @brief If propagation was successful, add the new state to the tree.
 	 * @details If propagation was successful, add the new state to the tree.
 	 * @return: the newly added node pointer
 	 */
 	sst_node_t* add_to_tree(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration);
+
+
+	/**
+	 * this is only for bvp, where each step has very small step_sz. Thus if opt at every time no nodes will be valid.
+	 * this simply add directly to the tree.
+	 * Notice: need to set the node as inactive, as we don't use them for calculating representative or witness
+	 */
+	sst_node_t* bvp_add_to_tree_without_opt(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration);
+
 
 	/**
 	 * @brief Check if the currently created state is close to a witness.

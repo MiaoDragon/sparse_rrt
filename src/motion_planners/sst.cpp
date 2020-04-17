@@ -339,6 +339,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     step_res.x.push_back(res_x_i);
     bool val = true;
     double res_t;
+    double total_t = 0.;
     //std::cout << "sst: after copying res "<< std::endl;
 
     for (unsigned i=0; i < num_steps-1; i++)
@@ -413,7 +414,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         std::cout << "after propagation in step_bvp" << std::endl;
         std::cout << "res_t=" << res_t << std::endl;
         std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
-        std::cout << "start_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
+        std::cout << "end_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
         #endif
         std::vector<double> res_x_i;
         std::vector<double> res_u_i;
@@ -431,11 +432,20 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         step_res.t.push_back(res_t);
 
         // add the last valid node to tree, with the same control for t_traj[i] time
-        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, t_traj[i]);
+        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
+        total_t += t_traj[i];
         x_tree = new_x_tree;
 
 
     }
+    // add the last valid node to tree, with the same control for t_traj[i] time
+    if (total_t > 0.)
+    {
+        // if at least move on step further, add to representative states
+        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, total_t);
+        x_tree = new_x_tree;
+    }
+
     delete u_traj_i;
     delete end_state;
     //std::cout << "after sst: step_bvp" << std::endl;
@@ -526,6 +536,36 @@ sst_node_t* sst_t::add_to_tree(const double* sample_state, const double* sample_
 	}
     return NULL;
 }
+
+sst_node_t* sst_t::bvp_add_to_tree_without_opt(const double* sample_state, const double* sample_control, sst_node_t* nearest, double duration)
+{
+    sst_node_t* new_node = static_cast<sst_node_t*>(nearest->add_child(
+        new sst_node_t(
+            sample_state, this->state_dimension,
+            nearest,
+            tree_edge_t(sample_control, this->control_dimension, duration),
+            nearest->get_cost() + duration)
+    ));
+    new_node->make_inactive(); // make_inactive because they are only intermediate nodes
+    number_of_nodes++;
+    /**
+    // we don't check if the itermermediate nodes are goal or not
+    if(best_goal==NULL && this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
+    {
+        best_goal = new_node;
+        branch_and_bound((sst_node_t*)root);
+    }
+    else if(best_goal!=NULL && best_goal->get_cost() > new_node->get_cost() &&
+            this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
+    {
+        best_goal = new_node;
+        branch_and_bound((sst_node_t*)root);
+    }
+    */
+    return new_node;
+}
+
+
 
 sample_node_t* sst_t::find_witness(const double* sample_state)
 {

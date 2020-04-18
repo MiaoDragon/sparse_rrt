@@ -81,6 +81,17 @@ void rrt_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
     }
 }
 
+void rrt_t::nearest_state(const double* state, std::vector<double> &res_state)
+{
+    // find the nearest node in the tree to the state, and copy to res_state
+    sst_node_t* nearest = nearest_vertex(state);
+    const double* nearest_state = nearest->get_point();
+    for (unsigned i=0; i < this->state_dimension; i++)
+    {
+        res_state[i] = nearest_state[i];
+    }
+}
+
 void rrt_t::step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao

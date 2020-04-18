@@ -122,6 +122,7 @@ public:
 		std::vector<std::vector<double>> &x_init,
 		std::vector<std::vector<double>> &u_init,
 		std::vector<double> &t_init);
+	virtual void nearest_state(const double* state, std::vector<double> &res_state);
 protected:
 
     /**

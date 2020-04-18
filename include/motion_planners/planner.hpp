@@ -104,6 +104,7 @@ public:
 		std::vector<std::vector<double>> &x_init,
 		std::vector<std::vector<double>> &u_init,
 		std::vector<double> &t_init) = 0;
+	virtual void nearest_state(const double* state, std::vector<double> &res_state) = 0;
     /**
 	 * @brief Return the root of the planning tree
 	 * @details Return the root of the planning tree

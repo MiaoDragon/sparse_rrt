@@ -293,6 +293,8 @@ void sst_t::nearest_state(const double* state, std::vector<double> &res_state)
 {
     // find the nearest node in the tree to the state, and copy to res_state
     sst_node_t* nearest = nearest_vertex(state);
+    std::cout << "in nearest_state: " << std::endl;
+    std::cout << "state=" << "[" << state[0] << ", " << state[1] << ", " << state[2] << ", " << state[3]<< "]"  << std::endl;
     const double* nearest_state = nearest->get_point();
     for (unsigned i=0; i < this->state_dimension; i++)
     {
@@ -633,6 +635,7 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
             representative = witness_sample->get_representative();
 			if(representative!=NULL)
 			{
+                std::cout << "sst_make_representative: second witness, representative is not NULL" << std::endl;
 				//optimization for sparsity
 				if(representative->is_active())
 				{

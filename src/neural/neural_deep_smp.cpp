@@ -273,6 +273,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
+    std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
     for (unsigned i=0; i<max_iteration; i++)
     {

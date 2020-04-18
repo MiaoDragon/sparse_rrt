@@ -293,8 +293,8 @@ void sst_t::nearest_state(const double* state, std::vector<double> &res_state)
 {
     // find the nearest node in the tree to the state, and copy to res_state
     sst_node_t* nearest = nearest_vertex(state);
-    std::cout << "in nearest_state: " << std::endl;
-    std::cout << "state=" << "[" << state[0] << ", " << state[1] << ", " << state[2] << ", " << state[3]<< "]"  << std::endl;
+    //std::cout << "in nearest_state: " << std::endl;
+    //std::cout << "state=" << "[" << state[0] << ", " << state[1] << ", " << state[2] << ", " << state[3]<< "]"  << std::endl;
     const double* nearest_state = nearest->get_point();
     for (unsigned i=0; i < this->state_dimension; i++)
     {
@@ -484,17 +484,17 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query
-    std::cout << "sst: nearest_vertex" << std::endl;
+    //std::cout << "sst: nearest_vertex" << std::endl;
     std::vector<proximity_node_t*> close_nodes = metric.find_delta_close_and_closest(sample_state, this->sst_delta_near);
-    std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
+    //std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
     double length = std::numeric_limits<double>::max();;
     sst_node_t* nearest = nullptr;
     for(unsigned i=0;i<close_nodes.size();i++)
     {
         tree_node_t* v = (tree_node_t*)(close_nodes[i]->get_state());
         double temp = v->get_cost() ;
-        std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
-        std::cout << "cost: " << temp << std::endl;
+        //std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
+        //std::cout << "cost: " << temp << std::endl;
 
         if( temp < length)
         {
@@ -605,16 +605,16 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
     sample_node_t* witness_sample = find_witness(sample_state);
 
     sst_node_t* representative = witness_sample->get_representative();
-    if (representative == NULL)
-    {
-        std::cout << "sst_make_representative: representative is NULL" << std::endl;
-    }
+    //if (representative == NULL)
+    //{
+    //    std::cout << "sst_make_representative: representative is NULL" << std::endl;
+    //}
     else
     {
-        std::cout << "representative node: [" << representative->get_point()[0] << ", " << representative->get_point()[1] << ", " << representative->get_point()[2] << ", " << representative->get_point()[3] <<"]" << std::endl;
-        std::cout << "node: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
-        std::cout << "representative cost: " << representative->get_cost() << std::endl;
-        std::cout << "node cost: " << node->get_cost() << std::endl;
+        //std::cout << "representative node: [" << representative->get_point()[0] << ", " << representative->get_point()[1] << ", " << representative->get_point()[2] << ", " << representative->get_point()[3] <<"]" << std::endl;
+        //std::cout << "node: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
+        //std::cout << "representative cost: " << representative->get_cost() << std::endl;
+        //std::cout << "node cost: " << node->get_cost() << std::endl;
 
     }
 	if(representative==NULL || representative->get_cost() > node->get_cost())
@@ -639,11 +639,11 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
             representative = witness_sample->get_representative();
 			if(representative!=NULL)
 			{
-                std::cout << "sst_make_representative: second witness, representative is not NULL" << std::endl;
+                //std::cout << "sst_make_representative: second witness, representative is not NULL" << std::endl;
 				//optimization for sparsity
 				if(representative->is_active())
 				{
-                    std::cout << "removing nodes from metric" << std::endl;
+                    //std::cout << "removing nodes from metric" << std::endl;
 					metric.remove_node(representative);
 					representative->make_inactive();
 				}
@@ -658,17 +658,17 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 
 			}
             // adding new node to nearest_neighbors
-            std::cout << "adding new node to nearest_neighbors" << std::endl;
+            //std::cout << "adding new node to nearest_neighbors" << std::endl;
 			witness_sample->set_representative(node);
 			node->set_witness(witness_sample);
 			metric.add_node(node);
-            std::cout << "node state: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
+            //std::cout << "node state: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
 
 		}
 	}
     else
     {
-        std::cout << "making the node inactive because representative invalid" << std::endl;
+        //std::cout << "making the node inactive because representative invalid" << std::endl;
         // failed the prior test, then remove it
         //optimization for sparsity
         node->make_inactive();

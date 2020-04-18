@@ -415,11 +415,12 @@ std::vector<proximity_node_t*> graph_nearest_neighbors_t::find_delta_close_and_c
 		}
     }
     // print out the distance for the close_Nodes
-    std::cout << "delta: " << delta << std::endl;
-    for (unsigned i =0; i < close_nodes.size(); i++)
-    {
-        std::cout << "distance to node " << i << ": "  << this->compute_distance(nodes[i], state ) << std::endl;;
-    }
+
+    //std::cout << "delta: " << delta << std::endl;
+    //for (unsigned i =0; i < close_nodes.size(); i++)
+    //{
+    //    std::cout << "distance to node " << i << ": "  << this->compute_distance(nodes[i], state ) << std::endl;;
+    //}
     return close_nodes;
 }
 

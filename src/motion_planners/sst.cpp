@@ -662,6 +662,8 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 			witness_sample->set_representative(node);
 			node->set_witness(witness_sample);
 			metric.add_node(node);
+            std::cout << "node state: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
+
 		}
 	}
     else

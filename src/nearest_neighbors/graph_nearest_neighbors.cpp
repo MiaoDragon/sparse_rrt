@@ -1,15 +1,15 @@
 /**
  * @file graph_nearest_neighbor.cpp
- * 
+ *
  * @copyright Software License Agreement (BSD License)
  * Original work Copyright (c) 2014, Rutgers the State University of New Jersey, New Brunswick
  * Modified work Copyright 2017 Oleg Y. Sinyavskiy
  * All Rights Reserved.
  * For a full description see the file named LICENSE.
- * 
+ *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include <assert.h>
@@ -85,7 +85,7 @@ void proximity_node_t::replace_neighbor( unsigned prev, int new_index )
 ///////////////////////////////////////
 
 void sort( proximity_node_t** close_nodes, double* distances, int low, int high )
-{ 
+{
     if( low < high )
     {
         int left, right;
@@ -185,7 +185,7 @@ void graph_nearest_neighbors_t::add_node( state_point_t* state )
     }
 
 }
- 
+
 void graph_nearest_neighbors_t::remove_node( state_point_t* state )
 {
     const proximity_node_t* graph_node = state->get_proximity_node();
@@ -215,7 +215,7 @@ proximity_node_t* graph_nearest_neighbors_t::find_closest( const double* state, 
 {
     if( nodes.size() == 0 )
         return NULL;
-    
+
     unsigned int nr_samples = sampling_function();
     double min_distance = std::numeric_limits<double>::max();
     int min_index = -1;
@@ -257,7 +257,7 @@ unsigned int graph_nearest_neighbors_t::find_k_close( const double* state, proxi
         return 0;
 
     std::unordered_map<proximity_node_t*,bool> added_nodes;
-    
+
 	if(k > MAX_KK)
 	{
 		// PRX_WARN_S("Trying to return "<<k<<" points when the max is "<<MAX_KK);
@@ -372,7 +372,7 @@ std::vector<proximity_node_t*> graph_nearest_neighbors_t::find_delta_close_and_c
 		    min_index = index;
 		}
     }
-   
+
     int old_min_index = min_index;
     do
     {
@@ -384,7 +384,7 @@ std::vector<proximity_node_t*> graph_nearest_neighbors_t::find_delta_close_and_c
 		    if( distance < min_distance )
 		    {
 				min_distance = distance;
-				min_index = neighbors[j];			
+				min_index = neighbors[j];
 		    }
 		}
     }
@@ -436,7 +436,7 @@ unsigned int graph_nearest_neighbors_t::find_delta_close( const double* state, p
 		    min_index = index;
 		}
     }
-   
+
     int old_min_index = min_index;
     do
     {
@@ -461,7 +461,7 @@ unsigned int graph_nearest_neighbors_t::find_delta_close( const double* state, p
 		added_nodes[close_nodes[0]];
         distances[0]   = min_distance;
         nr_points++;
-	
+
         for( unsigned int counter = 0; counter<nr_points; counter++ )
 		{
 		    auto neighbors = close_nodes[counter]->get_neighbors();
@@ -503,7 +503,7 @@ int graph_nearest_neighbors_t::percolation_threshold()
 
     if( nodes.size() > 14)
 	    k = 4.25 * log( nodes.size() );
-    else 
+    else
 	    k = nodes.size();
     return k;
 }

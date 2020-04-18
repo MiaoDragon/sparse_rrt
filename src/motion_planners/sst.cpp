@@ -288,6 +288,20 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
     delete sample_control;
 }
 
+
+void sst_t::nearest_state(const double* state, std::vector<double> &res_state)
+{
+    // find the nearest node in the tree to the state, and copy to res_state
+    sst_node_t* nearest = nearest_vertex(state);
+    double* nearest_state = nearest->get_point();
+    for (unsigned i=0; i < this->state_dimension; i++)
+    {
+        res_state[i] = nearest_state[i];
+    }
+}
+
+
+
 void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,
     std::vector<std::vector<double>> &x_init,
     std::vector<std::vector<double>> &u_init,

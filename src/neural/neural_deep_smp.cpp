@@ -274,13 +274,19 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
 
-
     for (unsigned i=0; i<max_iteration; i++)
     {
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
+        // given the previous result of bvp, find the next starting point (nearest in the tree)
+        for (unsigned j=0; j < this->state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+        }
+        SMP->nearest_state(state_t_ptr, state_t);
+
         std::vector<double> next_state(state_dim);
         if (i % 20 == 0)
         {

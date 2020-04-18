@@ -605,10 +605,10 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
     sample_node_t* witness_sample = find_witness(sample_state);
 
     sst_node_t* representative = witness_sample->get_representative();
-    //if (representative == NULL)
-    //{
+    if (representative == NULL)
+    {
     //    std::cout << "sst_make_representative: representative is NULL" << std::endl;
-    //}
+    }
     else
     {
         //std::cout << "representative node: [" << representative->get_point()[0] << ", " << representative->get_point()[1] << ", " << representative->get_point()[2] << ", " << representative->get_point()[3] <<"]" << std::endl;

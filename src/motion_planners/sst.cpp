@@ -605,8 +605,8 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
     }
     else
     {
-        std::cout << "representative node: [" << representative->get_point[0] << ", " << representative->get_point[1] << ", " << representative->get_point[2] << ", " << representative->get_point[3] <<"]" << std::endl;
-        std::cout << "node: [" << node->get_point[0] << ", " << node->get_point[1] << ", " << node->get_point[2] << ", " << node->get_point[3] <<"]" << std::endl;
+        std::cout << "representative node: [" << representative->get_point()[0] << ", " << representative->get_point()[1] << ", " << representative->get_point()[2] << ", " << representative->get_point()[3] <<"]" << std::endl;
+        std::cout << "node: [" << node->get_point()[0] << ", " << node->get_point()[1] << ", " << node->get_point()[2] << ", " << node->get_point()[3] <<"]" << std::endl;
         std::cout << "representative cost: " << representative->get_cost() << std::endl;
         std::cout << "node cost: " << node->get_cost() << std::endl;
 

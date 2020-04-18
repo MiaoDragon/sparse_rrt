@@ -18,7 +18,7 @@
 
 #include "nearest_neighbors/graph_nearest_neighbors.hpp"
 #include "motion_planners/tree_node.hpp"
-
+#include <iostream>
 proximity_node_t::proximity_node_t( const state_point_t* st )
     : state(st)
 {
@@ -413,6 +413,11 @@ std::vector<proximity_node_t*> graph_nearest_neighbors_t::find_delta_close_and_c
 				}
 		    }
 		}
+    }
+    // print out the distance for the close_Nodes
+    for (unsigned i =0; i < close_nodes.size(); i++)
+    {
+        std::cout << "distance to node " << i << ": "  << this->compute_distance(nodes[i], state ) << std::endl;;
     }
     return close_nodes;
 }

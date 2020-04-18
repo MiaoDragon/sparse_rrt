@@ -652,6 +652,8 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 	            }
 
 			}
+            // adding new node to nearest_neighbors
+            std::cout << "adding new node to nearest_neighbors" << std::endl;
 			witness_sample->set_representative(node);
 			node->set_witness(witness_sample);
 			metric.add_node(node);
@@ -659,6 +661,7 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 	}
     else
     {
+        std::cout << "making the node inactive because representative invalid" << std::endl;
         // failed the prior test, then remove it
         //optimization for sparsity
         node->make_inactive();

@@ -293,7 +293,7 @@ void sst_t::nearest_state(const double* state, std::vector<double> &res_state)
 {
     // find the nearest node in the tree to the state, and copy to res_state
     sst_node_t* nearest = nearest_vertex(state);
-    double* nearest_state = nearest->get_point();
+    const double* nearest_state = nearest->get_point();
     for (unsigned i=0; i < this->state_dimension; i++)
     {
         res_state[i] = nearest_state[i];

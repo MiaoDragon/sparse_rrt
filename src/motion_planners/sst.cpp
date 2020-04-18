@@ -493,7 +493,7 @@ sst_node_t* sst_t::nearest_vertex(const double* sample_state)
     {
         tree_node_t* v = (tree_node_t*)(close_nodes[i]->get_state());
         double temp = v->get_cost() ;
-        std::cout << "nearest_vertex[ " << i "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
+        std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
         std::cout << "cost: " << temp << std::endl;
 
         if( temp < length)

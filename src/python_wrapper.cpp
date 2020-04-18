@@ -1148,6 +1148,8 @@ public:
                       distance_f, 0));
 
         }
+        std::cout << "delta_near: " << delta_near << std::endl;
+        std::cout << "delta_drain: " << delta_drain << std::endl;
 
         // plan
         std::vector<std::vector<double>> res_x;

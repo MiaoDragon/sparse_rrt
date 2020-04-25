@@ -267,7 +267,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     */
     std::vector<double> state_t = start_state;
     torch::Tensor obs_tensor = obs.to(at::kCUDA);
-    const clock_t begin_time;
+    clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
     std::vector<torch::jit::IValue> obs_input;

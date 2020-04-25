@@ -1,5 +1,6 @@
 //#define DEBUG 1
 #include "neural/neural_deep_smp.hpp"
+#include <time.h>
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    system_t* system,
                    int num_iters_in, int num_steps_in, double step_sz_in
@@ -266,6 +267,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     */
     std::vector<double> state_t = start_state;
     torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    const clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
     std::vector<torch::jit::IValue> obs_input;
@@ -302,11 +304,17 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         }
         else
         {
+            begin_time = clock();
             this->informer(obs_enc, state_t, goal_inform_state, next_state);
+            std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;;
+
         }
         // obtain init
         traj_t init_traj;
+        begin_time = clock();
         this->init_informer(obs_enc, state_t, next_state, init_traj);
+        std::cout << "init_informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;;
+
         psopt_result_t res;
         for (unsigned j=0; j < this->state_dim; j++)
         {
@@ -317,8 +325,10 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
             //std::cout << "after copying state" << std::endl;
             //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
         #endif
+        begin_time = clock();
         SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
-   	     init_traj.x, init_traj.u, init_traj.t);
+        std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;;
+   	    init_traj.x, init_traj.u, init_traj.t);
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
          #endif

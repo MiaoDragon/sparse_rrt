@@ -326,6 +326,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
             //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
         #endif
         begin_time = clock();
+        std::cout << "step_bvp num_iters: " << this->psopt_num_iters << std::endl;
         SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	                 init_traj.x, init_traj.u, init_traj.t);
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;

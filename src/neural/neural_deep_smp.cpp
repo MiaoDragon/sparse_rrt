@@ -277,7 +277,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
     double* next_state_ptr = new double[this->state_dim];
     std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
-    for (unsigned i=0; i<max_iteration; i++)
+    for (unsigned i=1; i<=max_iteration; i++)
     {
         std::cout << "iteration " << i << std::endl;
         #ifdef DEBUG
@@ -292,12 +292,12 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(state_dim);
-        if (i % 20 == 0)
+        if (i % 40 == 0)
         {
             // sample the goal instead
             next_state = goal_state;
         }
-        else if (i % 10 == 0)
+        else if (i % 20 == 0)
         {
             // sample the goal instead
             next_state = goal_inform_state;

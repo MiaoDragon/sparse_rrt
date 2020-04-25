@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <deque>
-
+#include <time.h>
 sst_node_t::sst_node_t(const double* point, unsigned int state_dimension, sst_node_t* a_parent, tree_edge_t&& a_parent_edge, double a_cost)
     : tree_node_t(point, state_dimension, std::move(a_parent_edge), a_cost)
     , parent(a_parent)
@@ -337,8 +337,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     }
     psopt_result_t res;
     //std::cout << "sst: before solve... "<< std::endl;
+    clock_t begin_time;
+    begin_time = clock();
     bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
+    std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+
     //std::cout << "sst: after solve. "<< std::endl;
 
     std::vector<std::vector<double>> x_traj = res.x;
@@ -434,7 +438,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         if (res_t > 0.01)
         {
             val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
-                      1, end_state, res_t);            
+                      1, end_state, res_t);
         }
         if (!val)
         {

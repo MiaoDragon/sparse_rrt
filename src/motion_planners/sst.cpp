@@ -588,6 +588,7 @@ sst_node_t* sst_t::bvp_add_to_tree_without_opt(const double* sample_state, const
     ));
     new_node->make_inactive(); // make_inactive because they are only intermediate nodes
     number_of_nodes++;
+    metric.add_node(new_node);
     /**
     // we don't check if the itermermediate nodes are goal or not
     if(best_goal==NULL && this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)

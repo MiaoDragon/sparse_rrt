@@ -467,9 +467,10 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         step_res.t.push_back(res_t);
 
         // add the last valid node to tree, with the same control for t_traj[i] time
-        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
+
+        //sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
         total_t += t_traj[i];
-        x_tree = new_x_tree;
+        //x_tree = new_x_tree;
 
     }
     // add the last valid node to tree, with the same control for t_traj[i] time
@@ -477,7 +478,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     {
         // if at least move on step further, add to representative states
         //metric.add_node(x_tree);
-        bvp_make_representative(state_t, x_tree);
+        //bvp_make_representative(state_t, x_tree);
+
+        // add the last valid node to tree
+        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
+        x_tree = new_x_tree;
+
     }
 
     delete u_traj_i;

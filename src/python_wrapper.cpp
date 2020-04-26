@@ -1076,6 +1076,7 @@ protected:
 	RandomGenerator random_generator;
 };
 
+/**
 
 //*******************neural planner****************************
 class DeepSMPWrapper
@@ -1249,6 +1250,7 @@ protected:
     std::shared_ptr<planner_t> planner;
 
 };
+*/
 
 
 /**

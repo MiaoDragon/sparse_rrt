@@ -493,6 +493,7 @@ sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query
     std::cout << "sst: nearest_vertex" << std::endl;
+    std::cout << "sst_delta_near: " << this->sst_delta_near << std::endl;
     std::vector<proximity_node_t*> close_nodes = metric.find_delta_close_and_closest(sample_state, this->sst_delta_near);
     std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
     double length = std::numeric_limits<double>::max();;

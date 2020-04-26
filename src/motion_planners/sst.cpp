@@ -479,6 +479,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     if (total_t > 0.)
     {
         // if at least move on step further, add to representative states
+        metric.add_node(x_tree);
         //bvp_make_representative(state_t, x_tree);
     }
 
@@ -588,7 +589,6 @@ sst_node_t* sst_t::bvp_add_to_tree_without_opt(const double* sample_state, const
     ));
     new_node->make_inactive(); // make_inactive because they are only intermediate nodes
     number_of_nodes++;
-    metric.add_node(new_node);
     /**
     // we don't check if the itermermediate nodes are goal or not
     if(best_goal==NULL && this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)

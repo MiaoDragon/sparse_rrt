@@ -42,11 +42,11 @@
 #include "image_creation/planner_visualization.hpp"
 #include "systems/distance_functions.h"
 
-#include "neural/neural_deep_smp.hpp"
+//#include "neural/neural_deep_smp.hpp"
 
 #include "utilities/random.hpp"
-#include <torch/torch.h>
-#include <torch/script.h>
+//#include <torch/torch.h>
+//#include <torch/script.h>
 
 
 
@@ -1425,6 +1425,7 @@ PYBIND11_MODULE(_sst_module, m) {
              "integration_step"_a
         )
     ;
+    /**
     py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
         .def(py::init<std::string&, std::string&, int, int, double,
                       system_t*>(),
@@ -1461,4 +1462,5 @@ PYBIND11_MODULE(_sst_module, m) {
             "tree_line_width"_a=0.5
             )
      ;
+     */
 }

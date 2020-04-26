@@ -99,6 +99,7 @@ set(INCLUDE_DIR
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/deps/pybind11/include
     #${TORCH_INCLUDE_DIRS})
+)
 
 set(SOURCE_FILES
         src/motion_planners/rrt.cpp

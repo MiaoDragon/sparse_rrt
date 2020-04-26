@@ -435,11 +435,8 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             break;
         }
-        if (res_t > 0.01)
-        {
-            val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
-                      1, end_state, res_t);
-        }
+        val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
+                  1, end_state, res_t);
         if (!val)
         {
             #ifdef DEBUG

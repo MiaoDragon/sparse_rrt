@@ -489,21 +489,21 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query
-    //std::cout << "sst: nearest_vertex" << std::endl;
-    //std::cout << "sample_state =" << "[" << sample_state[0] << ", " << sample_state[1] << ", " << sample_state[2] << ", " << sample_state[3]<< "]"  << std::endl;
+    std::cout << "sst: nearest_vertex" << std::endl;
+    std::cout << "sample_state =" << "[" << sample_state[0] << ", " << sample_state[1] << ", " << sample_state[2] << ", " << sample_state[3]<< "]"  << std::endl;
 
-    //std::cout << "sst_delta_near: " << sst_delta_near << std::endl;
+    std::cout << "sst_delta_near: " << sst_delta_near << std::endl;
 
     std::vector<proximity_node_t*> close_nodes = metric.find_delta_close_and_closest(sample_state, this->sst_delta_near);
-    //std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
+    std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
     double length = std::numeric_limits<double>::max();;
     sst_node_t* nearest = nullptr;
     for(unsigned i=0;i<close_nodes.size();i++)
     {
         tree_node_t* v = (tree_node_t*)(close_nodes[i]->get_state());
         double temp = v->get_cost() ;
-        //std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
-        //std::cout << "cost: " << temp << std::endl;
+        std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
+        std::cout << "cost: " << temp << std::endl;
 
         if( temp < length)
         {

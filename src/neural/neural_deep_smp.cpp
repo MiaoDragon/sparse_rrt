@@ -357,7 +357,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         {
             // use the endpoint
             state_t = res.x.back();
-            #ifdef DEBUG
+            //#ifdef DEBUG
                 std::cout << "step_bvp successful." << std::endl;
                 // print out the result of bvp
                 for (unsigned j=0; j < res.x.size(); j++)
@@ -368,7 +368,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
                 {
                     std::cout << "res.t[" << j << " = " << res.t << std::endl;
                 }
-            #endif
+            //#endif
 
         }
     // check if solution exists

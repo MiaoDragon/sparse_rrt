@@ -292,7 +292,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         }
         SMP->nearest_state(state_t_ptr, state_t);
 
-        std::vector<double> next_state(state_dim);
+        std::vector<double> next_state(this->state_dim);
         if (i % 40 == 0)
         {
             // sample the goal instead
@@ -422,7 +422,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     }
     SMP->nearest_state(state_t_ptr, state_t);
 
-    std::vector<double> next_state(state_dim);
+    std::vector<double> next_state(this->state_dim);
     /**
     if (i % 40 == 0)
     {

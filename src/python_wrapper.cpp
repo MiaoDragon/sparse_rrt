@@ -1265,7 +1265,8 @@ public:
         //std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
                          res_x, res_u, res_t, mpnet_res);
-
+        std::cout << "after plan_step" << std::endl;
+        std::cout << "res_x.size: " << res_x.size() << std::endl;
          if (res_x.empty())
          {
              // solution is not found

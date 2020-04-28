@@ -220,7 +220,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 state_i[j] = state_i[j] + distribution(generator);
             }
         }
-        std::cout << "x_init[" << i << " = [" << state_i[0] << ", " << state_i[1] << ", " << state_i[2] << ", " << state_i[3] <<"]" << std::endl;
+        //std::cout << "x_init[" << i << " = [" << state_i[0] << ", " << state_i[1] << ", " << state_i[2] << ", " << state_i[3] <<"]" << std::endl;
 
         res.x.push_back(state_i);
     }
@@ -357,7 +357,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         {
             // use the endpoint
             state_t = res.x.back();
-            //#ifdef DEBUG
+            #ifdef DEBUG
                 std::cout << "step_bvp successful." << std::endl;
                 // print out the result of bvp
                 for (unsigned j=0; j < res.x.size(); j++)
@@ -368,7 +368,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
                 {
                     std::cout << "res.t[" << j << " = " << res.t << std::endl;
                 }
-            //#endif
+            #endif
 
         }
     // check if solution exists

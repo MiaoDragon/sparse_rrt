@@ -339,11 +339,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     //std::cout << "sst: before solve... "<< std::endl;
     clock_t begin_time;
     begin_time = clock();
-    std::cout << "bvp goal_state= [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] <<"]" << std::endl;
+    //std::cout << "bvp goal_state= [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] <<"]" << std::endl;
 
     bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
-    std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+    //std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
     //std::cout << "sst: after solve. "<< std::endl;
 
@@ -413,7 +413,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             std::cout << "after propagation in step_bvp" << std::endl;
             std::cout << "num_dis=" << num_dis << "," <<  "j=" << j << std::endl;
             std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
-            std::cout << "start_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
+            std::cout << "goal_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
             #endif
             std::vector<double> res_x_i;
             std::vector<double> res_u_i;

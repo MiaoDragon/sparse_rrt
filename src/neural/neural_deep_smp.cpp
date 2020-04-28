@@ -416,6 +416,9 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     for (unsigned j=0; j < this->state_dim; j++)
     {
         state_t_ptr[j] = state_t[j];
+        std::cout << "state_t_ptr[" << j << "]: " << state_t_ptr[j] << std::endl;
+        std::cout << "state_t[" << j << "]: " << state_t[j] << std::endl;
+
     }
     SMP->nearest_state(state_t_ptr, state_t);
 

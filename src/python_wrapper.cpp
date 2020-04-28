@@ -1267,7 +1267,8 @@ public:
                          res_x, res_u, res_t, mpnet_res);
         std::cout << "after plan_step" << std::endl;
         std::cout << "res_x.size: " << res_x.size() << std::endl;
-         if (res_x.empty())
+        std::cout << "res_u.size: " << res_x.size() << std::endl;
+         if (res_u.empty())
          {
              // solution is not found
              py::safe_array<double> state_array;

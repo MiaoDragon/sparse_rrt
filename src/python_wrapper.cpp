@@ -1088,7 +1088,7 @@ public:
 
     {
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
-        planner.reset();
+        planner.reset(NULL);
         std::cout << "created smp module" << std::endl;
     }
     py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,

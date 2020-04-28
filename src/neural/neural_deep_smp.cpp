@@ -425,7 +425,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
         //std::cout << "state_t[" << j << "]: " << state_t[j] << std::endl;
 
     }
-    //SMP->nearest_state(state_t_ptr, state_t);
+    SMP->nearest_state(state_t_ptr, state_t);
 
     std::vector<double> next_state(this->state_dim);
     /**
@@ -451,11 +451,11 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     }
     // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
     // use search tree
-    //for (unsigned j=0; j < this->state_dim; j++)
-    //{
-    //    state_t_ptr[j] = next_state[j];
-    //}
-    //SMP->nearest_state(state_t_ptr, state_t);
+    for (unsigned j=0; j < this->state_dim; j++)
+    {
+        state_t_ptr[j] = next_state[j];
+    }
+    SMP->nearest_state(state_t_ptr, state_t);
 
     // obtain init
     traj_t init_traj;

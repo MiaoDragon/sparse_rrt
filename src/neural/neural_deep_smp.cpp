@@ -244,7 +244,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     {
 
         res.t.push_back(res.t[i-1]+this->psopt_step_sz);
-        std::cout << "t_init[" << i << "] =" << res.t[i] << << std::endl;
+        std::cout << "t_init[" << i << "] =" << res.t[i]  << std::endl;
 
     }
     #ifdef DEBUG

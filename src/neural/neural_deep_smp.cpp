@@ -254,7 +254,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
 }
 
 
-void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
@@ -402,6 +402,157 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         return;
     }
 }
+
+void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int max_iteration, double goal_radius,
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
+{
+    /**
+        each iteration:
+            x_hat = informer(x_t, x_G)
+            if for some frequency, x_hat = x_G
+            x_traj, u_traj, t_traj = init_informer(x_t, x_hat)
+            x_t_1, edge, valid = planner->step_bvp(x_t, x_hat, x_traj, u_traj, t_traj)
+            if not valid:
+                x_t = x0
+            else:
+                x_t = x_t_1
+    */
+    std::vector<double> state_t = start_state;
+    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    clock_t begin_time;
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+
+    std::vector<torch::jit::IValue> obs_input;
+    obs_input.push_back(obs_tensor);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    double* state_t_ptr = new double[this->state_dim];
+    double* next_state_ptr = new double[this->state_dim];
+    //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+
+    for (unsigned i=1; i<=max_iteration; i++)
+    {
+        //std::cout << "iteration " << i << std::endl;
+        #ifdef DEBUG
+            std::cout << "iteration " << i << std::endl;
+            std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+        #endif
+        // given the previous result of bvp, find the next starting point (nearest in the tree)
+        for (unsigned j=0; j < this->state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+        }
+        SMP->nearest_state(state_t_ptr, state_t);
+
+        std::vector<double> next_state(this->state_dim);
+        if (i % 40 == 0)
+        {
+            // sample the goal instead
+            next_state = goal_state;
+        }
+        else if (i % 20 == 0)
+        {
+            // sample the goal instead
+            next_state = goal_inform_state;
+        }
+        else
+        {
+            begin_time = clock();
+            this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        #ifdef COUNT_TIME
+            std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+        #endif
+        }
+        // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
+        // use search tree
+        //for (unsigned j=0; j < this->state_dim; j++)
+        //{
+        //    state_t_ptr[j] = next_state[j];
+        //}
+        //SMP->nearest_state(state_t_ptr, state_t);
+
+        // obtain init
+        traj_t init_traj;
+        begin_time = clock();
+        this->init_informer(obs_enc, state_t, next_state, init_traj);
+        #ifdef COUNT_TIME
+        std::cout << "init_informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+        #endif
+        psopt_result_t res;
+        for (unsigned j=0; j < this->state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+            next_state_ptr[j] = next_state[j];
+        }
+        #ifdef DEBUG
+            std::cout << "after copying state" << std::endl;
+            std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+        #endif
+        begin_time = clock();
+        #ifdef DEBUG
+            std::cout << "step_bvp num_iters: " << this->psopt_num_iters << std::endl;
+            std::cout << "step_bvp start_state = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+            std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
+        #endif
+
+        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+   	                 init_traj.x, init_traj.u, init_traj.t);
+        #ifdef COUNT_TIME
+        std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+        #endif
+         #ifdef DEBUG
+             std::cout << "after step_bvp" << std::endl;
+         #endif
+        if (res.u.size() == 0)
+        {
+            #ifdef DEBUG
+                std::cout << "step_bvp unsuccessful." << std::endl;
+            #endif
+            // not valid path
+            state_t = start_state;
+        }
+        else
+        {
+            // use the endpoint
+            state_t = res.x.back();
+            #ifdef DEBUG
+                std::cout << "step_bvp successful." << std::endl;
+                // print out the result of bvp
+                for (unsigned j=0; j < res.x.size(); j++)
+                {
+                    std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
+                }
+                for (unsigned j=0; j < res.t.size(); j++)
+                {
+                    std::cout << "res.t[" << j << " = " << res.t << std::endl;
+                }
+            #endif
+
+        }
+    // check if solution exists
+    SMP->get_solution(res_x, res_u, res_t);
+    if (res_x.size() != 0)
+    {
+        // solved
+        delete state_t_ptr;
+        delete next_state_ptr;
+        return;
+    }
+    }
+    // check if solved
+    SMP->get_solution(res_x, res_u, res_t);
+    // visualize
+
+    delete state_t_ptr;
+    delete next_state_ptr;
+    if (res_x.size() != 0)
+    {
+        // solved
+        return;
+    }
+}
+
+
 
 void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius,

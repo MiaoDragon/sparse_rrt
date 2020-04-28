@@ -1091,7 +1091,7 @@ public:
         planner.reset();
         std::cout << "created smp module" << std::endl;
     }
-    py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
+    py::object plan_tree(std::string& planner_name, std::string& plan_type, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 
@@ -1156,8 +1156,16 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         //std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
-                         res_x, res_u, res_t);
+        if (plan_type == "tree")
+        {
+            neural_smp->plan_tree(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
+                             res_x, res_u, res_t);
+        }
+        else
+        {
+            neural_smp->plan_line(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
+                             res_x, res_u, res_t);
+        }
         if (res_x.size() == 0)
         {
             // solution is not found
@@ -1552,9 +1560,10 @@ PYBIND11_MODULE(_sst_module, m) {
                       "system"_a
              )
         .def("plan", &DeepSMPWrapper::plan,
-              "system"_a,
-              "psopt_system"_a,
              "planner_name"_a,
+             "plan_type"_a,
+             "system"_a,
+             "psopt_system"_a,
              "obs"_a,
              "start_state"_a,
              "goal_state"_a,
@@ -1566,9 +1575,9 @@ PYBIND11_MODULE(_sst_module, m) {
              "delta_drain"_a
             )
           .def("plan_step", &DeepSMPWrapper::plan_step,
+                 "planner_name"_a,
                  "system"_a,
                  "psopt_system"_a,
-                 "planner_name"_a,
                  "obs"_a,
                  "start_state"_a,
                  "goal_state"_a,

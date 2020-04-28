@@ -478,5 +478,4 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     res_u = res.u;
     res_t = res.t;
 
-    }
 }

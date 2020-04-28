@@ -412,11 +412,6 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
 
-    std::cout << "iteration " << i << std::endl;
-    #ifdef DEBUG
-        std::cout << "iteration " << i << std::endl;
-        std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
-    #endif
     // given the previous result of bvp, find the next starting point (nearest in the tree)
     for (unsigned j=0; j < this->state_dim; j++)
     {
@@ -425,6 +420,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     SMP->nearest_state(state_t_ptr, state_t);
 
     std::vector<double> next_state(state_dim);
+    /**
     if (i % 40 == 0)
     {
         // sample the goal instead
@@ -436,6 +432,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
         next_state = goal_inform_state;
     }
     else
+    */
     {
         begin_time = clock();
         this->informer(obs_enc, state_t, goal_inform_state, next_state);

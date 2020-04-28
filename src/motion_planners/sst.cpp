@@ -479,7 +479,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     if (total_t > 0.)
     {
         // if at least move on step further, add to representative states
-        bvp_make_representative(state_t, x_tree);
+        //bvp_make_representative(state_t, x_tree);
+        metric.add_node(x_tree);
+
     }
 
     delete u_traj_i;

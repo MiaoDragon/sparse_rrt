@@ -105,8 +105,8 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 {
 	if(best_goal==NULL)
     {
-        std::cout << "haven't found a path yet." << std::endl;
-        std::cout << "number of nodes: " << number_of_nodes << std::endl;
+        //std::cout << "haven't found a path yet." << std::endl;
+        //std::cout << "number of nodes: " << number_of_nodes << std::endl;
     	return;
     }
 	sst_node_t* nearest_path_node = best_goal;
@@ -379,7 +379,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     double res_t;
     double total_t = 0.;
     //std::cout << "sst: after copying res "<< std::endl;
-    std::cout << "number of nodes: " << number_of_nodes << std::endl;
+    //std::cout << "number of nodes: " << number_of_nodes << std::endl;
 
     for (unsigned i=0; i < num_steps-1; i++)
     {
@@ -619,7 +619,7 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
     sample_node_t* witness_sample = find_witness(sample_state);
 
     sst_node_t* representative = witness_sample->get_representative();
-    std::cout << "distance to goal: " << this->distance(node->get_point(), goal_state, this->state_dimension) << std::endl;
+    //std::cout << "distance to goal: " << this->distance(node->get_point(), goal_state, this->state_dimension) << std::endl;
     if (representative == NULL)
     {
     //    std::cout << "sst_make_representative: representative is NULL" << std::endl;

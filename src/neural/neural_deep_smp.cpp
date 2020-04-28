@@ -283,7 +283,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        std::cout << "iteration " << i << std::endl;
+        //std::cout << "iteration " << i << std::endl;
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
@@ -310,8 +310,9 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         {
             begin_time = clock();
             this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        #ifdef COUNT_TIME
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
-
+        #endif
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree
@@ -325,8 +326,9 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         traj_t init_traj;
         begin_time = clock();
         this->init_informer(obs_enc, state_t, next_state, init_traj);
+        #ifdef COUNT_TIME
         std::cout << "init_informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
-
+        #endif
         psopt_result_t res;
         for (unsigned j=0; j < this->state_dim; j++)
         {
@@ -346,8 +348,9 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
 
         SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	                 init_traj.x, init_traj.u, init_traj.t);
+        #ifdef COUNT_TIME
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
-
+        #endif
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
          #endif

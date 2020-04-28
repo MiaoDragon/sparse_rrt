@@ -1158,7 +1158,7 @@ public:
         //std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
                          res_x, res_u, res_t);
-        if (res_x.empty())
+        if (res_x.size() == 0)
         {
             // solution is not found
             py::safe_array<double> state_array;
@@ -1268,7 +1268,7 @@ public:
         std::cout << "after plan_step" << std::endl;
         std::cout << "res_x.size: " << res_x.size() << std::endl;
         std::cout << "res_u.size: " << res_u.size() << std::endl;
-         if (res_u.empty())
+         if (res_u.size() == 0)
          {
              // solution is not found
              py::safe_array<double> state_array;

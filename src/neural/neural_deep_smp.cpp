@@ -434,7 +434,7 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
     {
         if (i % 50 == 0)
         {
-            std::cout << "iteration: " << i << std::endl;            
+            std::cout << "iteration: " << i << std::endl;
         }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
@@ -532,15 +532,16 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
             #endif
 
         }
-    // check if solution exists
-    SMP->get_solution(res_x, res_u, res_t);
-    if (res_x.size() != 0)
-    {
-        // solved
-        delete state_t_ptr;
-        delete next_state_ptr;
-        return;
-    }
+        // check if solution exists
+        SMP->get_solution(res_x, res_u, res_t);
+        if (res_x.size() != 0)
+        {
+            // solved
+            std::cout << "solved in neural smp" << std::endl;
+            delete state_t_ptr;
+            delete next_state_ptr;
+            return;
+        }
     }
     // check if solved
     SMP->get_solution(res_x, res_u, res_t);

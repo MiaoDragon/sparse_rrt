@@ -433,6 +433,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     }
     else
     */
+    std::cout << "before informer" << std::endl;
     {
         begin_time = clock();
         this->informer(obs_enc, state_t, goal_inform_state, next_state);

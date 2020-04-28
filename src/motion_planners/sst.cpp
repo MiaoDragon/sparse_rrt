@@ -341,7 +341,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     begin_time = clock();
     //std::cout << "bvp goal_state= [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] <<"]" << std::endl;
 
-    bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
+    bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, 2*step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
     //std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 

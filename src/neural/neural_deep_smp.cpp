@@ -220,7 +220,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 state_i[j] = state_i[j] + distribution(generator);
             }
         }
-        //std::cout << "x_init[" << i << " = [" << state_i[0] << ", " << state_i[1] << ", " << state_i[2] << ", " << state_i[3] <<"]" << std::endl;
+        std::cout << "x_init[" << i << " = [" << state_i[0] << ", " << state_i[1] << ", " << state_i[2] << ", " << state_i[3] <<"]" << std::endl;
 
         res.x.push_back(state_i);
     }

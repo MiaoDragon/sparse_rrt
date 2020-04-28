@@ -1091,7 +1091,7 @@ public:
         planner.reset();
         std::cout << "created smp module" << std::endl;
     }
-    py::object plan_tree(std::string& planner_name, std::string& plan_type, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
+    py::object plan(std::string& planner_name, std::string& plan_type, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 

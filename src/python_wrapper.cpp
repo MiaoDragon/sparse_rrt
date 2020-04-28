@@ -1088,7 +1088,7 @@ public:
 
     {
         neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
-        planner.reset(NULL);
+        planner.reset();
         std::cout << "created smp module" << std::endl;
     }
     py::object plan(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
@@ -1239,14 +1239,14 @@ public:
 
         // construct planner by name
         //std::cout << "creating new planner..." << std::endl;
-        if (planner_name == "sst" && planner.get() == NULL)
+        if (planner_name == "sst" && !planner)
         {
             planner.reset(new sst_t(&start_data_py(0), &goal_data_py(0),
                 	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
                           distance_f, 0, delta_near, delta_drain));
 
         }
-        else if (planner_name == "rrt" && planner.get() == NULL)
+        else if (planner_name == "rrt" && !planner)
         {
             planner.reset(new rrt_t(&start_data_py(0), &goal_data_py(0),
             	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),

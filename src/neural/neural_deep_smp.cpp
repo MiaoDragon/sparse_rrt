@@ -394,3 +394,89 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
         return;
     }
 }
+
+void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int max_iteration, double goal_radius,
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
+{
+    std::vector<double> state_t = start_state;
+    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    clock_t begin_time;
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+
+    std::vector<torch::jit::IValue> obs_input;
+    obs_input.push_back(obs_tensor);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    double* state_t_ptr = new double[this->state_dim];
+    double* next_state_ptr = new double[this->state_dim];
+    std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+
+
+    std::cout << "iteration " << i << std::endl;
+    #ifdef DEBUG
+        std::cout << "iteration " << i << std::endl;
+        std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+    #endif
+    // given the previous result of bvp, find the next starting point (nearest in the tree)
+    for (unsigned j=0; j < this->state_dim; j++)
+    {
+        state_t_ptr[j] = state_t[j];
+    }
+    SMP->nearest_state(state_t_ptr, state_t);
+
+    std::vector<double> next_state(state_dim);
+    if (i % 40 == 0)
+    {
+        // sample the goal instead
+        next_state = goal_state;
+    }
+    else if (i % 20 == 0)
+    {
+        // sample the goal instead
+        next_state = goal_inform_state;
+    }
+    else
+    {
+        begin_time = clock();
+        this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+
+    }
+    // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
+    // use search tree
+    //for (unsigned j=0; j < this->state_dim; j++)
+    //{
+    //    state_t_ptr[j] = next_state[j];
+    //}
+    //SMP->nearest_state(state_t_ptr, state_t);
+
+    // obtain init
+    traj_t init_traj;
+    begin_time = clock();
+    this->init_informer(obs_enc, state_t, next_state, init_traj);
+    std::cout << "init_informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+
+    psopt_result_t res;
+    for (unsigned j=0; j < this->state_dim; j++)
+    {
+        state_t_ptr[j] = state_t[j];
+        next_state_ptr[j] = next_state[j];
+    }
+    #ifdef DEBUG
+        //std::cout << "after copying state" << std::endl;
+        //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+    #endif
+    begin_time = clock();
+    std::cout << "step_bvp num_iters: " << this->psopt_num_iters << std::endl;
+    std::cout << "step_bvp start_state = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+    std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
+
+    SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+                 init_traj.x, init_traj.u, init_traj.t);
+    std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+    res_x = res.x;
+    res_u = res.u;
+    res_t = res.t;
+
+    }
+}

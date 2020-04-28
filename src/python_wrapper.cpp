@@ -1266,6 +1266,19 @@ public:
         neural_smp->plan_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
                          res_x, res_u, res_t, mpnet_res);
 
+         if (res_x.empty())
+         {
+             // solution is not found
+             py::safe_array<double> state_array;
+             py::safe_array<double> control_array;
+             py::safe_array<double> time_array;
+             py::safe_array<double> mpnet_res_array;
+             //delete planner;
+             // return flag, available flags, states, controls, time
+             return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+                 (state_array, control_array, time_array, mpnet_res_array));
+         }
+
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
         py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
         py::safe_array<double> time_array({res_t.size()});

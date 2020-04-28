@@ -379,6 +379,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     double res_t;
     double total_t = 0.;
     //std::cout << "sst: after copying res "<< std::endl;
+    std::cout << "number of nodes: " << number_of_nodes << std::endl;
 
     for (unsigned i=0; i < num_steps-1; i++)
     {

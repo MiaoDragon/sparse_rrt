@@ -1261,13 +1261,15 @@ public:
         std::vector<std::vector<double>> res_x;
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
+        std::vector<double> mpnet_res;
         //std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
-                         res_x, res_u, res_t);
+                         res_x, res_u, res_t, mpnet_res);
 
         py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
         py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
         py::safe_array<double> time_array({res_t.size()});
+        py::safe_array<double> mpnet_res_array({mpnet_res.size()});
         auto state_ref = state_array.mutable_unchecked<2>();
         for (unsigned int i = 0; i < res_x.size(); ++i) {
             for (unsigned int j = 0; j < res_x[0].size(); ++j) {
@@ -1284,11 +1286,17 @@ public:
         for (unsigned int i = 0; i < res_t.size(); ++i) {
             time_ref(i) = res_t[i];
         }
+        auto mpnet_res_ref = mpnet_res_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < mpnet_res.size(); ++i)
+        {
+            mpnet_res_ref(i) = mpnet_res[i];
+        }
+
 
         //delete planner;
         // return flag, available flags, states, controls, time
-        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
-            (state_array, control_array, time_array));
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, control_array, time_array, mpnet_res_array));
     }
 
 

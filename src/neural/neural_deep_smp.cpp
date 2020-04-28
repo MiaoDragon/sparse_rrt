@@ -243,7 +243,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
     for (unsigned i=1; i<this->psopt_num_steps; i++)
     {
 
-        res.t.push_back(res.t[i-1]+this->psopt_step_sz*2);
+        res.t.push_back(res.t[i-1]+this->psopt_step_sz);
         std::cout << "t_init[" << i << "] =" << res.t[i]  << std::endl;
 
     }
@@ -400,7 +400,7 @@ void MPNetSMP::plan(planner_t* SMP, system_t* system, psopt_system_t* psopt_syst
 
 void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius,
-                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res)
 {
     std::vector<double> state_t = start_state;
     torch::Tensor obs_tensor = obs.to(at::kCUDA);
@@ -443,6 +443,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     {
         begin_time = clock();
         this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        mpnet_res = next_state;
         std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
     }

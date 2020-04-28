@@ -432,7 +432,10 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        //std::cout << "iteration " << i << std::endl;
+        if (i % 50 == 0)
+        {
+            std::cout << "iteration: " << i << std::endl;            
+        }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;

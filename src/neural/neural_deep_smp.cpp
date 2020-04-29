@@ -652,7 +652,9 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     double* new_state = new double[this->state_dim];
     double* new_control = new double[this->control_dim];
     double new_time = 0.;
-    SMP->step_with_sample(system, next_state_ptr, new_state, new_control, new_time, min_time_steps, max_time_steps, step_sz);
+    int min_time_steps = 5;
+    int max_time_steps = 100;
+    SMP->step_with_sample(system, next_state_ptr, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
     SMP->nearest_state(next_state_ptr, next_state);  // find the nearest_node using the mpnet sample
 
     // copy to result

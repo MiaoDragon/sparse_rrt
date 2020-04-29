@@ -143,7 +143,7 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 }
 
 
-void sst_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
+void sst_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao
      * Given the random sample from some sampler
@@ -159,6 +159,10 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   // remember the sample state by a temperate Variable
   this->random_control(new_control);
   sst_node_t* nearest = nearest_vertex(sample_state);
+  for (unsigned i=0; i<this->state_dimension; i++)
+  {
+      from_state[i] = nearest->get_point()[i];
+  }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
   new_time = num_steps*integration_step;
   //std::cout << "before propagating in C++" << std::endl;

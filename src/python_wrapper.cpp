@@ -135,11 +135,12 @@ public:
         double* sample_state = new double[size];
         double* new_state = new double[size];
         double* new_control = new double[planner->get_control_dimension()];
+        double * from_state = new double[size];
         double new_time =0.;
         for (int i = 0; i < size; i++) {
           sample_state[i] = init_sample_state(i);
         }
-        planner->step_with_sample(&system, sample_state, new_state, new_control, new_time, min_time_steps, max_time_steps, integration_step);
+        planner->step_with_sample(&system, sample_state, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, integration_step);
         // return the new sample
         py::safe_array<double> new_state_py({size});
         auto new_state_ref = new_state_py.mutable_unchecked<1>();

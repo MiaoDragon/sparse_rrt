@@ -92,7 +92,7 @@ void rrt_t::nearest_state(const double* state, std::vector<double> &res_state)
     }
 }
 
-void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
+void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao
      * Given the random sample from some sampler
@@ -105,6 +105,10 @@ void rrt_t::step_with_sample(system_interface* system, double* sample_state, dou
   this->random_control(new_control);
 
   nearest = nearest_vertex(sample_state);
+  for (unsigned i=0; i<this->state_dimension; i++)
+  {
+      from_state[i] = nearest->get_point()[i];
+  }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
   new_time = num_steps*integration_step;
   if(system->propagate(

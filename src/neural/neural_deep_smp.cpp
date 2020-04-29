@@ -651,10 +651,11 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     // *** below is using sst::step with provided MPNet sample
     double* new_state = new double[this->state_dim];
     double* new_control = new double[this->control_dim];
+    double* from_state = new double[this->state_dim];
     double new_time = 0.;
     int min_time_steps = 5;
     int max_time_steps = 100;
-    SMP->step_with_sample(system, next_state_ptr, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
+    SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
     SMP->nearest_state(next_state_ptr, next_state);  // find the nearest_node using the mpnet sample
 
     // copy to result
@@ -662,7 +663,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     std::vector<double> x1;
     for (unsigned i=0; i<this->state_dim; i++)
     {
-        x0.push_back(next_state[i]);
+        x0.push_back(from_state[i]);
         x1.push_back(new_state[i]);
     }
     res.x.push_back(x0);
@@ -674,7 +675,9 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     }
     res.u.push_back(u0);
     res.t.push_back(new_time);
-
+    delete from_state;
+    delete new_state;
+    delete new_control;
     // *** below is using bvp solver
     //SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
     //             init_traj.x, init_traj.u, init_traj.t);

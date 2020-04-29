@@ -638,13 +638,13 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
 		{
 			//passed the test
             node->make_active();
-	        if(best_goal==NULL && this->distance(node->get_point(), goal_state, this->state_dimension/2)<goal_radius)
+	        if(best_goal==NULL && this->distance(node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {
 	        	best_goal = node;
 	        	branch_and_bound((sst_node_t*)root);
 	        }
 	        else if(best_goal!=NULL && best_goal->get_cost() > node->get_cost() &&
-	                this->distance(node->get_point(), goal_state, this->state_dimension/2)<goal_radius)
+	                this->distance(node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {
 	        	best_goal = node;
 	        	branch_and_bound((sst_node_t*)root);

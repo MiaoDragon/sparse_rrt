@@ -301,11 +301,11 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
         // given the previous result of bvp, find the next starting point (nearest in the tree)
-        for (unsigned j=0; j < this->state_dim; j++)
-        {
-            state_t_ptr[j] = state_t[j];
-        }
-        SMP->nearest_state(state_t_ptr, state_t);
+        //for (unsigned j=0; j < this->state_dim; j++)
+        //{
+        //    state_t_ptr[j] = state_t[j];
+        //}
+        //SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
         if (i % 40 == 0)
@@ -328,11 +328,11 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree
-        for (unsigned j=0; j < this->state_dim; j++)
-        {
-            state_t_ptr[j] = next_state[j];
-        }
-        SMP->nearest_state(state_t_ptr, state_t);
+        //for (unsigned j=0; j < this->state_dim; j++)
+        //{
+        //    state_t_ptr[j] = next_state[j];
+        //}
+        //SMP->nearest_state(state_t_ptr, state_t);
 
         // obtain init
         traj_t init_traj;
@@ -342,6 +342,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         std::cout << "init_informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
         psopt_result_t res;
+        // copy to c++ double* list from std::vector
         for (unsigned j=0; j < this->state_dim; j++)
         {
             state_t_ptr[j] = state_t[j];
@@ -358,14 +359,41 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
             std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
         #endif
 
-        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
-   	                 init_traj.x, init_traj.u, init_traj.t);
+        // below tries to use step_with_sample to imitate DeepSMP
+        double* new_state = new double[this->state_dim];
+        double* new_control = new double[this->control_dim];
+        double* from_state = new double[this->state_dim];
+        double new_time = 0.;
+        int min_time_steps = 5;
+        int max_time_steps = 100;
+        SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
+
+
+        //SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+   	    //             init_traj.x, init_traj.u, init_traj.t);
         #ifdef COUNT_TIME
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
          #endif
+
+
+         /** Below is for step_with_sample. Need to be commended out if using step_bvp **/
+         if (new_time == 0.)
+         {
+             // propagate fails, back to origin
+             state_t = start_state;
+         }
+         else
+         {
+             // propagation success
+             state_t = next_state; // using MPNet next sample
+         }
+
+
+        /**
+        ****** Remove the comment if want to use step_bvp for tree search
         if (res.u.size() == 0)
         {
             #ifdef DEBUG
@@ -392,6 +420,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
             #endif
 
         }
+        */
     // check if solution exists
     SMP->get_solution(res_x, res_u, res_t);
     if (res_x.size() != 0)
@@ -594,7 +623,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
         //std::cout << "state_t[" << j << "]: " << state_t[j] << std::endl;
 
     }
-    //SMP->nearest_state(state_t_ptr, state_t);
+    SMP->nearest_state(state_t_ptr, state_t);
 
     std::vector<double> next_state(this->state_dim);
     /**

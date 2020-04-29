@@ -1251,14 +1251,14 @@ public:
         if (planner_name == "sst" && !planner)
         {
             std::cout << "initializing planner" << std::endl;
-            planner.reset(new sst_t(&start_data_py(0), &goal_data_py(0),
+            planner.reset(new sst_t(&start_data_py(0), &goal_inform_data_py(0),
                 	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
                           distance_f, 0, delta_near, delta_drain));
 
         }
         else if (planner_name == "rrt" && !planner)
         {
-            planner.reset(new rrt_t(&start_data_py(0), &goal_data_py(0),
+            planner.reset(new rrt_t(&start_data_py(0), &goal_inform_data_py(0),
             	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
                       distance_f, 0));
 

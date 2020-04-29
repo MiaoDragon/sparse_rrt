@@ -127,8 +127,10 @@ public:
     /**
 	 * @copydoc planner_t::step()
 	 */
-   py::safe_array<double> step_with_sample(psopt_system_t& system, py::safe_array<double>& sample_state_py, int min_time_steps, int max_time_steps, double integration_step)
+   int step_with_sample(system_interface& system, py::safe_array<double>& sample_state_py, int min_time_steps, int max_time_steps, double integration_step)
    {
+       // given sample from outside, step once
+       // if propagation success, then return 1; else return 0
         auto init_sample_state = sample_state_py.unchecked<1>(); // need to be one dimension vector
         // create a sample variable that holds the initial value from the one passed
         long unsigned int size = init_sample_state.shape(0);
@@ -141,17 +143,14 @@ public:
           sample_state[i] = init_sample_state(i);
         }
         planner->step_with_sample(&system, sample_state, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, integration_step);
-        // return the new sample
-        py::safe_array<double> new_state_py({size});
-        auto new_state_ref = new_state_py.mutable_unchecked<1>();
-        for (unsigned int i = 0; i < size; i++) {
-          new_state_ref(i) = new_state[i];
-        }
 
         delete[] new_state;
         delete[] sample_state;
         delete[] new_control;
-        return new_state_py;
+        delete[] from_state;
+        // if new_time >= integration_step, then it means the sample has been added to the planner
+        // otherwise fail
+        return (new_time>integration_step/2);
     }
 
     void step(system_interface& system, int min_time_steps, int max_time_steps, double integration_step) {

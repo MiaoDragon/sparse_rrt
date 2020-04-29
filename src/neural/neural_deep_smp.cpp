@@ -601,8 +601,8 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
 
 // Using original DeepSMP method
-void MPNetSMP::plan_tree_SMP_single_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
-                    int max_iteration, double goal_radius,
+void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int max_iteration, double goal_radius, double cost_threshold,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
@@ -626,6 +626,9 @@ void MPNetSMP::plan_tree_SMP_single_step(planner_t* SMP, system_t* system, psopt
     at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
+    double* new_state = new double[this->state_dim];
+    double* new_control = new double[this->control_dim];
+    double* from_state = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
     for (unsigned i=1; i<=max_iteration; i++)
@@ -675,16 +678,10 @@ void MPNetSMP::plan_tree_SMP_single_step(planner_t* SMP, system_t* system, psopt
             next_state_ptr[j] = next_state[j];
         }
         // below tries to use step_with_sample to imitate DeepSMP
-        double* new_state = new double[this->state_dim];
-        double* new_control = new double[this->control_dim];
-        double* from_state = new double[this->state_dim];
         double new_time = 0.;
         int min_time_steps = 5;
         int max_time_steps = 100;
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
-        delete new_state;
-        delete new_control;
-        delete from_state;
 
 
          /** Below is for step_with_sample. Need to be commended out if using step_bvp **/
@@ -698,25 +695,53 @@ void MPNetSMP::plan_tree_SMP_single_step(planner_t* SMP, system_t* system, psopt
              // propagation success
              state_t = next_state; // using MPNet next sample
          }
+         // check if solution exists
+         SMP->get_solution(res_x, res_u, res_t);
 
-        if (res_x.size() != 0)
+        double total_t = 0.;
+        for (unsigned j=0; j<res_t.size(); j++)
+        {
+            total_t += res_t[j];
+        }
+        if (res_x.size() != 0 && total_t <= cost_threshold)
         {
             // solved
             delete state_t_ptr;
             delete next_state_ptr;
+
+            delete new_state;
+            delete new_control;
+            delete from_state;
+
             return;
         }
     }
     // check if solved
     SMP->get_solution(res_x, res_u, res_t);
-    // visualize
 
     delete state_t_ptr;
     delete next_state_ptr;
-    if (res_x.size() != 0)
+
+    delete new_state;
+    delete new_control;
+    delete from_state;
+
+    double total_t = 0.;
+    for (unsigned j=0; j<res_t.size(); j++)
+    {
+        total_t += res_t[j];
+    }
+    if (res_x.size() != 0 && total_t <= cost_threshold)
     {
         // solved
         return;
+    }
+    else if (res_x.size() != 0)
+    {
+        // solved but cost not low enough
+        res_x.clear();
+        res_u.clear();
+        res_t.clear();
     }
 }
 

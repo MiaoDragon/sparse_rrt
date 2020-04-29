@@ -367,7 +367,9 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         int min_time_steps = 5;
         int max_time_steps = 100;
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
-
+        delete new_state;
+        delete new_control;
+        delete from_state;
 
         //SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
    	    //             init_traj.x, init_traj.u, init_traj.t);

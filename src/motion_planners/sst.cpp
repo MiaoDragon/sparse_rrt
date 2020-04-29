@@ -172,6 +172,10 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   {
       add_to_tree(new_state, new_control, nearest, new_time);
   }
+  else
+  {
+      new_time = 0.; // not added to the tree
+  }
   //std::cout << "after step in C++" << std::endl;
 }
 

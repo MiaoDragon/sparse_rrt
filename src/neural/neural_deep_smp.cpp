@@ -153,6 +153,18 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
         //next->as<base::RealVectorStateSpace::StateType>()->values[i] = res_a[0][i];
 
         next_state[i] = unnormalized_state_vec[i];
+        // after normalization, wrap angle (to nearest state)
+
+        double delta_x = next_state[i] - start_state[i];
+        if (this->is_circular[i])
+        {
+            delta_x = delta_x - floor(delta_x / (2*M_PI))*(2*M_PI);
+            if (delta_x > M_PI)
+            {
+                delta_x = delta_x - 2*M_PI;
+            }
+        }
+        next_state[i] = start_state[i] + delta_x;
     }
     #ifdef DEBUG
         std::cout << "next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;

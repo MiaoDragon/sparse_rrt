@@ -143,7 +143,7 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 }
 
 
-void sst_t::step_with_sample(psopt_system_t* system, double* in_sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
+void sst_t::step_with_sample(system_interface* system, double* sample_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao
      * Given the random sample from some sampler
@@ -157,27 +157,18 @@ void sst_t::step_with_sample(psopt_system_t* system, double* in_sample_state, do
 	//this->random_state(sample_state);
   // sample a bunch of controls, and choose the one with the minimum distance to the sample_state
   // remember the sample state by a temperate Variable
-  double* sample_state = new double[this->state_dimension];
-  double* sample_control = new double[this->control_dimension];
-  // copy input sample_state
-  for (unsigned i=0; i < this->state_dimension; i++)
-  {
-      sample_state[i] = in_sample_state[i];
-  }
-  this->random_control(sample_control);
+  this->random_control(new_control);
   sst_node_t* nearest = nearest_vertex(sample_state);
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-  double duration = num_steps*integration_step;
+  new_time = num_steps*integration_step;
   //std::cout << "before propagating in C++" << std::endl;
   if(system->propagate(
-      nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
-      num_steps, sample_state, integration_step))
+      nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
+      num_steps, new_state, integration_step))
   {
-      add_to_tree(sample_state, sample_control, nearest, duration);
+      add_to_tree(new_state, new_control, nearest, new_time);
   }
   //std::cout << "after step in C++" << std::endl;
-  delete sample_state;
-  delete sample_control;
 }
 
 

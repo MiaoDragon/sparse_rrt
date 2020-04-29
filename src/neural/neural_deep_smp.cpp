@@ -192,7 +192,7 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
                 delta_x[i] = delta_x[i] - 2*M_PI;
             }
             int rand_d = rand() % 2;  // use this to decide when angle close to PI
-            if (rand_d < 1 && abs(delta_x[i]) >= M_PI*0.5)
+            if (rand_d < 1 && abs(delta_x[i]) >= M_PI*0.9)
             {
                 if (delta_x[i] > 0.)
                 {

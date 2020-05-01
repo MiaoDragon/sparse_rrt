@@ -196,7 +196,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
      bool val = system->propagate(
          past_valid_state, this->state_dimension, new_control, this->control_dimension,
          1, new_state, integration_step);
-    if (t==0 and !val)
+    if (t==0 && !val)
     {
         // if iteration is 0 and the propagation fails (didn't step at all)
         // return failure

@@ -184,7 +184,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   //#####
 
  // below propagate every step until collision happens
- double* past_valid_state = new double[this->state_dim];
+ double* past_valid_state = new double[this->state_dimension];
  for (unsigned i=0; i<this->state_dimension; i++)
  {
      past_valid_state[i] = nearest->get_point()[i]; // starting point

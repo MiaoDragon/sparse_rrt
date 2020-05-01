@@ -164,18 +164,69 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
       from_state[i] = nearest->get_point()[i];
   }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-  new_time = num_steps*integration_step;
+  new_time = 0.;
   //std::cout << "before propagating in C++" << std::endl;
+
+  //#### below is the previous working case: if collision then throw the entire trajectory
+  /**
   if(system->propagate(
       nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
       num_steps, new_state, integration_step))
   {
+      new_time = num_steps*integration_step;
       add_to_tree(new_state, new_control, nearest, new_time);
   }
   else
   {
       new_time = 0.; // not added to the tree
   }
+  */
+  //#####
+
+ // below propagate every step until collision happens
+ double* past_valid_state = new double[this->state_dim];
+ for (unsigned i=0; i<this->state_dimension; i++)
+ {
+     past_valid_state[i] = nearest->get_point()[i]; // starting point
+ }
+ int propagated_step = 0;
+ for (unsigned t=0; t<num_steps; t++)
+ {
+     // obtain the propagation result
+     bool val = system->propagate(
+         past_valid_state, this->state_dimension, new_control, this->control_dimension,
+         num_steps, new_state, integration_step);
+    if (t==0 and !val)
+    {
+        // if iteration is 0 and the propagation fails (didn't step at all)
+        // return failure
+        delete past_valid_state;
+        return;
+    }
+    if (!val)
+    {
+        // if the propagation is not valid, then add the last valid point to tree
+        new_time = propagated_step*integration_step;
+        add_to_tree(past_valid_state, new_control, nearest, new_time);
+        // set the past_valid_state to new_state
+        for (unsigned i=0; i<this->state_dimension; i++)
+        {
+            new_state[i] = past_valid_state[i];
+        }
+        // return success
+        delete past_valid_state;
+        return;
+    }
+    // otherwise update the past_valid_state
+    for (unsigned i=0; i<this->state_dimension; i++)
+    {
+        past_valid_state[i] = new_state[i];
+    }
+    propagated_step += 1;  // valid propagation +1
+ }
+
+
+
   //std::cout << "after step in C++" << std::endl;
 }
 

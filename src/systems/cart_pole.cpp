@@ -73,6 +73,7 @@ bool cart_pole_t::propagate(
                     else
                     {
                         // Found the earliest invalid position. break the loop and return
+                        validity = false; // need to update validity because one node is invalid, the propagation fails
                         break;
                     }
             }

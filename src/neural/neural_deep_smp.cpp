@@ -630,7 +630,8 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     double* new_control = new double[this->control_dim];
     double* from_state = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-
+    int flag=1;  // flag=1: using MPNet
+                 // flag=0: not using MPNet
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -648,16 +649,19 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         std::vector<double> next_state(this->state_dim);
         if (i % 40 == 0)
         {
+            flag=0;
             // sample the goal instead
             next_state = goal_state;
         }
         else if (i % 20 == 0)
         {
+            flag=0;
             // sample the goal instead
             next_state = goal_inform_state;
         }
         else
         {
+            flag=1;
             begin_time = clock();
             this->informer(obs_enc, state_t, goal_inform_state, next_state);
         #ifdef COUNT_TIME
@@ -683,18 +687,20 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         int max_time_steps = 100;
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
 
-
-         /** Below is for step_with_sample. Need to be commended out if using step_bvp **/
-         if (new_time == 0.)
-         {
-             // propagate fails, back to origin
-             state_t = start_state;
-         }
-         else
-         {
-             // propagation success
-             state_t = next_state; // using MPNet next sample
-         }
+        // only when using MPNet, update the state_t using next_state. Otherwise not change
+        if (flag)//flag=1: using MPNet.
+        {
+            if (new_time == 0.)
+            {
+                // propagate fails, back to origin
+                state_t = start_state;
+            }
+            else
+            {
+                // propagation success
+                state_t = next_state; // using MPNet next sample
+            }
+        }
          // check if solution exists
          SMP->get_solution(res_x, res_u, res_t);
 
@@ -777,7 +783,8 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
     double* new_control = new double[this->control_dim];
     double* from_state = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-
+    int flag=1;  // flag=1: using MPNet sample, state_t will take next_state
+                 // flag=0: not using MPNet sample, state_t don't change
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -801,11 +808,13 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             {
                 next_state[j] = next_state_ptr[j];
             }
+            flag=0;
         }
         else if (i % 20 == 0)
         {
             // sample the goal instead
             next_state = goal_inform_state;
+            flag=0;
         }
         else
         {
@@ -814,6 +823,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         #ifdef COUNT_TIME
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
+            flag=1;
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree
@@ -835,16 +845,18 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
 
 
-         /** Below is for step_with_sample. Need to be commended out if using step_bvp **/
-         if (new_time == 0.)
+         if (flag)// flag: using MPNet. If not using, then won't change state_t
          {
-             // propagate fails, back to origin
-             state_t = start_state;
-         }
-         else
-         {
-             // propagation success
-             state_t = next_state; // using MPNet next sample
+             if (new_time == 0.)
+             {
+                 // propagate fails, back to origin
+                 state_t = start_state;
+             }
+             else
+             {
+                 // propagation success
+                 state_t = next_state; // using MPNet next sample
+             }
          }
          // check if solution exists
          SMP->get_solution(res_x, res_u, res_t);

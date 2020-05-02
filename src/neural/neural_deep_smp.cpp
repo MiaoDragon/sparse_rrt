@@ -961,6 +961,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     {
         // use goal
         next_state = goal_state;
+        mpnet_res = next_state;
     }
     else
     {

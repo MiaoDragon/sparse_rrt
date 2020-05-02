@@ -953,6 +953,15 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     else
     */
     //std::cout << "before informer" << std::endl;
+
+    double pick_goal_threshold = 0.1
+    std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+    double use_goal_prob = uni_distribution(generator);
+    if (use_goal_prob <= pick_goal_threshold)
+    {
+        // use goal
+        next_state = goal_state;
+    }
     {
         begin_time = clock();
         this->informer(obs_enc, state_t, goal_inform_state, next_state);

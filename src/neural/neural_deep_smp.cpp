@@ -310,7 +310,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
 
         // randomly sample and find nearest_state as BVP starting point
-        SMP->random_sample(state_t_ptr); // random sample
+        SMP->random_state(state_t_ptr); // random sample
         // find nearest_neighbor of random sample state_t_ptr, and assign to state_t
         SMP->nearest_state(state_t_ptr, state_t);
 

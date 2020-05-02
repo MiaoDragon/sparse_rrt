@@ -292,7 +292,8 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-
+    int flag=1; // flag=1: using MPNet
+                // flag=0: using goal
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -307,16 +308,24 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         //}
         //SMP->nearest_state(state_t_ptr, state_t);
 
+
+        // randomly sample and find nearest_state as BVP starting point
+        SMP->random_sample(state_t_ptr); // random sample
+        // find nearest_neighbor of random sample state_t_ptr, and assign to state_t
+        SMP->nearest_state(state_t_ptr, state_t);
+
         std::vector<double> next_state(this->state_dim);
         if (i % 40 == 0)
         {
             // sample the goal instead
             next_state = goal_state;
+            flag=0;
         }
         else if (i % 20 == 0)
         {
             // sample the goal instead
             next_state = goal_inform_state;
+            flag=0;
         }
         else
         {
@@ -325,6 +334,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         #ifdef COUNT_TIME
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
+            flag=1;
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree
@@ -359,70 +369,48 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
             std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
         #endif
 
-        // below tries to use step_with_sample to imitate DeepSMP
-        double* new_state = new double[this->state_dim];
-        double* new_control = new double[this->control_dim];
-        double* from_state = new double[this->state_dim];
-        double new_time = 0.;
-        int min_time_steps = 5;
-        int max_time_steps = 100;
-        SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
-        delete new_state;
-        delete new_control;
-        delete from_state;
-
-        //SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
-   	    //             init_traj.x, init_traj.u, init_traj.t);
+        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+   	                 init_traj.x, init_traj.u, init_traj.t);
         #ifdef COUNT_TIME
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
-         #ifdef DEBUG
+        #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
-         #endif
-
-
-         /** Below is for step_with_sample. Need to be commended out if using step_bvp **/
-         if (new_time == 0.)
-         {
-             // propagate fails, back to origin
-             state_t = start_state;
-         }
-         else
-         {
-             // propagation success
-             state_t = next_state; // using MPNet next sample
-         }
-
+        #endif
 
         /**
-        ****** Remove the comment if want to use step_bvp for tree search
-        if (res.u.size() == 0)
+        //****** Remove the comment if want to use step_bvp for tree search
+        if (flag)
         {
-            #ifdef DEBUG
-                std::cout << "step_bvp unsuccessful." << std::endl;
-            #endif
-            // not valid path
-            state_t = start_state;
-        }
-        else
-        {
-            // use the endpoint
-            state_t = res.x.back();
-            #ifdef DEBUG
-                std::cout << "step_bvp successful." << std::endl;
-                // print out the result of bvp
-                for (unsigned j=0; j < res.x.size(); j++)
-                {
-                    std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
-                }
-                for (unsigned j=0; j < res.t.size(); j++)
-                {
-                    std::cout << "res.t[" << j << " = " << res.t << std::endl;
-                }
-            #endif
-
+            // flag=1: MPNet. if using MPNet path, then update state_t, otherwise keep it fixed
+            if (res.u.size() == 0)
+            {
+                #ifdef DEBUG
+                    std::cout << "step_bvp unsuccessful." << std::endl;
+                #endif
+                // not valid path
+                state_t = start_state;
+            }
+            else
+            {
+                // use the endpoint
+                state_t = res.x.back();
+                #ifdef DEBUG
+                    std::cout << "step_bvp successful." << std::endl;
+                    // print out the result of bvp
+                    for (unsigned j=0; j < res.x.size(); j++)
+                    {
+                        std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
+                    }
+                    for (unsigned j=0; j < res.t.size(); j++)
+                    {
+                        std::cout << "res.t[" << j << " = " << res.t << std::endl;
+                    }
+                #endif
+            }
         }
         */
+
     // check if solution exists
     SMP->get_solution(res_x, res_u, res_t);
     if (res_x.size() != 0)
@@ -472,7 +460,7 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-
+    int flag=1; // flag=1: using MPNet path
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //if (i % 50 == 0)
@@ -495,14 +483,17 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
         {
             // sample the goal instead
             next_state = goal_state;
+            flag=0;
         }
         else if (i % 20 == 0)
         {
             // sample the goal instead
             next_state = goal_inform_state;
+            flag=0;
         }
         else
         {
+            flag=1;
             begin_time = clock();
             this->informer(obs_enc, state_t, goal_inform_state, next_state);
         #ifdef COUNT_TIME
@@ -549,32 +540,37 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
          #ifdef DEBUG
              std::cout << "after step_bvp" << std::endl;
          #endif
-        if (res.u.size() == 0)
-        {
-            #ifdef DEBUG
-                std::cout << "step_bvp unsuccessful." << std::endl;
-            #endif
-            // not valid path
-            state_t = start_state;
-        }
-        else
-        {
-            // use the endpoint
-            state_t = res.x.back();
-            #ifdef DEBUG
-                std::cout << "step_bvp successful." << std::endl;
-                // print out the result of bvp
-                for (unsigned j=0; j < res.x.size(); j++)
-                {
-                    std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
-                }
-                for (unsigned j=0; j < res.t.size(); j++)
-                {
-                    std::cout << "res.t[" << j << " = " << res.t << std::endl;
-                }
-            #endif
 
-        }
+         if (flag)  // if using MPNet prediction, then update state_t
+         {
+             if (res.u.size() == 0)
+             {
+                 #ifdef DEBUG
+                     std::cout << "step_bvp unsuccessful." << std::endl;
+                 #endif
+                 // not valid path
+                 state_t = start_state;
+             }
+             else
+             {
+                 // use the endpoint
+                 state_t = res.x.back();
+                 #ifdef DEBUG
+                     std::cout << "step_bvp successful." << std::endl;
+                     // print out the result of bvp
+                     for (unsigned j=0; j < res.x.size(); j++)
+                     {
+                         std::cout << "res.x[" << j << " = [" << res.x[j][0] << ", " << res.x[j][1] << ", " << res.x[j][2] << ", " << res.x[j][3] <<"]" << std::endl;
+                     }
+                     for (unsigned j=0; j < res.t.size(); j++)
+                     {
+                         std::cout << "res.t[" << j << " = " << res.t << std::endl;
+                     }
+                 #endif
+
+             }
+         }
+
         // check if solution exists
         SMP->get_solution(res_x, res_u, res_t);
         if (res_x.size() != 0)

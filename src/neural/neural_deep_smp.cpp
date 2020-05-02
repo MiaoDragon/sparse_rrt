@@ -962,6 +962,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
         // use goal
         next_state = goal_state;
     }
+    else
     {
         begin_time = clock();
         this->informer(obs_enc, state_t, goal_inform_state, next_state);

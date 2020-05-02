@@ -926,14 +926,20 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
 
     // given the previous result of bvp, find the next starting point (nearest in the tree)
-    for (unsigned j=0; j < this->state_dim; j++)
-    {
-        state_t_ptr[j] = state_t[j];
+    //for (unsigned j=0; j < this->state_dim; j++)
+    //{
+    //    state_t_ptr[j] = state_t[j];
         //std::cout << "state_t_ptr[" << j << "]: " << state_t_ptr[j] << std::endl;
         //std::cout << "state_t[" << j << "]: " << state_t[j] << std::endl;
 
-    }
+    //}
+    //SMP->nearest_state(state_t_ptr, state_t);
+
+    // randomly sample and find nearest_state as BVP starting point
+    SMP->random_state(state_t_ptr); // random sample
+    // find nearest_neighbor of random sample state_t_ptr, and assign to state_t
     SMP->nearest_state(state_t_ptr, state_t);
+
 
     std::vector<double> next_state(this->state_dim);
     /**
@@ -986,7 +992,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     //std::cout << "step_bvp start_state = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
     //std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
 
-
+    /**
     // *** below is using sst::step with provided MPNet sample
     double* new_state = new double[this->state_dim];
     double* new_control = new double[this->control_dim];
@@ -1017,9 +1023,13 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     delete from_state;
     delete new_state;
     delete new_control;
+
+    */
+
+
     // *** below is using bvp solver
-    //SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
-    //             init_traj.x, init_traj.u, init_traj.t);
+    SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+                 init_traj.x, init_traj.u, init_traj.t);
     std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
 

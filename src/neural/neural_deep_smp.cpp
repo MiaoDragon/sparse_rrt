@@ -800,7 +800,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         //SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
-        if (i % 40 == 0)
+        if (i % 20 == 0)
         {
             // unifromly sample for fine-tuning
             SMP->random_state(next_state_ptr);
@@ -810,7 +810,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             }
             flag=0;
         }
-        else if (i % 20 == 0)
+        else if (i % 10 == 0)
         {
             // sample the goal instead
             next_state = goal_inform_state;

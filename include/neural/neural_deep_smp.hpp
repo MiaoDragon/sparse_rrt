@@ -44,6 +44,10 @@ public:
                         int max_iteration, double goal_radius, double cost_threshold,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
 
+    void plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                        int flag, int max_iteration, double goal_radius, double cost_threshold,
+                        std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res);
+
     void plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
               int max_iteration, double goal_radius,
               std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res);

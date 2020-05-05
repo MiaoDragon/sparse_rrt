@@ -1422,6 +1422,131 @@ public:
 
 
 
+    py::object plan_tree_SMP_step(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
+                    int flag, double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold)
+    {
+
+        // load data from python
+        auto start_data_py = start_py.unchecked<1>(); // need to be one dimension vector
+        auto goal_data_py = goal_py.unchecked<1>();
+        auto goal_inform_data_py = goal_inform_py.unchecked<1>();
+        auto obs_data_py = obs_py.unchecked<1>();  // first load the flattened data, and then reshape
+
+        std::vector<double> start_state;
+        std::vector<double> goal_state;
+        std::vector<double> goal_inform_state;
+        //std::cout << "before copying state.." << std::endl;
+        //std::cout << start_data_py.shape(0) << std::endl;
+        for (unsigned i=0; i < start_data_py.shape(0); i++)
+        {
+            start_state.push_back(start_data_py(i));
+            goal_state.push_back(goal_data_py(i));
+            goal_inform_state.push_back(goal_inform_data_py(i));
+        }
+        //std::cout << "before copying obs_vec.." << std::endl;
+        std::vector<float> obs_vec;
+        for (unsigned i=0; i < obs_data_py.shape(0); i++)
+        {
+            obs_vec.push_back(float(obs_data_py(i)));
+        }
+        //std::cout << "vector to torch obs vector.." << std::endl;
+        torch::Tensor obs_tensor = torch::from_blob(obs_vec.data(), {1,1,32,32});
+
+        double* start_array;
+        double* goal_array;
+
+        //std::cout << "creating distance function.." << std::endl;
+
+        distance_t* distance_computer = distance_computer_py.cast<distance_t*>();
+        std::function<double(const double*, const double*, unsigned int)>  distance_f =
+            [distance_computer] (const double* p0, const double* p1, unsigned int dims) {
+                return distance_computer->distance(p0, p1, dims);
+            };
+
+        // construct planner by name
+        //std::cout << "creating new planner..." << std::endl;
+        if (planner_name == "sst" && !planner)
+        {
+            std::cout << "initializing planner" << std::endl;
+            planner.reset(new sst_t(&start_data_py(0), &goal_inform_data_py(0),
+                	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
+                          distance_f, 0, delta_near, delta_drain));
+
+        }
+        else if (planner_name == "rrt" && !planner)
+        {
+            planner.reset(new rrt_t(&start_data_py(0), &goal_inform_data_py(0),
+            	      goal_radius, system->get_state_bounds(), system->get_control_bounds(),
+                      distance_f, 0));
+
+        }
+        std::cout << "delta_near: " << delta_near << std::endl;
+        std::cout << "delta_drain: " << delta_drain << std::endl;
+
+        // plan
+        std::vector<std::vector<double>> res_x;
+        std::vector<std::vector<double>> res_u;
+        std::vector<double> res_t;
+        std::vector<double> mpnet_res;
+        //std::cout << "neural_smp planning" << std::endl;
+        neural_smp->plan_tree_SMP_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state,
+                         flag, max_iteration, goal_radius, cost_threshold,
+                         res_x, res_u, res_t, mpnet_res);
+        std::cout << "after plan_step" << std::endl;
+        std::cout << "res_x.size: " << res_x.size() << std::endl;
+        std::cout << "res_u.size: " << res_u.size() << std::endl;
+         if (res_u.size() == 0)
+         {
+             // solution is not found
+             py::safe_array<double> state_array;
+             py::safe_array<double> control_array;
+             py::safe_array<double> time_array;
+             py::safe_array<double> mpnet_res_array({mpnet_res.size()});
+             auto mpnet_res_ref = mpnet_res_array.mutable_unchecked<1>();
+             for (unsigned int i = 0; i < mpnet_res.size(); ++i)
+             {
+                 mpnet_res_ref(i) = mpnet_res[i];
+             }
+             //delete planner;
+             // return flag, available flags, states, controls, time
+             return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+                 (state_array, control_array, time_array, mpnet_res_array));
+         }
+
+        py::safe_array<double> state_array({res_x.size(), res_x[0].size()});
+        py::safe_array<double> control_array({res_u.size(), res_u[0].size()});
+        py::safe_array<double> time_array({res_t.size()});
+        py::safe_array<double> mpnet_res_array({mpnet_res.size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_x.size(); ++i) {
+            for (unsigned int j = 0; j < res_x[0].size(); ++j) {
+                state_ref(i, j) = res_x[i][j];
+            }
+        }
+        auto control_ref = control_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < res_u.size(); ++i) {
+            for (unsigned int j = 0; j < res_u[0].size(); ++j) {
+                control_ref(i, j) = res_u[i][j];
+            }
+        }
+        auto time_ref = time_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < res_t.size(); ++i) {
+            time_ref(i) = res_t[i];
+        }
+        auto mpnet_res_ref = mpnet_res_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < mpnet_res.size(); ++i)
+        {
+            mpnet_res_ref(i) = mpnet_res[i];
+        }
+
+        //delete planner;
+        // return flag, available flags, states, controls, time
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, control_array, time_array, mpnet_res_array));
+    }
+
+
+
 
     py::object plan_step(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
@@ -1787,8 +1912,8 @@ PYBIND11_MODULE(_sst_module, m) {
              "start_state"_a,
              "goal_state"_a,
              "goal_inform_state"_a,
-             "max_iteration"_a,
              "goal_radius"_a,
+             "max_iteration"_a,
              "distance"_a,
              "delta_near"_a,
              "delta_drain"_a
@@ -1801,8 +1926,8 @@ PYBIND11_MODULE(_sst_module, m) {
               "start_state"_a,
               "goal_state"_a,
               "goal_inform_state"_a,
-              "max_iteration"_a,
               "goal_radius"_a,
+              "max_iteration"_a,
               "distance"_a,
               "delta_near"_a,
               "delta_drain"_a,
@@ -1816,8 +1941,8 @@ PYBIND11_MODULE(_sst_module, m) {
               "start_state"_a,
               "goal_state"_a,
               "goal_inform_state"_a,
-              "max_iteration"_a,
               "goal_radius"_a,
+              "max_iteration"_a,
               "distance"_a,
               "delta_near"_a,
               "delta_drain"_a,
@@ -1831,11 +1956,27 @@ PYBIND11_MODULE(_sst_module, m) {
                  "start_state"_a,
                  "goal_state"_a,
                  "goal_inform_state"_a,
-                 "max_iteration"_a,
                  "goal_radius"_a,
+                 "max_iteration"_a,
                  "distance"_a,
                  "delta_near"_a,
                  "delta_drain"_a
+                )
+          .def("plan_tree_SMP_step", &DeepSMPWrapper::plan_tree_SMP_step,
+                "planner_name"_a,
+                "system"_a,
+                "psopt_system"_a,
+                "obs"_a,
+                "start_state"_a,
+                "goal_state"_a,
+                "goal_inform_state"_a,
+                "flag"_a,
+                "goal_radius"_a,
+                "max_iteration"_a,
+                "distance"_a,
+                "delta_near"_a,
+                "delta_drain"_a,
+                "cost_threshold"_a
                 )
         .def("visualize_nodes", &DeepSMPWrapper::visualize_nodes_wrapper,
             "system"_a,

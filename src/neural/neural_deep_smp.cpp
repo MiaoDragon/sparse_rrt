@@ -271,6 +271,16 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
+        new method: from linjun
+        each iteration:
+            x <- random_sample()
+            x <- nearest_neighbor(x)
+            informed_extend(x, xG)   ---  find x_t_1, then BVP(xt, x_t_1)
+    */
+
+
+    /**
+        old method: (idea from DeepSMP)
         each iteration:
             x_hat = informer(x_t, x_G)
             if for some frequency, x_hat = x_G
@@ -625,6 +635,9 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1;  // flag=1: using MPNet
                  // flag=0: not using MPNet
+     double pick_goal_threshold = 0.1;
+     std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -640,17 +653,11 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         //SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
-        if (i % 40 == 0)
+        if (use_goal_prob <= pick_goal_threshold && i >= max_iteration*0.4)
         {
-            flag=0;
-            // sample the goal instead
+            // sample the goal instead when enough max_iteration is used
             next_state = goal_state;
-        }
-        else if (i % 20 == 0)
-        {
             flag=0;
-            // sample the goal instead
-            next_state = goal_inform_state;
         }
         else
         {
@@ -683,7 +690,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         // only when using MPNet, update the state_t using next_state. Otherwise not change
         if (flag)//flag=1: using MPNet.
         {
-            if (new_time == 0.)
+            if (new_time <= 0.01)
             {
                 // propagate fails, back to origin
                 state_t = start_state;
@@ -691,7 +698,8 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             else
             {
                 // propagation success
-                state_t = next_state; // using MPNet next sample
+                // state_t = next_state; // this using MPNet next sample instead of propagated state
+                state_t = new_state; // this uses propagated state after radom extension
             }
         }
          // check if solution exists
@@ -835,6 +843,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         double new_time = 0.;
         int min_time_steps = 5;
         int max_time_steps = 100;
+        // given next_state_ptr, find nearest neighbor in the tree, and extend it
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
 
 
@@ -903,7 +912,131 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
 //**********
 
 
+//****  step method for visualization of tree_SMP
+void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int flag, int max_iteration, double goal_radius, double cost_threshold,
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res)
+{
+    // flag: determine if using goal or not
+    // flag=1: using MPNet
+    // flag=0: not using MPNet
+    std::vector<double> state_t = start_state;
+    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    clock_t begin_time;
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
+    std::vector<torch::jit::IValue> obs_input;
+    obs_input.push_back(obs_tensor);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    double* state_t_ptr = new double[this->state_dim];
+    double* next_state_ptr = new double[this->state_dim];
+    double* new_state = new double[this->state_dim];
+    double* new_control = new double[this->control_dim];
+    double* from_state = new double[this->state_dim];
+    //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+    //int flag=1;  // flag=1: using MPNet
+                 // flag=0: not using MPNet
+     //double pick_goal_threshold = 0.1;
+     //std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+
+    //std::cout << "iteration " << i << std::endl;
+    #ifdef DEBUG
+        std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+    #endif
+    // given the previous result of bvp, find the next starting point (nearest in the tree)
+    //for (unsigned j=0; j < this->state_dim; j++)
+    //{
+    //    state_t_ptr[j] = state_t[j];
+    //}
+    //SMP->nearest_state(state_t_ptr, state_t);
+
+    std::vector<double> next_state(this->state_dim);
+    if (!flag)
+    {
+        next_state = goal_state;
+        mpnet_res = goal_state;
+    }
+    else
+    {
+        begin_time = clock();
+        this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        mpnet_res = next_state;
+    #ifdef COUNT_TIME
+        std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+    #endif
+    }
+    // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
+    // use search tree
+    //for (unsigned j=0; j < this->state_dim; j++)
+    //{
+    //    state_t_ptr[j] = next_state[j];
+    //}
+    //SMP->nearest_state(state_t_ptr, state_t);
+    // copy to c++ double* list from std::vector
+    for (unsigned j=0; j < this->state_dim; j++)
+    {
+        state_t_ptr[j] = state_t[j];
+        next_state_ptr[j] = next_state[j];
+    }
+    // below tries to use step_with_sample to imitate DeepSMP
+    double new_time = 0.;
+    int min_time_steps = 5;
+    int max_time_steps = 100;
+    SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
+
+    // only when using MPNet, update the state_t using next_state. Otherwise not change
+    /**
+    if (flag)//flag=1: using MPNet.
+    {
+        if (new_time <= 0.01)
+        {
+            // propagate fails, back to origin
+            state_t = start_state;
+        }
+        else
+        {
+            // propagation success
+            // state_t = next_state; // this using MPNet next sample instead of propagated state
+            state_t = new_state; // this uses propagated state after radom extension
+        }
+    }
+    */
+    if (new_time <= 0.01)
+    {
+        // if success, then return the newly added edge
+        std::vector<double> res_x0;
+        for (unsigned j=0; j<this->state_dim; j++)
+        {
+            res_x0.push_back(from_state[j]);
+        }
+        std::vector<double> res_x1;
+        for (unsigned j=0; j<this->state_dim; j++)
+        {
+            res_x1.push_back(new_state[j]);
+        }
+        res_x.push_back(res_x0);
+        res_x.push_back(res_x1);
+
+        std::vector<double> res_u0;
+        for (unsigned j=0; j<this->control_dim; j++)
+        {
+            res_u0.push_back(new_control[j]);
+        }
+        res_u.push_back(res_u0);
+
+        res_t.push_back(new_time);
+    }
+
+    delete state_t_ptr;
+    delete next_state_ptr;
+
+    delete new_state;
+    delete new_control;
+    delete from_state;
+}
+
+
+//****
 
 
 void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,

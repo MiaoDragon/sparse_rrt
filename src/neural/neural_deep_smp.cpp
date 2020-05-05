@@ -467,6 +467,9 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+    double pick_goal_threshold = 0.1;
+    std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+
     int flag=1; // flag=1: using MPNet path
     for (unsigned i=1; i<=max_iteration; i++)
     {
@@ -486,16 +489,11 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
         SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
-        if (i % 40 == 0)
+        double use_goal_prob = uni_distribution(generator);
+        if (use_goal_prob <= pick_goal_threshold)
         {
             // sample the goal instead
             next_state = goal_state;
-            flag=0;
-        }
-        else if (i % 20 == 0)
-        {
-            // sample the goal instead
-            next_state = goal_inform_state;
             flag=0;
         }
         else

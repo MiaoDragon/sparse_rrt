@@ -655,7 +655,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         std::vector<double> next_state(this->state_dim);
         double use_goal_prob = uni_distribution(generator);
 
-        if (use_goal_prob <= pick_goal_threshold && i >= max_iteration*0.1)
+        if (use_goal_prob <= pick_goal_threshold && i >= max_iteration*0.05)
         {
             // sample the goal instead when enough max_iteration is used
             next_state = goal_state;

@@ -341,7 +341,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     begin_time = clock();
     bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
                       x_init, u_init, t_init);
-    std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+    //std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
     //std::cout << "sst: after solve. "<< std::endl;
 
@@ -445,12 +445,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             #endif
             break;
         }
-        //#ifdef DEBUG
+        #ifdef DEBUG
         std::cout << "after propagation in step_bvp" << std::endl;
         std::cout << "res_t=" << res_t << std::endl;
         std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
         std::cout << "end_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
-        //#endif
+        #endif
         std::vector<double> res_x_i;
         std::vector<double> res_u_i;
         for (unsigned k=0; k < this->state_dimension; k++)
@@ -468,9 +468,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
         // add the last valid node to tree, with the same control for t_traj[i] time
 
-        //sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
+        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
         total_t += t_traj[i];
-        //x_tree = new_x_tree;
+        x_tree = new_x_tree;
 
     }
     // add the last valid node to tree, with the same control for t_traj[i] time
@@ -478,11 +478,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     {
         // if at least move on step further, add to representative states
         //metric.add_node(x_tree);
-        //bvp_make_representative(state_t, x_tree);
+        bvp_make_representative(state_t, x_tree);
 
         // add the last valid node to tree
-        sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
-        x_tree = new_x_tree;
+        //sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
+        //x_tree = new_x_tree;
 
     }
 
@@ -495,18 +495,18 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query
-    std::cout << "sst: nearest_vertex" << std::endl;
-    std::cout << "sst_delta_near: " << this->sst_delta_near << std::endl;
+    //std::cout << "sst: nearest_vertex" << std::endl;
+    //std::cout << "sst_delta_near: " << this->sst_delta_near << std::endl;
     std::vector<proximity_node_t*> close_nodes = metric.find_delta_close_and_closest(sample_state, this->sst_delta_near);
-    std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
+    //std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
     double length = std::numeric_limits<double>::max();;
     sst_node_t* nearest = nullptr;
     for(unsigned i=0;i<close_nodes.size();i++)
     {
         tree_node_t* v = (tree_node_t*)(close_nodes[i]->get_state());
         double temp = v->get_cost() ;
-        std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
-        std::cout << "cost: " << temp << std::endl;
+        //std::cout << "nearest_vertex[ " << i << "] =" << "[" << v->get_point()[0] << ", " << v->get_point()[1] << ", " << v->get_point()[2] << ", " << v->get_point()[3]<< "]"  << std::endl;
+        //std::cout << "cost: " << temp << std::endl;
 
         if( temp < length)
         {
@@ -617,7 +617,7 @@ void sst_t::bvp_make_representative(const double* sample_state, sst_node_t* node
     sample_node_t* witness_sample = find_witness(sample_state);
 
     sst_node_t* representative = witness_sample->get_representative();
-    std::cout << "distance to goal: " << this->distance(node->get_point(), goal_state, this->state_dimension) << std::endl;
+    //std::cout << "distance to goal: " << this->distance(node->get_point(), goal_state, this->state_dimension) << std::endl;
     if (representative == NULL)
     {
     //    std::cout << "sst_make_representative: representative is NULL" << std::endl;

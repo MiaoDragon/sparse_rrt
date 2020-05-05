@@ -1006,7 +1006,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
         }
     }
     */
-    if (new_time <= 0.01)
+    if (new_time >= 0.02)
     {
         // if success, then return the newly added edge
         std::vector<double> res_x0;

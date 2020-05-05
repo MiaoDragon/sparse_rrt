@@ -700,11 +700,11 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             else
             {
                 // propagation success
-                // state_t = next_state; // this using MPNet next sample instead of propagated state
-                for (unsigned j=0; j<this->state_dim; j++)
-                {
-                    state_t[j] = new_state[j];  // this uses propagated state after radom extension
-                }
+                state_t = next_state; // this using MPNet next sample instead of propagated state
+                //for (unsigned j=0; j<this->state_dim; j++)
+                //{
+                //    state_t[j] = new_state[j];  // this uses propagated state after radom extension
+                //}
             }
         }
          // check if solution exists

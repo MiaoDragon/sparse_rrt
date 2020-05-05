@@ -87,6 +87,7 @@ bool two_link_acrobot_obs_t::propagate(
                     else
                     {
                         // Found the earliest invalid position. break the loop and return
+                        validity = false;
                         break;
                     }
             }

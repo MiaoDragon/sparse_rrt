@@ -196,7 +196,7 @@ public:
 	/**
 	 * @copydoc planner_t::step()
 	 */
-	 virtual void step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step);
+	 virtual void step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step);
 	 virtual void step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step);
 	 virtual void step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,
 	     std::vector<std::vector<double>> &x_init,

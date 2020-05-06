@@ -143,7 +143,7 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 }
 
 
-void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, double* new_state, int min_time_steps, int max_time_steps, double integration_step)
+void sst_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao
      * Given the random sample from some sampler
@@ -157,105 +157,77 @@ void sst_t::step_with_sample(psopt_system_t* system, double* sample_state, doubl
 	//this->random_state(sample_state);
   // sample a bunch of controls, and choose the one with the minimum distance to the sample_state
   // remember the sample state by a temperate Variable
+  this->random_control(new_control);
   sst_node_t* nearest = nearest_vertex(sample_state);
-
-  // try to connect from nearest to input_sample_state
-  // convert from double array to VectorXd
-  const double* start_x = nearest->get_point();
-  double* end_x = sample_state;
-  int num_steps = 10*this->state_dimension;
-  //int num_steps = 6*this->state_dimension;
-  // initialize bvp pointer if it is nullptr
-  if (bvp_solver == NULL)
+  for (unsigned i=0; i<this->state_dimension; i++)
   {
-      bvp_solver = new PSOPT_BVP(system, this->state_dimension, this->control_dimension);
+      from_state[i] = nearest->get_point()[i];
   }
+  int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
+  new_time = 0.;
+  //std::cout << "before propagating in C++" << std::endl;
 
-  //OptResults res = bvp_solver->solve(start_x, end_x, 100);
-  psopt_result_t res;
-  //bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*num_steps, max_time_steps*integration_step*num_steps);
-  bvp_solver->solve(res, start_x, end_x, num_steps, 100, integration_step*this->state_dimension, max_time_steps*integration_step*num_steps);
-  std::vector<std::vector<double>> x_traj = res.x;
-  std::vector<std::vector<double>> u_traj = res.u;
-  std::vector<double> t_traj;
-  for (unsigned i=0; i < num_steps-1; i+=1)
+  //#### below is the previous working case: if collision then throw the entire trajectory
+  if(system->propagate(
+      nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
+      num_steps, new_state, integration_step))
   {
-      t_traj.push_back(res.t[i+1] - res.t[i]);
+      new_time = num_steps*integration_step;
+      add_to_tree(new_state, new_control, nearest, new_time);
   }
-  //TODO: do something with the trajectories
-  // simulate forward using the action trajectory, regardless if the traj opt is successful or not
-  sst_node_t* x_tree = nearest;
-  // double* result_x = new double[this->state_dimension];
-
-  // initialize new_state
-  for (unsigned i=0; i < this->state_dimension; i++)
+  else
   {
-      new_state[i] = start_x[i];
+      new_time = 0.; // not added to the tree
   }
+  //#####
 
-  for (unsigned i=0; i < num_steps-1; i++)
-  {
-	  //std::cout << "t_traj[" << i <<"]: " << t_traj[i] << std::endl;
-      int num_dis = std::floor(t_traj[i] / integration_step);
-	  //std::cout << "num_dis: " << num_dis << std::endl;
-      double* control_ptr = u_traj[i].data();
-      int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-      int num_j = num_dis / num_steps + 1;
-      double res_t = t_traj[i] - num_dis * integration_step;
-      double propagated_time = 0.;
-      //std::cout << "num_j: " << num_j << std::endl;
-	  //std::cout << "res_t: " << res_t << std::endl;
-      for (unsigned j=0; j < num_j; j++)
-      {
-          //std::cout << "j=" << j << ", num_j=" << num_j << std::endl;
-          int time_step = num_steps;
-		  if (j == num_j-1)
-		  {
-			  time_step = num_dis % num_steps;
-		  }
-		  bool val = true;
-		  if (time_step != 0)
-		  {
-			  val = system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-							   time_step, new_state, integration_step);
-			  //std::cout << "propagated time: " << time_step*integration_step << std::endl;
-			  //propagated_time += time_step*integration_step;
-		  }
-		  if (j == num_j-1)
-		  {
-			  val = val && system->propagate(x_tree->get_point(), this->state_dimension, control_ptr, this->control_dimension,
-							   1, new_state, res_t);
-			  //std::cout << "propagated time: " << res_t << std::endl;
-			  //propagated_time += res_t;
-			  //std::cout << "total propagated time: " << propagated_time << std::endl;
-		  }
-           //std::cout << "after propagation... val: " << val << std::endl;
-          // add the new state to tree
-          if (!val)
-          {
-              // not valid state, no point going further, not adding to tree, stop right here
-              x_tree = NULL;
-              break;
-          }
-          sst_node_t* new_x_tree = add_to_tree(new_state, control_ptr, x_tree, time_step*integration_step);
-          //std::cout << "after adding into tree" << std::endl;
-          //std::cout << "new_x_tree:" << (new_x_tree == NULL) << std::endl;
-          x_tree = new_x_tree;
-          // if the created tree node is nullptr, stop right there
-          if (!x_tree)
-          {
-              //std::cout << "x_tree is NULL" << std::endl;
-              break;
-          }
+ // below propagate every step until collision happens
+ /**
+ double* past_valid_state = new double[this->state_dimension];
+ for (unsigned i=0; i<this->state_dimension; i++)
+ {
+     past_valid_state[i] = nearest->get_point()[i]; // starting point
+ }
+ int propagated_step = 0;
+ for (unsigned t=0; t<num_steps; t++)
+ {
+     // obtain the propagation result
+     bool val = system->propagate(
+         past_valid_state, this->state_dimension, new_control, this->control_dimension,
+         1, new_state, integration_step);
+    std::cout << "propagation step: " << t << std::endl;
+    if (t==0 && !val)
+    {
+        // if iteration is 0 and the propagation fails (didn't step at all)
+        // return failure
+        delete past_valid_state;
+        return;
+    }
+    if (!val)
+    {
+        // if the propagation is not valid, then add the last valid point to tree
+        new_time = propagated_step*integration_step;
+        add_to_tree(past_valid_state, new_control, nearest, new_time);
+        // set the past_valid_state to new_state
+        for (unsigned i=0; i<this->state_dimension; i++)
+        {
+            new_state[i] = past_valid_state[i];
+        }
+        // return success
+        delete past_valid_state;
+        return;
+    }
+    // otherwise update the past_valid_state
+    for (unsigned i=0; i<this->state_dimension; i++)
+    {
+        past_valid_state[i] = new_state[i];
+    }
+    propagated_step += 1;  // valid propagation +1
+ }
+ */
 
-      }
-      if (!x_tree)
-      {
-          break;
-      }
 
-  }
-  //std::cout << "after creating new nodes" << std::endl;
+  //std::cout << "after step in C++" << std::endl;
 }
 
 

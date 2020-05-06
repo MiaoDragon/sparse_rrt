@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(SparseRRT)
 
-list(APPEND CMAKE_PREFIX_PATH
-    ${PROJECT_SOURCE_DIR}/deps/libtorch
-    /usr/local/cuda-10.1)
+#list(APPEND CMAKE_PREFIX_PATH
+#    ${PROJECT_SOURCE_DIR}/deps/libtorch
+#    /usr/local/cuda-10.1)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
@@ -80,8 +80,9 @@ execute_process(
 #    OUTPUT_STRIP_TRAILING_WHITESPACE
 #)
 
-set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-10.1")
-find_package(Torch REQUIRED)
+
+#set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-10.1")
+#find_package(Torch REQUIRED)
 
 
 include_directories(
@@ -89,7 +90,7 @@ include_directories(
         ${PYTHON_INCLUDE_DIRS}
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/deps/pybind11/include"
-        ${TORCH_INCLUDE_DIRS}
+        #${TORCH_INCLUDE_DIRS}
         )
 message("found torch library path: " "${TORCH_LIBRARIES}")
 
@@ -97,7 +98,8 @@ set(INCLUDE_DIR
     ${PYTHON_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/deps/pybind11/include
-    ${TORCH_INCLUDE_DIRS})
+    #${TORCH_INCLUDE_DIRS})
+)
 
 set(SOURCE_FILES
         src/motion_planners/rrt.cpp
@@ -122,7 +124,7 @@ set(SOURCE_FILES
         src/bvp/psopt_acrobot.cpp
         src/bvp/psopt_point.cpp
         src/bvp/psopt_system.cpp
-        src/neural/neural_deep_smp.cpp
+        #src/neural/neural_deep_smp.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC
@@ -136,13 +138,16 @@ add_library(sst_module SHARED
 include(${CMAKE_SOURCE_DIR}/psopt_CMakeLists.txt)
 message("D_GLIBCXX_USE_CXX11_ABI" "${D_GLIBCXX_USE_CXX11_ABI}")
 message(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-message("TORCH LIBRARIES: " ${TORCH_LIBRARIES})
+#message("TORCH LIBRARIES: " ${TORCH_LIBRARIES})
 message("other libraries: " "${PYTHON_LIBRARIES} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
                     ${FIND_FBLAS} ${FIND_CBLAS}")
 #target_link_libraries(${PROJECT_NAME} SCO_LIB UTILS_LIB)
 #target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${PROJECT_NAME})
-target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
+target_link_libraries(sst_module ${PYTHON_LIBRARIES} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
                     ${FIND_FBLAS} ${FIND_CBLAS})
+
+#target_link_libraries(sst_module ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES} ${FIND_PSOPT} ${FIND_DMATRIX} ${FIND_LUSOL} ${FIND_CXSPARSE} ${FIND_ADOLC} ${FIND_DL} ${FIND_F2C} ${FIND_IPOPT} ${FIND_LAPACK}
+#                    ${FIND_FBLAS} ${FIND_CBLAS})
 
 
 # Don't prepend wrapper library name with lib and add to Python libs.

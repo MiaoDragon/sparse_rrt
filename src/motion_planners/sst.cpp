@@ -410,7 +410,6 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             break;
         }
-
         val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
                   1, end_state, res_t);
         if (!val)
@@ -443,6 +442,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         step_res.t.push_back(res_t);
 
         // add the last valid node to tree, with the same control for t_traj[i] time
+
         sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
         total_t += t_traj[i];
         x_tree = new_x_tree;
@@ -452,8 +452,13 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     if (total_t > 0.)
     {
         // if at least move on step further, add to representative states
+        //metric.add_node(x_tree);
         bvp_make_representative(state_t, x_tree);
         //metric.add_node(x_tree);
+        // add the last valid node to tree
+        //sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);
+        //x_tree = new_x_tree;
+
 
     }
 
@@ -467,10 +472,12 @@ sst_node_t* sst_t::nearest_vertex(const double* sample_state)
 {
 	//performs the best near query
     //std::cout << "sst: nearest_vertex" << std::endl;
+
     //std::cout << "sample_state =" << "[" << sample_state[0] << ", " << sample_state[1] << ", " << sample_state[2] << ", " << sample_state[3]<< "]"  << std::endl;
 
     //std::cout << "sst_delta_near: " << sst_delta_near << std::endl;
 
+    //std::cout << "sst_delta_near: " << this->sst_delta_near << std::endl;
     std::vector<proximity_node_t*> close_nodes = metric.find_delta_close_and_closest(sample_state, this->sst_delta_near);
     //std::cout << "close_nodes len: " << close_nodes.size() << std::endl;
     double length = std::numeric_limits<double>::max();;

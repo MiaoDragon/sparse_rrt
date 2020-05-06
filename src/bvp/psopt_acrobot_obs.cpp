@@ -297,8 +297,15 @@ adouble psopt_acrobot_obs_t::endpoint_cost(adouble* initial_states, adouble* fin
     double* goal = (double*) workspace->problem->user_data;
     //std::cout << "goal extracteed" << std::endl;
     adouble sum_of_square = 0;
+
     for (unsigned i=0; i < STATE_N; i++)
     {
+        // wrap the angle to [-pi, pi]
+        // if dx > pi, then dx = dx - 2pi
+        // if dx < -pi, then dx = dx + 2pi
+        adouble dx = final_state[i] - goal[i];
+        dx = dx - M_PI*2 * (dx>M_PI);
+        dx = dx + M_PI*2 * (dx<-M_PI);
         sum_of_square = sum_of_square + (final_states[i] - goal[i]) * (final_states[i] - goal[i]);
     }
     //std::cout << "after sum_of_square" << std::endl;

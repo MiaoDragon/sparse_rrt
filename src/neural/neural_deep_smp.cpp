@@ -635,7 +635,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                  // flag=0: not using MPNet
      double pick_goal_threshold = 0.25;
      std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-
+     int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+     int goal_linear_inc_end_iter = max_iteration;
+     double goal_linear_inc_end_threshold = 0.95;
+     double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -652,6 +655,11 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
         std::vector<double> next_state(this->state_dim);
         double use_goal_prob = uni_distribution(generator);
+        // update pick_goal_threshold based on iteration number
+        if (i > goal_linear_inc_start_iter)
+        {
+            pick_goal_threshold += goal_linear_inc;
+        }
 
         if (use_goal_prob <= pick_goal_threshold)
         {

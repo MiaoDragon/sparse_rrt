@@ -154,34 +154,6 @@ void rrt_t::step(system_interface* system, int min_time_steps, int max_time_step
     delete sample_control;
 }
 
-void rrt_t::step(system_interface* system, int min_time_steps, int max_time_steps, double integration_step)
-{
-    double* sample_state = new double[this->state_dimension];
-    double* sample_control = new double[this->control_dimension];
-
-    this->random_state(sample_state);
-    this->random_control(sample_control);
-
-    nearest = nearest_vertex(sample_state);
-    int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-    double duration = num_steps*integration_step;
-    if(system->propagate(
-        nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
-        num_steps, sample_state, integration_step))
-    {
-        //create a new tree node
-        rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
-            sample_state, this->state_dimension, nearest,
-            tree_edge_t(sample_control, this->control_dimension, duration),
-            nearest->get_cost() + duration)
-        ));
-        metric.add_node(new_node);
-        number_of_nodes++;
-    }
-    delete sample_state;
-    delete sample_control;
-}
-
 
 
 void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,

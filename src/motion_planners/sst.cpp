@@ -167,6 +167,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   new_time = 0.;
   //std::cout << "before propagating in C++" << std::endl;
 
+  /**
   //#### below is the previous working case: if collision then throw the entire trajectory
   if(system->propagate(
       nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
@@ -180,9 +181,10 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
       new_time = 0.; // not added to the tree
   }
   //#####
+  */
 
  // below propagate every step until collision happens
- /**
+
  double* past_valid_state = new double[this->state_dimension];
  for (unsigned i=0; i<this->state_dimension; i++)
  {
@@ -224,7 +226,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
     }
     propagated_step += 1;  // valid propagation +1
  }
- */
+
 
 
   //std::cout << "after step in C++" << std::endl;

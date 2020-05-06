@@ -165,11 +165,6 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
   new_time = 0.;
-  std::cout << "step_with_sample: num_steps: " << num_steps << std::endl;
-  for (unsigned i=0; i<this->control_dimension; i++)
-  {
-      std::cout << "step_with_sample: control: " << new_control[i] << std::endl;
-  }
   //std::cout << "before propagating in C++" << std::endl;
 
   /**
@@ -202,7 +197,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
      bool val = system->propagate(
          past_valid_state, this->state_dimension, new_control, this->control_dimension,
          1, new_state, integration_step);
-    std::cout << "propagation step: " << t << std::endl;
+    //std::cout << "propagation step: " << t << std::endl;
     if (t==0 && !val)
     {
         // if iteration is 0 and the propagation fails (didn't step at all)
@@ -221,7 +216,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
             new_state[i] = past_valid_state[i];
         }
         // return success
-        std::cout << "step_with_sample return: new_time: " << new_time << std::endl;
+        //std::cout << "step_with_sample return: new_time: " << new_time << std::endl;
         delete past_valid_state;
         return;
     }
@@ -232,6 +227,18 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
     }
     propagated_step += 1;  // valid propagation +1
  }
+ // success after all propagation
+ // then add the last valid point to tree
+ new_time = propagated_step*integration_step;
+ add_to_tree(past_valid_state, new_control, nearest, new_time);
+ // set the past_valid_state to new_state
+ for (unsigned i=0; i<this->state_dimension; i++)
+ {
+     new_state[i] = past_valid_state[i];
+ }
+ // return success
+ delete past_valid_state;
+ return;
 
 
 

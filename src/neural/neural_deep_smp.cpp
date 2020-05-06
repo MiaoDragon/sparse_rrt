@@ -986,7 +986,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     int min_time_steps = 5;
     int max_time_steps = 100;
     SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
-
+    std::cout << "neural_deep_smp: after step_with_sample, new_time: " << new_time << std::endl;
     // only when using MPNet, update the state_t using next_state. Otherwise not change
     /**
     if (flag)//flag=1: using MPNet.

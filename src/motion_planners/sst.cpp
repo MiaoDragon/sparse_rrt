@@ -221,6 +221,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
             new_state[i] = past_valid_state[i];
         }
         // return success
+        std::cout << "step_with_sample return: new_time: " << new_time << std::endl;
         delete past_valid_state;
         return;
     }

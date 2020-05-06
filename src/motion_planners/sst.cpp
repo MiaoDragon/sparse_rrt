@@ -165,6 +165,11 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
   }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
   new_time = 0.;
+  std::cout << "step_with_sample: num_steps: " << num_steps << std::endl;
+  for (unsigned i=0; i<this->control_dimension; i++)
+  {
+      std::cout << "step_with_sample: control: " << new_control[i] << std::endl;
+  }
   //std::cout << "before propagating in C++" << std::endl;
 
   /**

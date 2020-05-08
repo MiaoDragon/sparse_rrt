@@ -43,8 +43,14 @@ public:
     void plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int max_iteration, double goal_radius, double cost_threshold,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
-
+    void plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                        int max_iteration, double goal_radius, double cost_threshold,
+                        std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
     void plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                        int flag, int max_iteration, double goal_radius, double cost_threshold,
+                        std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res);
+
+    void plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int flag, int max_iteration, double goal_radius, double cost_threshold,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res);
 
@@ -66,6 +72,8 @@ protected:
     //at::Tensor obs_enc; // two dimensional or one dimensional
     std::shared_ptr<torch::jit::script::Module> encoder;
     std::shared_ptr<torch::jit::script::Module> MLP;
+    std::shared_ptr<torch::jit::script::Module> cost_encoder;
+    std::shared_ptr<torch::jit::script::Module> cost_MLP;
     std::unique_ptr<planner_t> SMP;  // the underlying SMP module
     std::vector<double> lower_bound;
     std::vector<double> upper_bound;
@@ -78,6 +86,7 @@ protected:
     // MPNet specific:
     virtual void informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state);
     virtual void init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
+    virtual void cost_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost);
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);
     torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state);

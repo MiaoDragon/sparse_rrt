@@ -349,8 +349,12 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1; // flag=1: using MPNet
                 // flag=0: using goal
-    double pick_goal_threshold = 0.1;
+    double pick_goal_threshold = 0.25;
     std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+    int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+    int goal_linear_inc_end_iter = max_iteration;
+    double goal_linear_inc_end_threshold = 0.95;
+    double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -364,8 +368,6 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         //    state_t_ptr[j] = state_t[j];
         //}
         //SMP->nearest_state(state_t_ptr, state_t);
-
-
         // randomly sample and find nearest_state as BVP starting point
         SMP->random_state(state_t_ptr); // random sample
         // find nearest_neighbor of random sample state_t_ptr, and assign to state_t
@@ -373,6 +375,11 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
         std::vector<double> next_state(this->state_dim);
         double use_goal_prob = uni_distribution(generator);
+        if (i > goal_linear_inc_start_iter)
+        {
+            pick_goal_threshold += goal_linear_inc;
+        }
+
         if (use_goal_prob <= pick_goal_threshold)
         {
             // sample the goal instead when enough max_iteration is used
@@ -512,8 +519,12 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
-    double pick_goal_threshold = 0.1;
+    double pick_goal_threshold = 0.25;
     std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+    int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+    int goal_linear_inc_end_iter = max_iteration;
+    double goal_linear_inc_end_threshold = 0.95;
+    double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
 
     int flag=1; // flag=1: using MPNet path
     for (unsigned i=1; i<=max_iteration; i++)
@@ -535,9 +546,14 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
         std::vector<double> next_state(this->state_dim);
         double use_goal_prob = uni_distribution(generator);
+        if (i > goal_linear_inc_start_iter)
+        {
+            pick_goal_threshold += goal_linear_inc;
+        }
+
         if (use_goal_prob <= pick_goal_threshold)
         {
-            // sample the goal instead
+            // sample the goal instead when enough max_iteration is used
             next_state = goal_state;
             flag=0;
         }
@@ -1433,7 +1449,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
 
 
 void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
-                    int max_iteration, double goal_radius,
+                    int flag, int max_iteration, double goal_radius,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res)
 {
     std::vector<double> state_t = start_state;
@@ -1480,10 +1496,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     */
     //std::cout << "before informer" << std::endl;
 
-    double pick_goal_threshold = 0.1;
-    std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-    double use_goal_prob = uni_distribution(generator);
-    if (use_goal_prob <= pick_goal_threshold)
+    if (!flag)
     {
         // use goal
         next_state = goal_state;
@@ -1522,45 +1535,6 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
         //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     #endif
     begin_time = clock();
-    //std::cout << "step_bvp num_iters: " << this->psopt_num_iters << std::endl;
-    //std::cout << "step_bvp start_state = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
-    //std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
-
-    /**
-    // *** below is using sst::step with provided MPNet sample
-    double* new_state = new double[this->state_dim];
-    double* new_control = new double[this->control_dim];
-    double* from_state = new double[this->state_dim];
-    double new_time = 0.;
-    int min_time_steps = 5;
-    int max_time_steps = 100;
-    SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
-    SMP->nearest_state(next_state_ptr, next_state);  // find the nearest_node using the mpnet sample
-
-    // copy to result
-    std::vector<double> x0;
-    std::vector<double> x1;
-    for (unsigned i=0; i<this->state_dim; i++)
-    {
-        x0.push_back(from_state[i]);
-        x1.push_back(new_state[i]);
-    }
-    res.x.push_back(x0);
-    res.x.push_back(x1);
-    std::vector<double> u0;
-    for (unsigned i=0; i<this->control_dim; i++)
-    {
-        u0.push_back(new_control[i]);
-    }
-    res.u.push_back(u0);
-    res.t.push_back(new_time);
-    delete from_state;
-    delete new_state;
-    delete new_control;
-
-    */
-
-
     // *** below is using bvp solver
     SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
                  init_traj.x, init_traj.u, init_traj.t);

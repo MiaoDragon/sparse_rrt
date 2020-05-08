@@ -1780,7 +1780,7 @@ public:
 
 
     py::object plan_step(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
-                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
+                    int flag, double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain)
     {
 
         // load data from python
@@ -1846,7 +1846,7 @@ public:
         std::vector<double> res_t;
         std::vector<double> mpnet_res;
         //std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius,
+        neural_smp->plan_step(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, flag, max_iteration, goal_radius,
                          res_x, res_u, res_t, mpnet_res);
         std::cout << "after plan_step" << std::endl;
         std::cout << "res_x.size: " << res_x.size() << std::endl;
@@ -2204,6 +2204,7 @@ PYBIND11_MODULE(_sst_module, m) {
                  "start_state"_a,
                  "goal_state"_a,
                  "goal_inform_state"_a,
+                 "flag"_a,
                  "goal_radius"_a,
                  "max_iteration"_a,
                  "distance"_a,

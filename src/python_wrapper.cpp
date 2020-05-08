@@ -2129,7 +2129,8 @@ PYBIND11_MODULE(_sst_module, m) {
         )
     ;
     py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
-        .def(py::init<std::string&, std::string&, int, int, double,
+        .def(py::init<std::string&, std::string&, std::string&, std::string&,
+                      int, int, double,
                       system_t*>(),
                       "mlp_path"_a, "encoder_path"_a, "cost_mlp_path"_a, "cost_encoder_path"_a,
                       "num_iter"_a, "num_steps"_a, "step_sz"_a,

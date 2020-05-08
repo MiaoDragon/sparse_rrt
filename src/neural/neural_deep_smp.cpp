@@ -349,11 +349,11 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1; // flag=1: using MPNet
                 // flag=0: using goal
-    double pick_goal_threshold = 0.25;
+    double pick_goal_threshold = 0.05;
     std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-    int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+    int goal_linear_inc_start_iter = floor(0.7*max_iteration);
     int goal_linear_inc_end_iter = max_iteration;
-    double goal_linear_inc_end_threshold = 0.95;
+    double goal_linear_inc_end_threshold = 0.8;
     double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
     for (unsigned i=1; i<=max_iteration; i++)
     {

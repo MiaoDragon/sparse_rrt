@@ -28,6 +28,7 @@ class MPNetSMP
 public:
     /** \brief Constructor */
     MPNetSMP(std::string mlp_path, std::string encoder_path,
+             std::string cost_mlp_path, std::string cost_encoder_path,
              system_t* system,
              int num_iters_in, int num_steps_in, double step_sz_in
              );

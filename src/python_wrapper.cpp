@@ -1085,12 +1085,13 @@ class DeepSMPWrapper
 {
 public:
     DeepSMPWrapper(std::string& mlp_path, std::string& encoder_path,
+                   std::string& cost_mlp_path, std::string& cost_encoder_path,
                        int num_iter_in, int num_steps_in, double step_sz_in,
                        system_t* system_in
                   )
 
     {
-        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
+        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, cost_mlp_path, cost_encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in));
         planner.reset();
         std::cout << "created smp module" << std::endl;
     }

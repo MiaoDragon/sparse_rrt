@@ -1059,7 +1059,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
                 }
             }
             next_state = next_state_candidate[best_ind];
-            std::cout << "best_cost: " << best_cost << std::endl;
+            //std::cout << "best_cost: " << best_cost << std::endl;
 
             //this->informer(obs_enc, state_t, goal_inform_state, next_state);
         #ifdef COUNT_TIME

@@ -148,9 +148,9 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
     torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim});
     torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim});
 
-    std::cout << "before concatenation: " << std::endl;
-    std::cout << "start tensor: " << start_tensor << std::endl;
-    std::cout << "goal tensor: " << goal_tensor << std::endl;
+    //std::cout << "before concatenation: " << std::endl;
+    //std::cout << "start tensor: " << start_tensor << std::endl;
+    //std::cout << "goal tensor: " << goal_tensor << std::endl;
 
     #ifdef DEBUG
         std::cout << "Start Vec: \n" << start_state << "\n";
@@ -164,8 +164,8 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
 
     torch::Tensor sg_cat;
     sg_cat = torch::cat({start_tensor, goal_tensor}, 1);
-    std::cout << "after concatenation:" << std::endl;
-    std::cout << sg_cat <<std::endl;
+    //std::cout << "after concatenation:" << std::endl;
+    //std::cout << sg_cat <<std::endl;
 
     #ifdef DEBUG
         std::cout << "\n\n\nCONCATENATED START/GOAL\n\n\n" << sg_cat << "\n\n\n";
@@ -450,15 +450,6 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
 
     torch::Tensor sg = getStartGoalTensorBatch(start_state, goal_state);
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
-    for (unsigned i=0; i < num_sample; i++)
-    {
-            std::cout << "sg[" << i << " ]: [";
-        for (unsigned j=0; j<8; j++)
-        {
-            std::cout << sg[i][j] << ", ";
-        }
-        std::cout << "]"<< std::endl;
-    }
 
     torch::Tensor mlp_input_tensor_expand;
     // Note the order of the cat
@@ -1230,7 +1221,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         }
         else
         {
-            std::cout << "inside cost sampling" << std::endl;
+            //std::cout << "inside cost sampling" << std::endl;
             flag=1;
             begin_time = clock();
             // first sample several mpnet points, then use the costnet to find the best point
@@ -1245,19 +1236,19 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             }
             this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
             // calculate cost
-            std::cout << "after informer_batch" << std::endl;
+            //std::cout << "after informer_batch" << std::endl;
 
             this->cost_informer_batch(cost_obs_enc, next_state_candidate, cost_end_state, next_state_cost, num_sample);
 
-            std::cout << "after cost_informer_batch" << std::endl;
+            //std::cout << "after cost_informer_batch" << std::endl;
 
             double best_cost = 100000.;
             int best_ind = -1;
             for (unsigned j=0; j<num_sample; j++)
             {
-                std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
+                //std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
 
-                std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
+                //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
                 if (next_state_cost[j] < best_cost)
                 {
                     best_cost = next_state_cost[j];
@@ -1266,8 +1257,8 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             }
             next_state = next_state_candidate[best_ind];
             //std::cout << "best_cost: " << best_cost << std::endl;
-            std::cout << "after cost sampling" << std::endl;
-            std::cout << "best_ind: " << best_ind << std::endl;
+            //std::cout << "after cost sampling" << std::endl;
+            //std::cout << "best_ind: " << best_ind << std::endl;
 
             //this->informer(obs_enc, state_t, goal_inform_state, next_state);
         #ifdef COUNT_TIME

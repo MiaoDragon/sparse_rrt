@@ -1227,7 +1227,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
 
             double best_cost = 100000.;
             int best_ind = -1;
-            for (unsigned j=0; j<num_sample; i++)
+            for (unsigned j=0; j<num_sample; j++)
             {
                 if (next_state_cost[j] < best_cost)
                 {
@@ -1528,7 +1528,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
 
         double best_cost = 100000.;
         int best_ind = -1;
-        for (unsigned j=0; j<num_sample; i++)
+        for (unsigned j=0; j<num_sample; j++)
         {
             if (next_state_cost[j] < best_cost)
             {

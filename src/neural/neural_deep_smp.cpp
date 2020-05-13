@@ -1234,6 +1234,8 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             int best_ind = -1;
             for (unsigned j=0; j<num_sample; j++)
             {
+                std::cout << "next_State_candidate[j]: [" << next_state_candidate[0] << ", " << next_state_candidate[1] << ", " << next_state_candidate[2] << ", " << next_state_candidate[3] << "]" << std::endl;
+
                 std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
                 if (next_state_cost[j] < best_cost)
                 {

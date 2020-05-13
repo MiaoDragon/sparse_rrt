@@ -249,17 +249,19 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
     // Note the order of the cat
     mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
-    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+    //torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
+    // iteratively obtain a list of results
     std::vector<torch::jit::IValue> mlp_input;
     mlp_input.push_back(mlp_input_tensor_expand);
-    auto mlp_output = MLP->forward(mlp_input);
-    torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
-
-    auto res_a = res.accessor<float,2>(); // accesor for the tensor
 
     for (int i = 0; i < num_sample; i++)
     {
+        auto mlp_output = MLP->forward(mlp_input);
+        torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
+
+        auto res_a = res.accessor<float,2>(); // accesor for the tensor
+
         std::vector<double> state_vec;
         for (int j = 0; j < dim; j++)
         {
@@ -1234,7 +1236,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             int best_ind = -1;
             for (unsigned j=0; j<num_sample; j++)
             {
-                std::cout << "next_State_candidate[j]: [" << next_state_candidate << "]" << std::endl;
+                std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
 
                 std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
                 if (next_state_cost[j] < best_cost)

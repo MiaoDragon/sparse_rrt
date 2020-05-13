@@ -1168,15 +1168,16 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             flag=1;
             begin_time = clock();
             // first sample several mpnet points, then use the costnet to find the best point
-            std::vector<std::vector<double>> next_state_candidate(15,std::vector<double>(this->state_dim));
-            std::vector<double> next_state_cost(15);
+            int num_sample = 15;
+            std::vector<std::vector<double>> next_state_candidate(num_sample,std::vector<double>(this->state_dim));
+            std::vector<double> next_state_cost(num_sample);
             this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
             // calculate cost
             this->cost_informer_batch(cost_obs_enc, next_state_candidate, goal_inform_state, next_state_cost, num_sample);
 
             double best_cost = 100000.;
             int best_ind = -1;
-            for (unsigned i=0; i<15; i++)
+            for (unsigned i=0; i<num_sample; i++)
             {
                 if (next_state_cost[i] < best_cost)
                 {

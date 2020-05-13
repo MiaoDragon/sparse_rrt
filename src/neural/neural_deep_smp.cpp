@@ -733,9 +733,9 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             flag=1;
             begin_time = clock();
             this->informer(obs_enc, state_t, goal_inform_state, next_state);
-        //#ifdef COUNT_TIME
+        #ifdef COUNT_TIME
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
-        //#endif
+        #endif
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree

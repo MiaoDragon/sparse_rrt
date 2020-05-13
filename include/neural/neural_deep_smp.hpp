@@ -47,6 +47,12 @@ public:
     void plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int max_iteration, double goal_radius, double cost_threshold,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
+
+    void plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                        int max_iteration, double goal_radius, double cost_threshold,
+                        std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, int num_sample);
+
+
     void plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int flag, int max_iteration, double goal_radius, double cost_threshold,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res);
@@ -90,6 +96,9 @@ protected:
     virtual void cost_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost);
     virtual void informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample);
     virtual void cost_informer_batch(at::Tensor obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample);
+    virtual torch::Tensor tensor_informer(at::Tensor obs, at::Tensor start_state, at::Tensor goal_state);
+    virtual torch::Tensor tensor_cost_informer(at::Tensor obs, at::Tensor start_state, at::Tensor goal_state);
+
 
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);

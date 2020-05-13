@@ -4,26 +4,30 @@
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    std::string cost_mlp_path, std::string cost_encoder_path,
                    system_t* system,
-                   int num_iters_in, int num_steps_in, double step_sz_in
+                   int num_iters_in, int num_steps_in, double step_sz_in,
+                   int device
                    )
                    : psopt_num_iters(num_iters_in)
                    , psopt_num_steps(num_steps_in)
                    , psopt_step_sz(step_sz_in)
+                   , gpu_device(device)
 {
     // neural network
     MLP.reset(new torch::jit::script::Module(torch::jit::load(mlp_path)));
+    MLP->to(at::Device("cuda:"+std::to_string(device)));
     #ifdef DEBUG
         std::cout << "loaded MLP" << std::endl;
     #endif
     encoder.reset(new torch::jit::script::Module(torch::jit::load(encoder_path)));
-
+    encoder->to(at::Device("cuda:"+std::to_string(device)));
     #ifdef DEBUG
         std::cout << "loaded modules" << std::endl;
     #endif
 
     cost_MLP.reset(new torch::jit::script::Module(torch::jit::load(cost_mlp_path)));
+    cost_MLP->to(at::Device("cuda:"+std::to_string(device)));
     cost_encoder.reset(new torch::jit::script::Module(torch::jit::load(cost_encoder_path)));
-
+    cost_encoder->to(at::Device("cuda:"+std::to_string(device)));
     #ifdef DEBUG
         std::cout << "loaded cost modules" << std::endl;
     #endif
@@ -80,6 +84,21 @@ void MPNetSMP::unnormalize(const std::vector<double>& state, std::vector<double>
         res.push_back((state[i]+1.0)*bound[i]+lower_bound[i]);
     }
 }
+
+torch::Tensor MPNetSMP::getStateTensorWithNormalization(const std::vector<double>& state)
+{
+    std::vector<double> normalized_vec;
+    this->normalize(state, normalized_vec);
+    // double->float
+    std::vector<float> float_normalized_vec;
+    for (unsigned i=0; i<this->state_dim; i++)
+    {
+        float_normalized_vec.push_back(float(normalized_vec[i]));
+    }
+    torch::Tensor tensor = torch::from_blob(float_normalized_vec.data(), {1, this->state_dim});
+    return tensor;
+}
+
 
 torch::Tensor MPNetSMP::getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state)
 {
@@ -235,8 +254,6 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     #endif
 }
 
-
-
 void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample)
 {
     // given the start and goal, and the internal obstacle representation
@@ -266,30 +283,13 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
     torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
 
     auto res_a = res.accessor<float,2>(); // accesor for the tensor
-
-    //iteratively obtain a list of results
-
     for (int i = 0; i < num_sample; i++)
     {
-        /**
-
-        auto mlp_output = MLP->forward(mlp_input);
-        torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
-
-        auto res_a = res.accessor<float,2>(); // accesor for the tensor
-        std::vector<double> state_vec;
-        for (int j = 0; j < dim; j++)
-        {
-            state_vec.push_back(res_a[0][j]);
-        }
-        */
-
         std::vector<double> state_vec;
         for (int j = 0; j < dim; j++)
         {
             state_vec.push_back(res_a[i][j]);
         }
-        std::cout << "res_a[i]:" << state_vec << std::endl;
         std::vector<double> unnormalized_state_vec;
         this->unnormalize(state_vec, unnormalized_state_vec);
         for (int j = 0; j < dim; j++)
@@ -486,8 +486,36 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
     #endif
 }
 
+// these acheive tensor-level functions
+// obtain normalized result, need to unnormalize later
+torch::Tensor MPNetSMP::tensor_informer(at::Tensor obs, at::Tensor start_state, at::Tensor goal_state)
+{
+    // achieve batch
+    torch::Tensor mlp_input_tensor;
+    // Note the order of the cat
+    // assuming tensors are all on GPU
+    mlp_input_tensor = torch::cat({obs,start_state, goal_state}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    // batch obtain result
+    std::vector<torch::jit::IValue> mlp_input;
+    mlp_input.push_back(mlp_input_tensor);
+    auto mlp_output = MLP->forward(mlp_input);
+    torch::Tensor res = mlp_output.toTensor();
+    return res;
+}
 
 
+torch::Tensor MPNetSMP::tensor_cost_informer(at::Tensor obs, at::Tensor start_state, at::Tensor goal_state)
+{
+    // achieve batch
+    torch::Tensor mlp_input_tensor;
+    // Note the order of the cat
+    mlp_input_tensor = torch::cat({obs,start_state,goal_state}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    std::vector<torch::jit::IValue> mlp_input;
+    mlp_input.push_back(mlp_input_tensor);
+    auto mlp_output = cost_MLP->forward(mlp_input);
+    torch::Tensor res = mlp_output.toTensor();
+    return res;
+}
 
 void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius,
@@ -1002,8 +1030,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     }
 }
 
-
-
 //*** Hybrid method, use sst samples sometimes
 void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius, double cost_threshold,
@@ -1160,8 +1186,6 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
     }
 }
 //**********
-
-
 
 //*** tree_SMP with cost-to-go function
 // Using original DeepSMP method
@@ -1368,6 +1392,231 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
     }
 }
 //**********
+
+
+//*** tree_SMP with cost_to_go, and use cost_to_go gradient to update sample
+//*** tree_SMP with cost-to-go function
+// Using original DeepSMP method
+void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
+                    int max_iteration, double goal_radius, double cost_threshold,
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, int num_sample)
+{
+    /**
+        each iteration:
+            x_hat = informer(x_t, x_G)
+            if for some frequency, x_hat = x_G
+            x_traj, u_traj, t_traj = init_informer(x_t, x_hat)
+            x_t_1, edge, valid = planner->step_bvp(x_t, x_hat, x_traj, u_traj, t_traj)
+            if not valid:
+                x_t = x0
+            else:
+                x_t = x_t_1
+    */
+    std::vector<double> state_t = start_state;
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+
+
+    clock_t begin_time;
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+
+    std::vector<torch::jit::IValue> obs_input;
+    obs_input.push_back(obs_tensor);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor();
+    at::Tensor obs_expand_enc = obs_enc.repeat({num_sample, 1});
+    at::Tensor cost_obs_enc = cost_encoder->forward(obs_input).toTensor();
+    at::Tensor cost_obs_expand_enc = cost_obs_enc.repeat({num_sample,1});
+
+    double* state_t_ptr = new double[this->state_dim];
+    double* next_state_ptr = new double[this->state_dim];
+    double* new_state = new double[this->state_dim];
+    double* new_control = new double[this->control_dim];
+    double* from_state = new double[this->state_dim];
+    //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
+    int flag=1;  // flag=1: using MPNet
+                 // flag=0: not using MPNet
+     double pick_goal_threshold = 0.25;
+     std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
+     int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+     int goal_linear_inc_end_iter = max_iteration;
+     double goal_linear_inc_end_threshold = 0.95;
+     double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
+    for (unsigned i=1; i<=max_iteration; i++)
+    {
+        #ifdef DEBUG
+            std::cout << "iteration " << i << std::endl;
+            std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+        #endif
+        // given the previous result of bvp, find the next starting point (nearest in the tree)
+        //for (unsigned j=0; j < this->state_dim; j++)
+        //{
+        //    state_t_ptr[j] = state_t[j];
+        //}
+        //SMP->nearest_state(state_t_ptr, state_t);
+
+        std::vector<double> next_state(this->state_dim);
+        double use_goal_prob = uni_distribution(generator);
+        // update pick_goal_threshold based on iteration number
+        if (i > goal_linear_inc_start_iter)
+        {
+            pick_goal_threshold += goal_linear_inc;
+        }
+
+        if (use_goal_prob <= pick_goal_threshold)
+        {
+            // sample the goal instead when enough max_iteration is used
+            next_state = goal_state;
+            flag=0;
+        }
+        else
+        {
+            //std::cout << "inside cost sampling" << std::endl;
+            flag=1;
+            begin_time = clock();
+
+            // state std::vector to tensor
+            torch::Tensor state_tensor = getStateTensorWithNormalization(state_t).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+            torch::Tensor goal_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+            torch::Tensor state_tensor_expand = state_tensor.repeat({num_sample,1});
+            torch::Tensor goal_tensor_expand = goal_tensor.repeat({num_sample,1});
+            // construct cost_end_state
+            torch::Tensor next_tensor_expand = this->informer_batch(obs_expand_enc, state_tensor_expand, goal_tensor_expand);
+            torch::Tensor next_tensor_expand_with_grad = torch::autograd::Variable(next_tensor_expand.clone()).detach().set_requires_grad(true); // add gradient
+            torch::Tensor cost_tensor_expand = this->cost_informer_batch(cost_obs_expand_enc, next_tensor_expand_with_grad, goal_tensor_expand);
+            cost_tensor_expand.backward();
+            torch::Tensor next_tensor_expand_grad = next_tensor_expand_with_grad.grad();
+
+            // perform gradient descent to optimize cost w.r.t. next_state
+            next_tensor_expand = next_tensor_expand - 0.1*next_tensor_expand_grad;
+
+            // obtain the cost at the end of optimization
+            torch::Tensor cost_tensor_expand_after_grad = this->cost_informer_batch(cost_obs_expand_enc, next_tensor_expand, goal_tensor_expand);
+            next_tensor_expand = next_tensor_expand.to(at::kCPU);
+            cost_tensor_expand_after_grad = cost_tensor_expand_after_grad.to(at::kCPU);
+            auto cost_tensor_expand_after_grad_a = cost_tensor_expand_after_grad.accessor<float,2>();
+            auto next_tensor_expand_a = next_tensor_expand.accessor<float,2>(); // accesor for the tensor
+
+            double best_cost = 100000.;
+            int best_ind = -1;
+            for (unsigned j=0; j<num_sample; j++)
+            {
+                //std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
+
+                //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
+                if (cost_tensor_expand_after_grad_a[j] < best_cost)
+                {
+                    best_cost = cost_tensor_expand_after_grad_a[j];
+                    best_ind = j;
+                }
+            }
+            std::vector<double> next_state_before_unnorm;
+            // copy to vector and unnormalize
+            for (unsigned j=0; j<num_sample; j++)
+            {
+                next_state_before_unnorm.push_back(next_tensor_expand_a[best_ind][j]);
+            }
+            unnormalize(next_state_before_unnorm, next_state);
+            //std::cout << "best_cost: " << best_cost << std::endl;
+            //std::cout << "after cost sampling" << std::endl;
+            //std::cout << "best_ind: " << best_ind << std::endl;
+
+            //this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        #ifdef COUNT_TIME
+            std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+        #endif
+        }
+        // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
+        // use search tree
+        //for (unsigned j=0; j < this->state_dim; j++)
+        //{
+        //    state_t_ptr[j] = next_state[j];
+        //}
+        //SMP->nearest_state(state_t_ptr, state_t);
+        // copy to c++ double* list from std::vector
+        for (unsigned j=0; j < this->state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+            next_state_ptr[j] = next_state[j];
+        }
+        // below tries to use step_with_sample to imitate DeepSMP
+        double new_time = 0.;
+        int min_time_steps = 5;
+        int max_time_steps = 100;
+        SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
+
+        // only when using MPNet, update the state_t using next_state. Otherwise not change
+        if (flag)//flag=1: using MPNet.
+        {
+            if (new_time <= 0.01)
+            {
+                // propagate fails, back to origin
+                state_t = start_state;
+            }
+            else
+            {
+                // propagation success
+                state_t = next_state; // this using MPNet next sample instead of propagated state
+                //for (unsigned j=0; j<this->state_dim; j++)
+                //{
+                //    state_t[j] = new_state[j];  // this uses propagated state after radom extension
+                //}
+            }
+        }
+         // check if solution exists
+         SMP->get_solution(res_x, res_u, res_t);
+
+        double total_t = 0.;
+        for (unsigned j=0; j<res_t.size(); j++)
+        {
+            total_t += res_t[j];
+        }
+        if (res_x.size() != 0 && total_t <= cost_threshold)
+        {
+            // solved
+            delete state_t_ptr;
+            delete next_state_ptr;
+
+            delete new_state;
+            delete new_control;
+            delete from_state;
+
+            return;
+        }
+    }
+    // check if solved
+    SMP->get_solution(res_x, res_u, res_t);
+
+    delete state_t_ptr;
+    delete next_state_ptr;
+
+    delete new_state;
+    delete new_control;
+    delete from_state;
+
+    double total_t = 0.;
+    for (unsigned j=0; j<res_t.size(); j++)
+    {
+        total_t += res_t[j];
+    }
+    if (res_x.size() != 0 && total_t <= cost_threshold)
+    {
+        // solved
+        return;
+    }
+    else if (res_x.size() != 0)
+    {
+        // solved but cost not low enough
+        res_x.clear();
+        res_u.clear();
+        res_t.clear();
+    }
+}
+//**********
+
+
+
+//**********
+
+
 
 
 

@@ -444,7 +444,12 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
     for (unsigned i=0; i < num_sample; i++)
     {
-        std::cout << "sg[i]: " << sg[i] << std::endl;
+            std::cout << "sg[" << i << " ]: [";
+        for (unsigned j=0; j<8; j++)
+        {
+            std::cout << sg[i][j] << ", ";
+        }
+        std::cout << "]"<< std::endl;
     }
 
     torch::Tensor mlp_input_tensor_expand;

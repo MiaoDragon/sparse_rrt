@@ -76,6 +76,7 @@ protected:
     int state_dim, control_dim;
     double psopt_step_sz;
     int psopt_num_iters, psopt_num_steps;
+    int gpu_device;
     //at::Tensor obs_enc; // two dimensional or one dimensional
     std::shared_ptr<torch::jit::script::Module> encoder;
     std::shared_ptr<torch::jit::script::Module> MLP;

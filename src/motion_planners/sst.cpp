@@ -157,6 +157,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 	//this->random_state(sample_state);
   // sample a bunch of controls, and choose the one with the minimum distance to the sample_state
   // remember the sample state by a temperate Variable
+  std::cout << "inside step_with_sample" << std::endl;
+
   this->random_control(new_control);
   sst_node_t* nearest = nearest_vertex(sample_state);
   for (unsigned i=0; i<this->state_dimension; i++)
@@ -203,6 +205,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
         // if iteration is 0 and the propagation fails (didn't step at all)
         // return failure
         delete past_valid_state;
+        std::cout << "after step_with_sample, failed" << std::endl;
+
         return;
     }
     if (!val)
@@ -218,6 +222,8 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
         // return success
         //std::cout << "step_with_sample return: new_time: " << new_time << std::endl;
         delete past_valid_state;
+        std::cout << "after step_with_sample" << std::endl;
+
         return;
     }
     // otherwise update the past_valid_state
@@ -238,6 +244,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
  }
  // return success
  delete past_valid_state;
+ std::cout << "after step_with_sample" << std::endl;
  return;
 
 

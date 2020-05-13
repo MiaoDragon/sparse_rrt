@@ -30,7 +30,7 @@ public:
     MPNetSMP(std::string mlp_path, std::string encoder_path,
              std::string cost_mlp_path, std::string cost_encoder_path,
              system_t* system,
-             int num_iters_in, int num_steps_in, double step_sz_in
+             int num_iters_in, int num_steps_in, double step_sz_in, int gpu_device
              );
     void plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
               int max_iteration, double goal_radius,

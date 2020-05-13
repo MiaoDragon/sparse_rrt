@@ -442,6 +442,10 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
 
     torch::Tensor sg = getStartGoalTensorBatch(start_state, goal_state);
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
+    for (unsigned i=0; i < num_sample; i++)
+    {
+        std::cout << "sg[i]: " << sg[i] << std::endl;
+    }
 
     torch::Tensor mlp_input_tensor_expand;
     // Note the order of the cat

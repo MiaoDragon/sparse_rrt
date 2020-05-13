@@ -1479,9 +1479,9 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             torch::Tensor state_tensor_expand = state_tensor.repeat({num_sample,1});
             torch::Tensor goal_tensor_expand = goal_tensor.repeat({num_sample,1});
             // construct cost_end_state
-            torch::Tensor next_tensor_expand = this->informer_batch(obs_expand_enc, state_tensor_expand, goal_tensor_expand);
+            torch::Tensor next_tensor_expand = this->tensor_informer(obs_expand_enc, state_tensor_expand, goal_tensor_expand);
             torch::Tensor next_tensor_expand_with_grad = torch::autograd::Variable(next_tensor_expand.clone()).detach().set_requires_grad(true); // add gradient
-            torch::Tensor cost_tensor_expand = this->cost_informer_batch(cost_obs_expand_enc, next_tensor_expand_with_grad, goal_tensor_expand);
+            torch::Tensor cost_tensor_expand = this->tensor_cost_informer(cost_obs_expand_enc, next_tensor_expand_with_grad, goal_tensor_expand);
             cost_tensor_expand.backward();
             torch::Tensor next_tensor_expand_grad = next_tensor_expand_with_grad.grad();
 
@@ -1489,7 +1489,7 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             next_tensor_expand = next_tensor_expand - 0.1*next_tensor_expand_grad;
 
             // obtain the cost at the end of optimization
-            torch::Tensor cost_tensor_expand_after_grad = this->cost_informer_batch(cost_obs_expand_enc, next_tensor_expand, goal_tensor_expand);
+            torch::Tensor cost_tensor_expand_after_grad = this->tensor_cost_informer(cost_obs_expand_enc, next_tensor_expand, goal_tensor_expand);
             next_tensor_expand = next_tensor_expand.to(at::kCPU);
             cost_tensor_expand_after_grad = cost_tensor_expand_after_grad.to(at::kCPU);
             auto cost_tensor_expand_after_grad_a = cost_tensor_expand_after_grad.accessor<float,2>();

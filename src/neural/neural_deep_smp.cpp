@@ -138,6 +138,9 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
         {
             float_normalized_start_vec_i.push_back(float(normalized_start_vec_i[j]));
             float_normalized_goal_vec_i.push_back(float(normalized_goal_vec_i[j]));
+            std::cout << "float_normalized_start_vec[" << i << "][" << j << "]: " << float_normalized_start_vec_i[j] << std::endl;
+            std::cout << "float_normalized_goal_vec[" << i << "][" << j << "]: " << float_normalized_goal_vec_i[j] << std::endl;
+
         }
         float_normalized_start_vec.push_back(float_normalized_start_vec_i);
         float_normalized_goal_vec.push_back(float_normalized_goal_vec_i);

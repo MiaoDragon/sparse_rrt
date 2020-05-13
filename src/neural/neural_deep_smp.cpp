@@ -257,26 +257,37 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
     // Note the order of the cat
     mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
-    //torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
     // iteratively obtain a list of results
     std::vector<torch::jit::IValue> mlp_input;
-    mlp_input.push_back(mlp_input_tensor);
+    mlp_input.push_back(mlp_input_tensor_expand);
 
+    torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
+
+    auto res_a = res.accessor<float,2>(); // accesor for the tensor
 
     for (int i = 0; i < num_sample; i++)
     {
+        /**
 
         auto mlp_output = MLP->forward(mlp_input);
         torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
 
         auto res_a = res.accessor<float,2>(); // accesor for the tensor
-
         std::vector<double> state_vec;
         for (int j = 0; j < dim; j++)
         {
             state_vec.push_back(res_a[0][j]);
         }
+        */
+
+        std::vector<double> state_vec;
+        for (int j = 0; j < dim; j++)
+        {
+            state_vec.push_back(res_a[i][j]);
+        }
+        std::cout << "res_a[i]:" << res_a[i] << std::endl;
         std::vector<double> unnormalized_state_vec;
         this->unnormalize(state_vec, unnormalized_state_vec);
         for (int j = 0; j < dim; j++)
@@ -298,7 +309,6 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
             }
             next_state[i][j] = start_state[j] + delta_x;
         }
-
     }
     #ifdef DEBUG
         std::cout << "next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
@@ -1196,7 +1206,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         if (i % 100 == 0)
         {
             std::cout << "iteration " << i << std::endl;
-            
+
         }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;

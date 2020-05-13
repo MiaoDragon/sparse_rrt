@@ -1504,7 +1504,7 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
                 //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
                 if (cost_tensor_expand_after_grad_a[j] < best_cost)
                 {
-                    best_cost = cost_tensor_expand_after_grad_a[j];
+                    best_cost = cost_tensor_expand_after_grad_a[j][0];
                     best_ind = j;
                 }
             }

@@ -252,7 +252,7 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
     torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
     std::vector<torch::jit::IValue> mlp_input;
-    mlp_input.push_back(mlp_input_tensor);
+    mlp_input.push_back(mlp_input_tensor_expand);
     auto mlp_output = MLP->forward(mlp_input);
     torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
 
@@ -1234,7 +1234,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             int best_ind = -1;
             for (unsigned j=0; j<num_sample; j++)
             {
-                std::cout << "next_State_candidate[j]: [" << next_state_candidate[0] << ", " << next_state_candidate[1] << ", " << next_state_candidate[2] << ", " << next_state_candidate[3] << "]" << std::endl;
+                std::cout << "next_State_candidate[j]: [" << next_state_candidate << "]" << std::endl;
 
                 std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
                 if (next_state_cost[j] < best_cost)

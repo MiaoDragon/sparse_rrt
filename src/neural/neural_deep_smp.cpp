@@ -121,6 +121,51 @@ torch::Tensor MPNetSMP::getStartGoalTensor(const std::vector<double>& start_stat
     return sg_cat;
 }
 
+torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state)
+{
+    std::vector<std::vector<float>> float_normalized_start_vec;
+    std::vector<std::vector<float>> float_normalized_goal_vec;
+    for (unsigned i=0; i<start_state.size(); i++)
+    {
+        std::vector<double> normalized_start_vec_i;
+        std::vector<double> normalized_goal_vec_i;
+        this->normalize(start_state[i], normalized_start_vec_i);
+        this->normalize(goal_state[i], normalized_goal_vec_i);
+        // double->float
+        std::vector<float> float_normalized_start_vec_i;
+        std::vector<float> float_normalized_goal_vec_i;
+        for (unsigned j=0; j<this->state_dim; j++)
+        {
+            float_normalized_start_vec_i.push_back(float(normalized_start_vec_i[j]));
+            float_normalized_goal_vec_i.push_back(float(normalized_goal_vec_i[j]));
+        }
+        float_normalized_start_vec.push_back(float_normalized_start_vec_i);
+        float_normalized_goal_vec.push_back(float_normalized_goal_vec_i);
+    }
+    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim});
+    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim});
+
+    #ifdef DEBUG
+        std::cout << "Start Vec: \n" << start_state << "\n";
+        std::cout << "Goal Vec: \n" << goal_state << "\n";
+
+        std::cout << "Start Vec: " << start_state << "\n"
+                << "Start Tensor: " << start_tensor << "\n"
+                << "Goal Vec: " << goal_state << "\n"
+                << "Goal Tensor: " << goal_tensor << "\n";
+    #endif
+
+    torch::Tensor sg_cat;
+    sg_cat = torch::cat({start_tensor, goal_tensor}, 1);
+
+
+    #ifdef DEBUG
+        std::cout << "\n\n\nCONCATENATED START/GOAL\n\n\n" << sg_cat << "\n\n\n";
+    #endif
+
+    return sg_cat;
+}
+
 
 void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state)
 {
@@ -378,7 +423,7 @@ void MPNetSMP::cost_informer(at::Tensor obs, const std::vector<double>& start_st
     #endif
 }
 
-void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& cost, int num_sample)
+void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample)
 {
     // given the start and goal, and the internal obstacle representation
     // convert them to torch::Tensor, and feed into MPNet
@@ -391,14 +436,15 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<double>& st
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    torch::Tensor sg = getStartGoalTensorBatch(start_state, goal_state);
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
-    torch::Tensor mlp_input_tensor;
+    torch::Tensor mlp_input_tensor_expand;
     // Note the order of the cat
-    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    at::Tensor obs_expand = obs.repeat({num_sample, 1});
+    mlp_input_tensor_expand = torch::cat({obs_expand,sg}, 1).to(at::kCUDA);
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
-    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+    //torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
     std::vector<torch::jit::IValue> mlp_input;
     mlp_input.push_back(mlp_input_tensor_expand);

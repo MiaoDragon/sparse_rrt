@@ -94,6 +94,7 @@ protected:
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);
     torch::Tensor getStartGoalTensor(const std::vector<double>& start_state, const std::vector<double>& goal_state);
+    torch::Tensor getStartGoalTensorBatch(const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state);
 
 };
 

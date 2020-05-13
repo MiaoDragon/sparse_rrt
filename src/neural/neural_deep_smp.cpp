@@ -148,6 +148,10 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
     torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim});
     torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim});
 
+    std::cout << "before concatenation: " << std::endl;
+    std::cout << "start tensor: " << start_tensor << std::endl;
+    std::cout << "goal tensor: " << goal_tensor << std::endl;
+
     #ifdef DEBUG
         std::cout << "Start Vec: \n" << start_state << "\n";
         std::cout << "Goal Vec: \n" << goal_state << "\n";
@@ -160,7 +164,8 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
 
     torch::Tensor sg_cat;
     sg_cat = torch::cat({start_tensor, goal_tensor}, 1);
-
+    std::cout << "after concatenation:" << std::endl;
+    std::cout << "sg_cat" <<std::endl;
 
     #ifdef DEBUG
         std::cout << "\n\n\nCONCATENATED START/GOAL\n\n\n" << sg_cat << "\n\n\n";

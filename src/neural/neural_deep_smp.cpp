@@ -253,7 +253,7 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
 
     // iteratively obtain a list of results
     std::vector<torch::jit::IValue> mlp_input;
-    mlp_input.push_back(mlp_input_tensor_expand);
+    mlp_input.push_back(mlp_input);
 
     for (int i = 0; i < num_sample; i++)
     {

@@ -167,7 +167,7 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
 }
 
 
-void MPNetSMP::informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state)
+void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state)
 {
     // given the start and goal, and the internal obstacle representation
     // convert them to torch::Tensor, and feed into MPNet
@@ -229,7 +229,7 @@ void MPNetSMP::informer(at::Tensor &obs, const std::vector<double>& start_state,
 
 
 
-void MPNetSMP::informer_batch(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample)
+void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample)
 {
     // given the start and goal, and the internal obstacle representation
     // convert them to torch::Tensor, and feed into MPNet
@@ -295,7 +295,7 @@ void MPNetSMP::informer_batch(at::Tensor &obs, const std::vector<double>& start_
 }
 
 
-void MPNetSMP::init_informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res)
+void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res)
 {
     /**
     x_init:
@@ -388,7 +388,7 @@ void MPNetSMP::init_informer(at::Tensor &obs, const std::vector<double>& start_s
 
 }
 
-void MPNetSMP::cost_informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost)
+void MPNetSMP::cost_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost)
 {
     // given the start and goal, and the internal obstacle representation
     // convert them to torch::Tensor, and feed into MPNet
@@ -423,7 +423,7 @@ void MPNetSMP::cost_informer(at::Tensor &obs, const std::vector<double>& start_s
     #endif
 }
 
-void MPNetSMP::cost_informer_batch(at::Tensor &obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample)
+void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample)
 {
     // given the start and goal, and the internal obstacle representation
     // convert them to torch::Tensor, and feed into MPNet

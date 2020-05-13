@@ -85,11 +85,11 @@ protected:
     // random generator
     std::default_random_engine generator;
     // MPNet specific:
-    virtual void informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state);
-    virtual void init_informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
-    virtual void cost_informer(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost);
-    virtual void informer_batch(at::Tensor &obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample);
-    virtual void cost_informer_batch(at::Tensor &obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample);
+    virtual void informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& next_state);
+    virtual void init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res);
+    virtual void cost_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, double& cost);
+    virtual void informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample);
+    virtual void cost_informer_batch(at::Tensor obs, const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state, std::vector<double>& cost, int num_sample);
 
     virtual void normalize(const std::vector<double>& state, std::vector<double>& res);
     virtual void unnormalize(const std::vector<double>& state, std::vector<double>& res);

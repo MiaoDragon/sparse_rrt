@@ -289,7 +289,7 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
         {
             state_vec.push_back(res_a[i][j]);
         }
-        std::cout << "res_a[i]:" << res_a[i] << std::endl;
+        std::cout << "res_a[i]:" << state_vec << std::endl;
         std::vector<double> unnormalized_state_vec;
         this->unnormalize(state_vec, unnormalized_state_vec);
         for (int j = 0; j < dim; j++)

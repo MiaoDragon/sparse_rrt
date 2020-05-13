@@ -406,8 +406,6 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<double>& st
     torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
 
     auto res_a = res.accessor<float,2>(); // accesor for the tensor
-
-    cost = res_a[0][0];
     for (unsigned i=0; i<num_sample; i++)
     {
         cost[i] = res_a[i][0];

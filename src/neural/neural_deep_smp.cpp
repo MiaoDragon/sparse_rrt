@@ -182,6 +182,74 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     #endif
 }
 
+
+
+void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<std::vector<double>>& next_state, int num_sample)
+{
+    // given the start and goal, and the internal obstacle representation
+    // convert them to torch::Tensor, and feed into MPNet
+    // return a batch of next states to the "next" parameter
+    #ifdef DEBUG
+        std::cout << "starting mpnet_predict..." << std::endl;
+    #endif
+
+    //int dim = si_->getStateDimension();
+    int dim = this->state_dim;
+    // get start, goal in tensor form
+
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
+
+    torch::Tensor mlp_input_tensor;
+    // Note the order of the cat
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+
+    std::vector<torch::jit::IValue> mlp_input;
+    mlp_input.push_back(mlp_input_tensor);
+    auto mlp_output = MLP->forward(mlp_input);
+    torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
+
+    auto res_a = res.accessor<float,2>(); // accesor for the tensor
+
+    for (int i = 0; i < num_sample; i++)
+    {
+        std::vector<double> state_vec;
+        for (int j = 0; j < dim; j++)
+        {
+            state_vec.push_back(res_a[i][j]);
+        }
+        std::vector<double> unnormalized_state_vec;
+        this->unnormalize(state_vec, unnormalized_state_vec);
+        for (int j = 0; j < dim; j++)
+        {
+            //TODO: better assign by using angleAxis
+            //next->as<base::RealVectorStateSpace::StateType>()->values[i] = res_a[0][i];
+
+            next_state[i][j] = unnormalized_state_vec[j];
+            // after normalization, wrap angle (to nearest state)
+
+            double delta_x = next_state[i][j] - start_state[j];
+            if (this->is_circular[j])
+            {
+                delta_x = delta_x - floor(delta_x / (2*M_PI))*(2*M_PI);
+                if (delta_x > M_PI)
+                {
+                    delta_x = delta_x - 2*M_PI;
+                }
+            }
+            next_state[i][j] = start_state[j] + delta_x;
+        }
+
+    }
+    #ifdef DEBUG
+        std::cout << "next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
+        std::cout << "finished mpnet_predict." << std::endl;
+    #endif
+}
+
+
 void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, traj_t& res)
 {
     /**
@@ -309,6 +377,48 @@ void MPNetSMP::cost_informer(at::Tensor obs, const std::vector<double>& start_st
         std::cout << "finished mpnet_predict." << std::endl;
     #endif
 }
+
+void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<double>& start_state, const std::vector<double>& goal_state, std::vector<double>& cost, int num_sample)
+{
+    // given the start and goal, and the internal obstacle representation
+    // convert them to torch::Tensor, and feed into MPNet
+    // return the next state to the "next" parameter
+    #ifdef DEBUG
+        std::cout << "starting mpnet_predict..." << std::endl;
+    #endif
+
+    //int dim = si_->getStateDimension();
+    int dim = this->state_dim;
+    // get start, goal in tensor form
+
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
+
+    torch::Tensor mlp_input_tensor;
+    // Note the order of the cat
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
+    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+
+    std::vector<torch::jit::IValue> mlp_input;
+    mlp_input.push_back(mlp_input_tensor_expand);
+    auto mlp_output = cost_MLP->forward(mlp_input);
+    torch::Tensor res = mlp_output.toTensor().to(at::kCPU);
+
+    auto res_a = res.accessor<float,2>(); // accesor for the tensor
+
+    cost = res_a[0][0];
+    for (unsigned i=0; i<num_sample; i++)
+    {
+        cost[i] = res_a[i][0];
+    }
+    #ifdef DEBUG
+        std::cout << "cost predictor result: " << res_a[0][0] << std::endl;
+        std::cout << "finished mpnet_predict." << std::endl;
+    #endif
+}
+
+
 
 
 void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
@@ -1059,18 +1169,18 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             begin_time = clock();
             // first sample several mpnet points, then use the costnet to find the best point
             std::vector<std::vector<double>> next_state_candidate(15,std::vector<double>(this->state_dim));
-            double best_cost = 10000.;
+            std::vector<double> next_state_cost(15);
+            this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
+            // calculate cost
+            this->cost_informer_batch(cost_obs_enc, next_state_candidate, goal_inform_state, next_state_cost, num_sample);
+
+            double best_cost = 100000.;
             int best_ind = -1;
             for (unsigned i=0; i<15; i++)
             {
-                double cost_i = -1.;
-                // obtain mpnet output first
-                this->informer(obs_enc, state_t, goal_inform_state, next_state_candidate[i]);
-                // calculate cost
-                this->cost_informer(cost_obs_enc, next_state_candidate[i], goal_inform_state, cost_i);
-                if (cost_i < best_cost)
+                if (next_state_cost[i] < best_cost)
                 {
-                    best_cost = cost_i;
+                    best_cost = next_state_cost[i];
                     best_ind = i;
                 }
             }
@@ -1352,18 +1462,18 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
         begin_time = clock();
         // first sample several mpnet points, then use the costnet to find the best point
         std::vector<std::vector<double>> next_state_candidate(15,std::vector<double>(this->state_dim));
-        double best_cost = 10000.;
+        std::vector<double> next_state_cost(15);
+        this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
+        // calculate cost
+        this->cost_informer_batch(cost_obs_enc, next_state_candidate, goal_inform_state, next_state_cost, num_sample);
+
+        double best_cost = 100000.;
         int best_ind = -1;
         for (unsigned i=0; i<15; i++)
         {
-            double cost_i = -1.;
-            // obtain mpnet output first
-            this->informer(obs_enc, state_t, goal_inform_state, next_state_candidate[i]);
-            // calculate cost
-            this->cost_informer(cost_obs_enc, next_state_candidate[i], goal_inform_state, cost_i);
-            if (cost_i < best_cost)
+            if (next_state_cost[i] < best_cost)
             {
-                best_cost = cost_i;
+                best_cost = next_state_cost[i];
                 best_ind = i;
             }
         }

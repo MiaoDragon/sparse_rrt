@@ -123,8 +123,8 @@ torch::Tensor MPNetSMP::getStartGoalTensor(const std::vector<double>& start_stat
 
 torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<double>>& start_state, const std::vector<std::vector<double>>& goal_state)
 {
-    std::vector<std::vector<float>> float_normalized_start_vec;
-    std::vector<std::vector<float>> float_normalized_goal_vec;
+    std::vector<float> float_normalized_start_vec;  // flattened vector for tensor input
+    std::vector<float> float_normalized_goal_vec;
     for (unsigned i=0; i<start_state.size(); i++)
     {
         std::vector<double> normalized_start_vec_i;
@@ -132,18 +132,18 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
         this->normalize(start_state[i], normalized_start_vec_i);
         this->normalize(goal_state[i], normalized_goal_vec_i);
         // double->float
-        std::vector<float> float_normalized_start_vec_i;
-        std::vector<float> float_normalized_goal_vec_i;
+        //std::vector<float> float_normalized_start_vec_i;
+        //std::vector<float> float_normalized_goal_vec_i;
         for (unsigned j=0; j<this->state_dim; j++)
         {
-            float_normalized_start_vec_i.push_back(float(normalized_start_vec_i[j]));
-            float_normalized_goal_vec_i.push_back(float(normalized_goal_vec_i[j]));
-            std::cout << "float_normalized_start_vec[" << i << "][" << j << "]: " << float_normalized_start_vec_i[j] << std::endl;
-            std::cout << "float_normalized_goal_vec[" << i << "][" << j << "]: " << float_normalized_goal_vec_i[j] << std::endl;
+            //float_normalized_start_vec_i.push_back(float(normalized_start_vec_i[j]));
+            //float_normalized_goal_vec_i.push_back(float(normalized_goal_vec_i[j]));
+            //std::cout << "float_normalized_start_vec[" << i << "][" << j << "]: " << float_normalized_start_vec_i[j] << std::endl;
+            //std::cout << "float_normalized_goal_vec[" << i << "][" << j << "]: " << float_normalized_goal_vec_i[j] << std::endl;
+            float_normalized_start_vec.push_back(float(normalized_start_vec_i[j]));
+            float_normalized_goal_vec.push_back(float(normalized_goal_vec_i[j]));
 
         }
-        float_normalized_start_vec.push_back(float_normalized_start_vec_i);
-        float_normalized_goal_vec.push_back(float_normalized_goal_vec_i);
     }
     torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim});
     torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim});
@@ -165,7 +165,7 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
     torch::Tensor sg_cat;
     sg_cat = torch::cat({start_tensor, goal_tensor}, 1);
     std::cout << "after concatenation:" << std::endl;
-    std::cout << "sg_cat" <<std::endl;
+    std::cout << sg_cat <<std::endl;
 
     #ifdef DEBUG
         std::cout << "\n\n\nCONCATENATED START/GOAL\n\n\n" << sg_cat << "\n\n\n";

@@ -79,6 +79,7 @@ void MPNetSMP::unnormalize(const std::vector<double>& state, std::vector<double>
 {
     // normalize in the 3D state space first
     //std::vector<double> res;
+    res.clear();  // make sure it is empty
     for (int i=0; i<this->state_dim; i++)
     {
         res.push_back((state[i]+1.0)*bound[i]+lower_bound[i]);
@@ -95,10 +96,10 @@ torch::Tensor MPNetSMP::getStateTensorWithNormalization(const std::vector<double
     {
         float_normalized_vec.push_back(float(normalized_vec[i]));
     }
-    std::cout << "in getStateTensorWithNormalization:" << std::endl;
+    //std::cout << "in getStateTensorWithNormalization:" << std::endl;
     torch::Tensor tensor = torch::from_blob(float_normalized_vec.data(), {1, this->state_dim}).clone();
-    std::cout << "float_normalized_vec: " << float_normalized_vec << std::endl;
-    std::cout << "tensor: " << tensor << std::endl;
+    //std::cout << "float_normalized_vec: " << float_normalized_vec << std::endl;
+    //std::cout << "tensor: " << tensor << std::endl;
     return tensor;
 }
 

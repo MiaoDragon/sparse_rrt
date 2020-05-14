@@ -925,7 +925,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         //SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
-        std::vector<double> next_state_batch(this->state_dim);
+        std::vector<std::vector<double>> next_state_batch(10, std::vector<double>(this->state_dim));
         int batch_idx = 0;  // the index to use in the batch
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number

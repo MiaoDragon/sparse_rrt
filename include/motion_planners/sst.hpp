@@ -204,7 +204,6 @@ public:
 	     std::vector<double> &t_init);
 
 	virtual void nearest_state(const double* state, std::vector<double> &res_state);
-	virtual double get_distance(const double* state1, const double* state2, int dimension);
 
 protected:
 

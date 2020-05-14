@@ -1479,8 +1479,11 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             // state std::vector to tensor
             torch::Tensor state_tensor = getStateTensorWithNormalization(state_t).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
             torch::Tensor goal_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+            std::cout << "num_sample: " << num_sample <<std::endl;
             torch::Tensor state_tensor_expand = state_tensor.repeat({num_sample,1});
             torch::Tensor goal_tensor_expand = goal_tensor.repeat({num_sample,1});
+            std::cout << "state_tensor_expand: " << state_tensor_expand << std::endl;
+            std::cout << "goal_tensor_expand: " << goal_tensor_expand << std::endl;
             // construct cost_end_state
             torch::Tensor next_tensor_expand = this->tensor_informer(obs_expand_enc, state_tensor_expand, goal_tensor_expand);
             torch::Tensor next_tensor_expand_with_grad = torch::autograd::Variable(next_tensor_expand.clone()).detach().set_requires_grad(true); // add gradient

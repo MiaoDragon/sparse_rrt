@@ -1480,27 +1480,15 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             // state std::vector to tensor
             torch::Tensor state_tensor = getStateTensorWithNormalization(state_t).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
             torch::Tensor goal_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
-            std::cout << "outside of getStateTensorWithNormalization" << std::endl;
-            std::cout << "state_tensor: " << state_tensor << std::endl;
-            std::cout << "goal_tensor: " << goal_tensor << std::endl;
-            std::cout << "num_sample: " << num_sample <<std::endl;
             torch::Tensor state_tensor_expand = state_tensor.repeat({num_sample,1});
             torch::Tensor goal_tensor_expand = goal_tensor.repeat({num_sample,1});
-            std::cout << "state_tensor_expand: " << state_tensor_expand << std::endl;
-            std::cout << "goal_tensor_expand: " << goal_tensor_expand << std::endl;
             // construct cost_end_state
             torch::Tensor next_tensor_expand = this->tensor_informer(obs_expand_enc, state_tensor_expand, goal_tensor_expand);
             torch::Tensor next_tensor_expand_with_grad = torch::autograd::Variable(next_tensor_expand.clone()).detach().set_requires_grad(true); // add gradient
-            std::cout << "before cost_informer...  next_tensor_expand:" << next_tensor_expand_with_grad << std::endl;
-            std::cout << "before cost_informer...  goal_tensor_expand:" << goal_tensor_expand << std::endl;
             torch::Tensor cost_tensor_expand = this->tensor_cost_informer(cost_obs_expand_enc, next_tensor_expand_with_grad, goal_tensor_expand);
-            std::cout << "before sum...  cost_tensor:" << cost_tensor_expand << std::endl;
             cost_tensor_expand = cost_tensor_expand.sum();
-            std::cout << "before backward...  cost_tensor:" << cost_tensor_expand << std::endl;
             cost_tensor_expand.backward();
-            std::cout << "after backward." << std::endl;
             torch::Tensor next_tensor_expand_grad = next_tensor_expand_with_grad.grad();
-            std::cout << "next_tensor_expand_grad: " << next_tensor_expand_grad << std::endl;
             // perform gradient descent to optimize cost w.r.t. next_state
             next_tensor_expand = next_tensor_expand - 0.1*next_tensor_expand_grad;
 
@@ -1510,9 +1498,6 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             cost_tensor_expand_after_grad = cost_tensor_expand_after_grad.to(at::kCPU);
             auto cost_tensor_expand_after_grad_a = cost_tensor_expand_after_grad.accessor<float,2>();
             auto next_tensor_expand_a = next_tensor_expand.accessor<float,2>(); // accesor for the tensor
-            std::cout << "next_tensor_expand: " << next_tensor_expand << std::endl;
-
-            std::cout << "cost_tensor_expand_after_grad: " << cost_tensor_expand_after_grad << std::endl;
 
             double best_cost = 100000.;
             int best_ind = -1;
@@ -1531,14 +1516,10 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             // copy to vector and unnormalize
             for (unsigned j=0; j<this->state_dim; j++)
             {
-                std::cout << "in for loop. next_tensor_expand_a: " << next_tensor_expand_a[best_ind][j] << std::endl;
-
                 next_state_before_unnorm.push_back(next_tensor_expand_a[best_ind][j]);
             }
-            std::cout << "next_state_before_unnorm: " << next_state_before_unnorm << std::endl;
 
             unnormalize(next_state_before_unnorm, next_state);
-            std::cout << "next_state: " << next_state << std::endl;
             //std::cout << "best_cost: " << best_cost << std::endl;
             //std::cout << "after cost sampling" << std::endl;
             //std::cout << "best_ind: " << best_ind << std::endl;

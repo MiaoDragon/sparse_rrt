@@ -1,4 +1,4 @@
-.to(at::Device("cuda:"+std::to_string(this->gpu_device)))//#define DEBUG 1
+//#define DEBUG 1
 #include "neural/neural_deep_smp.hpp"
 #include <time.h>
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,

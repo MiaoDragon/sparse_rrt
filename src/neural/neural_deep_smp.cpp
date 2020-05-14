@@ -118,8 +118,8 @@ torch::Tensor MPNetSMP::getStartGoalTensor(const std::vector<double>& start_stat
         float_normalized_start_vec.push_back(float(normalized_start_vec[i]));
         float_normalized_goal_vec.push_back(float(normalized_goal_vec[i]));
     }
-    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {1, this->state_dim});
-    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {1, this->state_dim});
+    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {1, this->state_dim}).clone();
+    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {1, this->state_dim}).clone();
 
     #ifdef DEBUG
         std::cout << "Start Vec: \n" << start_state << "\n";
@@ -168,8 +168,8 @@ torch::Tensor MPNetSMP::getStartGoalTensorBatch(const std::vector<std::vector<do
 
         }
     }
-    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim});
-    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim});
+    torch::Tensor start_tensor = torch::from_blob(float_normalized_start_vec.data(), {start_state.size(), this->state_dim}).clone();
+    torch::Tensor goal_tensor = torch::from_blob(float_normalized_goal_vec.data(), {start_state.size(), this->state_dim}).clone();
 
     //std::cout << "before concatenation: " << std::endl;
     //std::cout << "start tensor: " << start_tensor << std::endl;
@@ -211,7 +211,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;
@@ -271,14 +271,14 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;
     // Note the order of the cat
     mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
-    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
+    torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
 
     // batch obtain result
     std::vector<torch::jit::IValue> mlp_input;
@@ -429,7 +429,7 @@ void MPNetSMP::cost_informer(at::Tensor obs, const std::vector<double>& start_st
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;
@@ -1215,8 +1215,8 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
 
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
-    at::Tensor cost_obs_enc = cost_encoder->forward(obs_input).toTensor().to(at::kCPU);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    at::Tensor cost_obs_enc = cost_encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     double* new_state = new double[this->state_dim];

@@ -92,6 +92,8 @@ void rrt_t::nearest_state(const double* state, std::vector<double> &res_state)
     }
 }
 
+
+
 void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {
     /* @Author: Yinglong Miao

@@ -927,6 +927,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         std::vector<double> next_state(this->state_dim);
         std::vector<std::vector<double>> next_state_batch(10, std::vector<double>(this->state_dim));
         int batch_idx = 0;  // the index to use in the batch
+        int mpnet_length = 0;
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number
         if (i > goal_linear_inc_start_iter)
@@ -942,6 +943,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         }
         else
         {
+            mpnet_length += 1;
             flag=1;
             begin_time = clock();
             //this->informer(obs_enc, state_t, goal_inform_state, next_state);
@@ -953,9 +955,9 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             }
             next_state = next_state_batch[batch_idx];  // take the next in the batch
             batch_idx ++;  // increase the batch
-        #ifdef COUNT_TIME
+        //#ifdef COUNT_TIME
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
-        #endif
+        //#endif
         }
         // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
         // use search tree
@@ -979,10 +981,20 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         // only when using MPNet, update the state_t using next_state. Otherwise not change
         if (flag)//flag=1: using MPNet.
         {
+            /**
             if (new_time <= 0.01)
             {
                 // propagate fails, back to origin
                 state_t = start_state;
+            }
+            */
+            // edit: if near goal, or long enough, then back to origin
+            // calculate the distance to goal
+            double distance_to_goal = SMP->get_distance(next_state.data(), goal_inform_state.data(), this->state_dim);
+            if (distance_to_goal <= goal_radius*2.0 || mpnet_length >= 40)
+            {
+                state_t = start_state;
+                mpnet_length = 0;
             }
             else
             {

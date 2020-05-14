@@ -105,6 +105,10 @@ public:
 		std::vector<std::vector<double>> &u_init,
 		std::vector<double> &t_init) = 0;
 	virtual void nearest_state(const double* state, std::vector<double> &res_state) = 0;
+	virtual double get_distance(const double* state1, const double* state2, int dimension)
+	{
+		return this->distance(state1, state2, this->state_dimension);	
+	};
     /**
 	 * @brief Return the root of the planning tree
 	 * @details Return the root of the planning tree

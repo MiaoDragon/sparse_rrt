@@ -1525,7 +1525,7 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             }
             std::vector<double> next_state_before_unnorm;
             // copy to vector and unnormalize
-            for (unsigned j=0; j<num_sample; j++)
+            for (unsigned j=0; j<this->state_dim; j++)
             {
                 next_state_before_unnorm.push_back(next_tensor_expand_a[best_ind][j]);
             }

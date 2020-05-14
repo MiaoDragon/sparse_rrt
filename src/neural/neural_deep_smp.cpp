@@ -96,7 +96,7 @@ torch::Tensor MPNetSMP::getStateTensorWithNormalization(const std::vector<double
         float_normalized_vec.push_back(float(normalized_vec[i]));
     }
     std::cout << "in getStateTensorWithNormalization:" << std::endl;
-    torch::Tensor tensor = torch::from_blob(float_normalized_vec.data(), {1, this->state_dim});
+    torch::Tensor tensor = torch::from_blob(float_normalized_vec.data(), {1, this->state_dim}).clone();
     std::cout << "float_normalized_vec: " << float_normalized_vec << std::endl;
     std::cout << "tensor: " << tensor << std::endl;
     return tensor;

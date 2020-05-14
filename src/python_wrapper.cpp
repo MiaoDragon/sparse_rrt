@@ -2303,7 +2303,7 @@ PYBIND11_MODULE(_sst_module, m) {
               "delta_drain"_a,
               "cost_threshold"_a
           )
-          .def("plan_tree_SMP_cost", &DeepSMPWrapper::plan_tree_SMP_cost_gradient,
+          .def("plan_tree_SMP_cost_gradient", &DeepSMPWrapper::plan_tree_SMP_cost_gradient,
               "planner_name"_a,
               "system"_a,
               "psopt_system"_a,

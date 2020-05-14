@@ -1509,6 +1509,9 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             cost_tensor_expand_after_grad = cost_tensor_expand_after_grad.to(at::kCPU);
             auto cost_tensor_expand_after_grad_a = cost_tensor_expand_after_grad.accessor<float,2>();
             auto next_tensor_expand_a = next_tensor_expand.accessor<float,2>(); // accesor for the tensor
+            std::cout << "next_tensor_expand: " << next_tensor_expand << std::endl;
+
+            std::cout << "cost_tensor_expand_after_grad: " << cost_tensor_expand_after_grad << std::endl;
 
             double best_cost = 100000.;
             int best_ind = -1;

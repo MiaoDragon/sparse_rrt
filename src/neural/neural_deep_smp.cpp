@@ -464,12 +464,12 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensorBatch(start_state, goal_state);
+    torch::Tensor sg = getStartGoalTensorBatch(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor_expand;
     // Note the order of the cat
-    at::Tensor obs_expand = obs.repeat({num_sample, 1});
+    at::Tensor obs_expand = obs.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     mlp_input_tensor_expand = torch::cat({obs_expand,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
     //torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});

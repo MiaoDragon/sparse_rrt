@@ -1,4 +1,4 @@
-//#define DEBUG 1
+.to(at::Device("cuda:"+std::to_string(this->gpu_device)))//#define DEBUG 1
 #include "neural/neural_deep_smp.hpp"
 #include <time.h>
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
@@ -216,7 +216,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
 
     torch::Tensor mlp_input_tensor;
     // Note the order of the cat
-    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
     std::vector<torch::jit::IValue> mlp_input;
@@ -276,7 +276,7 @@ void MPNetSMP::informer_batch(at::Tensor obs, const std::vector<double>& start_s
 
     torch::Tensor mlp_input_tensor;
     // Note the order of the cat
-    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
     torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
@@ -434,7 +434,7 @@ void MPNetSMP::cost_informer(at::Tensor obs, const std::vector<double>& start_st
 
     torch::Tensor mlp_input_tensor;
     // Note the order of the cat
-    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::kCUDA);
+    mlp_input_tensor = torch::cat({obs,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
     std::vector<torch::jit::IValue> mlp_input;
@@ -470,7 +470,7 @@ void MPNetSMP::cost_informer_batch(at::Tensor obs, const std::vector<std::vector
     torch::Tensor mlp_input_tensor_expand;
     // Note the order of the cat
     at::Tensor obs_expand = obs.repeat({num_sample, 1});
-    mlp_input_tensor_expand = torch::cat({obs_expand,sg}, 1).to(at::kCUDA);
+    mlp_input_tensor_expand = torch::cat({obs_expand,sg}, 1).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
     //torch::Tensor mlp_input_tensor_expand = mlp_input_tensor.repeat({num_sample, 1});
 
@@ -547,7 +547,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -719,7 +719,7 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -889,7 +889,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -1051,7 +1051,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -1209,7 +1209,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
                 x_t = x_t_1
     */
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -1634,7 +1634,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     // flag=1: using MPNet
     // flag=0: not using MPNet
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -1763,7 +1763,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
     // flag=1: using MPNet
     // flag=0: not using MPNet
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 
@@ -1916,7 +1916,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res)
 {
     std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::kCUDA);
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
 

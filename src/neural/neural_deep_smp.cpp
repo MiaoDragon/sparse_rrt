@@ -1233,11 +1233,6 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        if (i % 100 == 0)
-        {
-            std::cout << "iteration " << i << std::endl;
-
-        }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;

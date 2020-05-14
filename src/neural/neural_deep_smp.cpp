@@ -1483,7 +1483,9 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             torch::Tensor next_tensor_expand_with_grad = torch::autograd::Variable(next_tensor_expand.clone()).detach().set_requires_grad(true); // add gradient
             torch::Tensor cost_tensor_expand = this->tensor_cost_informer(cost_obs_expand_enc, next_tensor_expand_with_grad, goal_tensor_expand);
             cost_tensor_expand = cost_tensor_expand.sum();
+            std::cout << "before backward...  cost_tensor:" << cost_tensor_expand << std::endl;
             cost_tensor_expand.backward();
+            std::cout << "after backward." << std::endl;
             torch::Tensor next_tensor_expand_grad = next_tensor_expand_with_grad.grad();
 
             // perform gradient descent to optimize cost w.r.t. next_state

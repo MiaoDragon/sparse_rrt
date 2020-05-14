@@ -945,7 +945,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         {
             mpnet_length += 1;
             flag=1;
-            ..begin_time = clock();
+            begin_time = clock();
             //this->informer(obs_enc, state_t, goal_inform_state, next_state);
             if (batch_idx == 10)
             {
@@ -1657,7 +1657,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
 
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     double* new_state = new double[this->state_dim];
@@ -1679,6 +1679,9 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     //    state_t_ptr[j] = state_t[j];
     //}
     //SMP->nearest_state(state_t_ptr, state_t);
+    std::vector<std::vector<double>> next_state_batch(10, std::vector<double>(this->state_dim));
+    int batch_idx = 0;  // the index to use in the batch
+    int mpnet_length = 0;
 
     std::vector<double> next_state(this->state_dim);
     if (!flag)
@@ -1689,7 +1692,16 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     else
     {
         begin_time = clock();
-        this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        //this->informer(obs_enc, state_t, goal_inform_state, next_state);
+        if (batch_idx == 10)
+        {
+            // renew the batch
+            this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_batch, 10);
+            batch_idx = 0;
+        }
+        next_state = next_state_batch[batch_idx];  // take the next in the batch
+        batch_idx ++;  // increase the batch
+
         mpnet_res = next_state;
     #ifdef COUNT_TIME
         std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;

@@ -1829,8 +1829,8 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
 
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
-    at::Tensor cost_obs_enc = cost_encoder->forward(obs_input).toTensor().to(at::kCPU);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    at::Tensor cost_obs_enc = cost_encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     double* new_state = new double[this->state_dim];

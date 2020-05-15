@@ -1335,10 +1335,10 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
                     best_ind = j;
                 }
             }
-            std::cout << "cost_step: " << std::endl;
-            std::cout << cost_step << std::endl;
-            std::cout << "cost_to_goal: " << std::endl;
-            std::cout << cost_to_goal << std::endl;
+            //std::cout << "cost_step: " << std::endl;
+            //std::cout << cost_step << std::endl;
+            //std::cout << "cost_to_goal: " << std::endl;
+            //std::cout << cost_to_goal << std::endl;
             next_state = next_state_candidate[best_ind];
             mpnet_length ++;
 

@@ -1496,7 +1496,7 @@ public:
                          res_x, res_u, res_t);
         if (res_x.size() == 0)
         {
-            std::cout << "python wrapper: solution length 0" << std::endl;
+            //std::cout << "python wrapper: solution length 0" << std::endl;
             // solution is not found
             py::safe_array<double> state_array;
             py::safe_array<double> control_array;

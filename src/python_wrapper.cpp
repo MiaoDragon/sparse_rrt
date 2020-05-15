@@ -1843,7 +1843,7 @@ public:
              py::safe_array<double> control_array;
              py::safe_array<double> time_array;
              py::safe_array<double> mpnet_res_array({mpnet_res.size(), mpnet_res[0].size()});
-             py::safe_array<double> mpnet_cost_array;
+             py::safe_array<double> mpnet_cost_array({mpnet_cost_res.size()});
 
              auto mpnet_res_ref = mpnet_res_array.mutable_unchecked<2>();
              for (unsigned int i = 0; i < mpnet_res.size(); ++i)

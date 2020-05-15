@@ -1853,6 +1853,11 @@ public:
                      mpnet_res_ref(i,j) = mpnet_res[i][j];
                  }
              }
+             auto mpnet_cost_ref = mpnet_cost_array.mutable_unchecked<1>();
+             for (unsigned int i = 0; i < mpnet_cost_res.size(); ++i)
+             {
+                 mpnet_cost_ref(i) = mpnet_cost_res[i];
+             }
              //delete planner;
              // return flag, available flags, states, controls, time
              return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>

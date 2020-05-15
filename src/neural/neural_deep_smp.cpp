@@ -1859,6 +1859,8 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
         // picking goal
         next_state = goal_state;
         mpnet_res.push_back(goal_state);
+        mpnet_cost.push_back(0.0);
+
     }
     else
     {

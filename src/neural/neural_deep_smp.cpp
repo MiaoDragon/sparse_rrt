@@ -1817,7 +1817,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
 //****  step method for visualization of tree_SMP
 void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int flag, int max_iteration, double goal_radius, double cost_threshold,
-                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<std::vector<double>>& mpnet_res, std::vector<double>& mpnet_cost)
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<std::vector<double>>& mpnet_res, std::vector<double>& mpnet_cost_res)
 {
     // flag: determine if using goal or not
     // flag=1: using MPNet
@@ -1859,7 +1859,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
         // picking goal
         next_state = goal_state;
         mpnet_res.push_back(goal_state);
-        mpnet_cost.push_back(0.0);
+        mpnet_cost_res.push_back(0.0);
 
     }
     else
@@ -1910,7 +1910,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
 
             //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
             mpnet_res.push_back(next_state_candidate[j]);
-            mpnet_cost.push_back(cost_step[j]+cost_to_goal[j]);
+            mpnet_cost_res.push_back(cost_step[j]+cost_to_goal[j]);
             if (cost_step[j]+cost_to_goal[j] < best_cost)
             {
                 best_cost = cost_step[j]+cost_to_goal[j];

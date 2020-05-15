@@ -1858,6 +1858,7 @@ public:
              {
                  mpnet_cost_ref(i) = mpnet_cost_res[i];
              }
+             std::cout << "after copying to mpnet_cost_ref when res_u size 0" << std::endl;
              //delete planner;
              // return flag, available flags, states, controls, time
              return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>

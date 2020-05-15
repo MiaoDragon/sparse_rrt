@@ -1893,7 +1893,7 @@ public:
         auto mpnet_cost_ref = mpnet_cost_array.mutable_unchecked<1>();
         for (unsigned int i = 0; i < mpnet_cost.size(); ++i)
         {
-            mpnet_cost_ref(i) = mpnet_res[i];
+            mpnet_cost_ref(i) = mpnet_cost_res[i];
         }
 
 

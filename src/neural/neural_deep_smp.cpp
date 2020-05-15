@@ -1268,6 +1268,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         //SMP->nearest_state(state_t_ptr, state_t);
 
         std::vector<double> next_state(this->state_dim);
+        int mpnet_length = 0;
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number
         if (i > goal_linear_inc_start_iter)
@@ -1289,18 +1290,35 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             // first sample several mpnet points, then use the costnet to find the best point
             int num_sample = 15;
             std::vector<std::vector<double>> next_state_candidate(num_sample,std::vector<double>(this->state_dim));
-            std::vector<double> next_state_cost(num_sample);
+            std::vector<double> cost_step(num_sample);
+            std::vector<double> cost_to_goal(num_sample);
+            std::vector<std::vector<double>> cost_start_state(num_sample,std::vector<double>(this->state_dim));
             std::vector<std::vector<double>> cost_end_state(num_sample,std::vector<double>(this->state_dim));
-            // construct cost_end_state
+            // obtain next_state from state_t using MPnet
+            this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
+
+            // obtain the nearest node to state_t in the tree
+            std::vector<double> tree_state_t(this->state_dim);
+            for (unsigned j=0; j < this->state_dim; j++)
+            {
+                state_t_ptr[j] = state_t[j];
+            }
+            SMP->nearest_state(state_t_ptr, tree_state_t);
+
+
+            // construct cost_start_state and cost_end_state
             for (unsigned j=0; j<num_sample; j++)
             {
+                cost_start_state[j] = tree_state_t;
                 cost_end_state[j] = goal_inform_state;
             }
-            this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
-            // calculate cost
-            //std::cout << "after informer_batch" << std::endl;
+            // calculate cost by the following formula:
+            //     c(x0,Near(xt))+h(Near(xt),x_t_1) + h(x_t_1,xG)
 
-            this->cost_informer_batch(cost_obs_enc, next_state_candidate, cost_end_state, next_state_cost, num_sample);
+            // calculate h(Near(xt), x_t_1)
+            this->cost_informer_batch(cost_obs_enc, cost_start_state, next_state_candidate, cost_step, num_sample);
+            // calculate h(x_t_1, xG)
+            this->cost_informer_batch(cost_obs_enc, next_state_candidate, cost_end_state, cost_to_goal, num_sample);
 
             //std::cout << "after cost_informer_batch" << std::endl;
 
@@ -1311,13 +1329,19 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
                 //std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
 
                 //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
-                if (next_state_cost[j] < best_cost)
+                if (cost_step[j]+cost_to_goal[j] < best_cost)
                 {
-                    best_cost = next_state_cost[j];
+                    best_cost = cost_step[j]+cost_to_goal[j];
                     best_ind = j;
                 }
             }
+            std::cout << "cost_step: " << std::endl;
+            std::cout << cost_step << std::endl;
+            std::cout << "cost_to_goal: " << std::endl;
+            std::cout << cost_to_goal << std::endl;
             next_state = next_state_candidate[best_ind];
+            mpnet_length ++;
+
             //std::cout << "best_cost: " << best_cost << std::endl;
             //std::cout << "after cost sampling" << std::endl;
             //std::cout << "best_ind: " << best_ind << std::endl;
@@ -1349,10 +1373,20 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         // only when using MPNet, update the state_t using next_state. Otherwise not change
         if (flag)//flag=1: using MPNet.
         {
+            /**
             if (new_time <= 0.01)
             {
                 // propagate fails, back to origin
                 state_t = start_state;
+            }
+            */
+            // edit: if near goal, or long enough, then back to origin
+            // calculate the distance to goal
+            double distance_to_goal = SMP->get_distance(next_state.data(), goal_inform_state.data(), this->state_dim);
+            if (distance_to_goal <= goal_radius*2.0 || mpnet_length >= 40)
+            {
+                state_t = start_state;
+                mpnet_length = 0;
             }
             else
             {
@@ -1640,9 +1674,6 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
 //**********
 
 
-
-
-
 //****  step method for visualization of tree_SMP
 void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int flag, int max_iteration, double goal_radius, double cost_threshold,
@@ -1781,13 +1812,12 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
 
 //****
 
-
 //**** step method with cost_to_go for visualization of tree_SMP
 //****
 //****  step method for visualization of tree_SMP
 void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int flag, int max_iteration, double goal_radius, double cost_threshold,
-                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<double>& mpnet_res)
+                    std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t, std::vector<std::vector<double>>& mpnet_res, std::vector<double>& mpnet_cost)
 {
     // flag: determine if using goal or not
     // flag=1: using MPNet
@@ -1828,42 +1858,74 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
     {
         // picking goal
         next_state = goal_state;
-        mpnet_res = goal_state;
+        mpnet_res.push_back(goal_state);
     }
     else
     {
+        //std::cout << "inside cost sampling" << std::endl;
         flag=1;
         begin_time = clock();
         // first sample several mpnet points, then use the costnet to find the best point
         int num_sample = 15;
         std::vector<std::vector<double>> next_state_candidate(num_sample,std::vector<double>(this->state_dim));
-        std::vector<double> next_state_cost(num_sample);
+        std::vector<double> cost_step(num_sample);
+        std::vector<double> cost_to_goal(num_sample);
+        std::vector<std::vector<double>> cost_start_state(num_sample,std::vector<double>(this->state_dim));
         std::vector<std::vector<double>> cost_end_state(num_sample,std::vector<double>(this->state_dim));
-        // construct cost_end_state
+        // obtain next_state from state_t using MPnet
+        this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
+
+        // obtain the nearest node to state_t in the tree
+        std::vector<double> tree_state_t(this->state_dim);
+        for (unsigned j=0; j < this->state_dim; j++)
+        {
+            state_t_ptr[j] = state_t[j];
+        }
+        SMP->nearest_state(state_t_ptr, tree_state_t);
+
+
+        // construct cost_start_state and cost_end_state
         for (unsigned j=0; j<num_sample; j++)
         {
+            cost_start_state[j] = tree_state_t;
             cost_end_state[j] = goal_inform_state;
         }
-        this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_candidate, num_sample);
-        // calculate cost
-        this->cost_informer_batch(cost_obs_enc, next_state_candidate, cost_end_state, next_state_cost, num_sample);
+        // calculate cost by the following formula:
+        //     c(x0,Near(xt))+h(Near(xt),x_t_1) + h(x_t_1,xG)
+
+        // calculate h(Near(xt), x_t_1)
+        this->cost_informer_batch(cost_obs_enc, cost_start_state, next_state_candidate, cost_step, num_sample);
+        // calculate h(x_t_1, xG)
+        this->cost_informer_batch(cost_obs_enc, next_state_candidate, cost_end_state, cost_to_goal, num_sample);
+
+        //std::cout << "after cost_informer_batch" << std::endl;
 
         double best_cost = 100000.;
         int best_ind = -1;
         for (unsigned j=0; j<num_sample; j++)
         {
-            if (next_state_cost[j] < best_cost)
+            //std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
+
+            //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
+            mpnet_res.push_back(next_state_candidate[j]);
+            mpnet_cost.push_back(cost_step[j]+cost_to_goal[j]);
+            if (cost_step[j]+cost_to_goal[j] < best_cost)
             {
-                best_cost = next_state_cost[j];
+                best_cost = cost_step[j]+cost_to_goal[j];
                 best_ind = j;
             }
         }
+        std::cout << "cost_step: " << std::endl;
+        std::cout << cost_step << std::endl;
+        std::cout << "cost_to_goal: " << std::endl;
+        std::cout << cost_to_goal << std::endl;
         next_state = next_state_candidate[best_ind];
+
         //std::cout << "best_cost: " << best_cost << std::endl;
+        //std::cout << "after cost sampling" << std::endl;
+        //std::cout << "best_ind: " << best_ind << std::endl;
 
         //this->informer(obs_enc, state_t, goal_inform_state, next_state);
-
-        mpnet_res = next_state;
     #ifdef COUNT_TIME
         std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
     #endif
@@ -1904,6 +1966,7 @@ void MPNetSMP::plan_tree_SMP_cost_step(planner_t* SMP, system_t* system, psopt_s
         }
     }
     */
+
     if (new_time >= 0.02)
     {
         // if success, then return the newly added edge

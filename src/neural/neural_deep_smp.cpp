@@ -1248,9 +1248,9 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1;  // flag=1: using MPNet
                  // flag=0: not using MPNet
-     double pick_goal_threshold = 0.25;
+     double pick_goal_threshold = 0.10;
      std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-     int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+     int goal_linear_inc_start_iter = floor(0.6*max_iteration);
      int goal_linear_inc_end_iter = max_iteration;
      double goal_linear_inc_end_threshold = 0.95;
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
@@ -1288,7 +1288,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             flag=1;
             begin_time = clock();
             // first sample several mpnet points, then use the costnet to find the best point
-            int num_sample = 15;
+            int num_sample = 10;
             std::vector<std::vector<double>> next_state_candidate(num_sample,std::vector<double>(this->state_dim));
             std::vector<double> cost_step(num_sample);
             std::vector<double> cost_to_goal(num_sample);

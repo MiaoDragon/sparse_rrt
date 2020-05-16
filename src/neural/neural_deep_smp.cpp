@@ -1218,6 +1218,8 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
 // Using original DeepSMP method
 void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius, double cost_threshold,
+                    double pick_goal_init_threshold, double goal_linear_inc_start_rate, double pick_goal_end_threshold,
+                    int num_sample, int bvp_min_time_steps, int bvp_max_time_steps,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     /**
@@ -1231,6 +1233,7 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             else:
                 x_t = x_t_1
     */
+
     std::vector<double> state_t = start_state;
     torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
@@ -1248,11 +1251,11 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1;  // flag=1: using MPNet
                  // flag=0: not using MPNet
-     double pick_goal_threshold = 0.10;
+     double pick_goal_threshold = pick_goal_init_threshold;
      std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-     int goal_linear_inc_start_iter = floor(0.6*max_iteration);
+     int goal_linear_inc_start_iter = floor(goal_linear_inc_start_rate*max_iteration);
      int goal_linear_inc_end_iter = max_iteration;
-     double goal_linear_inc_end_threshold = 0.95;
+     double goal_linear_inc_end_threshold = pick_goal_end_threshold;
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
     for (unsigned i=1; i<=max_iteration; i++)
     {
@@ -1288,7 +1291,6 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             flag=1;
             begin_time = clock();
             // first sample several mpnet points, then use the costnet to find the best point
-            int num_sample = 10;
             std::vector<std::vector<double>> next_state_candidate(num_sample,std::vector<double>(this->state_dim));
             std::vector<double> cost_step(num_sample);
             std::vector<double> cost_to_goal(num_sample);
@@ -1366,8 +1368,8 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         }
         // below tries to use step_with_sample to imitate DeepSMP
         double new_time = 0.;
-        int min_time_steps = 5;
-        int max_time_steps = 100;
+        int min_time_steps = bvp_min_time_steps;
+        int max_time_steps = bvp_max_time_steps;
         SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
 
         // only when using MPNet, update the state_t using next_state. Otherwise not change

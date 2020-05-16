@@ -1428,7 +1428,9 @@ public:
     }
 
     py::object plan_tree_SMP_cost(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
-                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold)
+                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold,
+                    double pick_goal_init_threshold, double goal_linear_inc_start_rate, double pick_goal_end_threshold,
+                    int num_sample, int bvp_min_time_steps, int bvp_max_time_steps)
     {
 
         // load data from python
@@ -1493,7 +1495,9 @@ public:
         std::vector<double> res_t;
         //std::cout << "neural_smp planning" << std::endl;
         neural_smp->plan_tree_SMP_cost(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius, cost_threshold,
-                         res_x, res_u, res_t);
+                                        pick_goal_init_threshold, goal_linear_inc_start_rate, pick_goal_end_threshold,
+                                        num_sample, bvp_min_time_steps, bvp_max_time_steps,
+                                        res_x, res_u, res_t);
         if (res_x.size() == 0)
         {
             //std::cout << "python wrapper: solution length 0" << std::endl;
@@ -2327,7 +2331,13 @@ PYBIND11_MODULE(_sst_module, m) {
               "distance"_a,
               "delta_near"_a,
               "delta_drain"_a,
-              "cost_threshold"_a
+              "cost_threshold"_a,
+              "pick_goal_init_threshold"_a,
+              "goal_linear_inc_start_rate"_a,
+              "pick_goal_end_threshold"_a,
+              "num_sample"_a,
+              "bvp_min_time_steps"_a,
+              "bvp_max_time_steps"_a
           )
           .def("plan_tree_SMP_cost_gradient", &DeepSMPWrapper::plan_tree_SMP_cost_gradient,
               "planner_name"_a,

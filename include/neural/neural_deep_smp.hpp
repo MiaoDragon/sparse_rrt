@@ -46,6 +46,8 @@ public:
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
     void plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int max_iteration, double goal_radius, double cost_threshold,
+                        double pick_goal_init_threshold, double goal_linear_inc_start_rate, double pick_goal_end_threshold,
+                        int num_sample, int bvp_min_time_steps, int bvp_max_time_steps,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
 
     void plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,

@@ -1217,7 +1217,7 @@ public:
 
     py::object plan_tree_SMP(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold,
-                    int num_sample, int min_tim_steps, int max_time_steps,
+                    int num_sample, int min_time_steps, int max_time_steps,
                     double mpnet_goal_threshold, int mpnet_length_threshold)
     {
 

@@ -880,6 +880,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                     double mpnet_goal_threshold, int mpnet_length_threshold,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
+    std::cout << "inside plan_tree_SMP" << std::endl;
     //int num_sample = 10;
     torch::Tensor start_state_tensor = getStateTensorWithNormalization(start_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     start_state_tensor = start_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
@@ -914,7 +915,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        //std::cout << "iteration " << i << std::endl;
+        if (i % 100 == 0)
+        {
+            std::cout << "iteration " << i << std::endl;
+        }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;

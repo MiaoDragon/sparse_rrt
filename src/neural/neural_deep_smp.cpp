@@ -949,7 +949,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             {
                 // renew the batch
                 std::cout << "before tensor_informer..." << std::endl;
-                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
+                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor).to(at::kCPU);;
                 std::cout << "after tensor_informer..." << std::endl;
                 auto next_state_batch_tensor_a = next_state_batch_tensor.accessor<float,2>(); // accesor for the tensor
                 // covert from tensor -> vector

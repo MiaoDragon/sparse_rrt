@@ -876,7 +876,7 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
 // Using original DeepSMP method
 void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius, double cost_threshold,
-                    int num_sample, int min_tim_steps, int max_time_steps,
+                    int num_sample, int min_time_steps, int max_time_steps,
                     double mpnet_goal_threshold, int mpnet_length_threshold,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
@@ -887,7 +887,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     goal_state_tensor = goal_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     torch::Tensor state_t_batch_tensor = start_state_tensor;
     torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device))).repeat({num_sample, 1});
-    //clock_t begin_time;
+    clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
@@ -1029,7 +1029,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     // check if solved
     SMP->get_solution(res_x, res_u, res_t);
 
-    delete state_t_ptr;
     delete next_state_ptr;
 
     delete new_state;

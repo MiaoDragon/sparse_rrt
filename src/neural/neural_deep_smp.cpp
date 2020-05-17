@@ -915,6 +915,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
+        std::cout << "iteration " << i << std::endl;
         if (i % 100 == 0)
         {
             std::cout << "iteration " << i << std::endl;

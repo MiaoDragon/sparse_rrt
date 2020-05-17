@@ -876,32 +876,30 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
 // Using original DeepSMP method
 void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                     int max_iteration, double goal_radius, double cost_threshold,
+                    int num_sample, int min_tim_steps, int max_time_steps,
+                    double mpnet_goal_threshold, int mpnet_length_threshold,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
-    /**
-        each iteration:
-            x_hat = informer(x_t, x_G)
-            if for some frequency, x_hat = x_G
-            x_traj, u_traj, t_traj = init_informer(x_t, x_hat)
-            x_t_1, edge, valid = planner->step_bvp(x_t, x_hat, x_traj, u_traj, t_traj)
-            if not valid:
-                x_t = x0
-            else:
-                x_t = x_t_1
-    */
-    std::vector<double> state_t = start_state;
-    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
-    clock_t begin_time;
+    //int num_sample = 10;
+    torch::Tensor start_state_tensor = getStateTensorWithNormalization(start_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    start_state_tensor = start_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    torch::Tensor goal_state_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    goal_state_tensor = goal_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    torch::Tensor state_t_batch_tensor = start_state_tensor;
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device))).repeat({num_sample, 1});
+    //clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
-
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
     at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));;
-    double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     double* new_state = new double[this->state_dim];
     double* new_control = new double[this->control_dim];
     double* from_state = new double[this->state_dim];
+    at::Tensor next_state_batch_tensor;
+    std::vector<std::vector<double>> next_state_batch(num_sample, std::vector<double>(this->state_dim));
+    std::vector<double> next_state(this->state_dim);
+
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1;  // flag=1: using MPNet
                  // flag=0: not using MPNet
@@ -911,6 +909,9 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
      int goal_linear_inc_end_iter = max_iteration;
      double goal_linear_inc_end_threshold = 0.95;
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
+
+
+
     for (unsigned i=1; i<=max_iteration; i++)
     {
         //std::cout << "iteration " << i << std::endl;
@@ -918,16 +919,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
-        // given the previous result of bvp, find the next starting point (nearest in the tree)
-        //for (unsigned j=0; j < this->state_dim; j++)
-        //{
-        //    state_t_ptr[j] = state_t[j];
-        //}
-        //SMP->nearest_state(state_t_ptr, state_t);
-
-        std::vector<double> next_state(this->state_dim);
-        std::vector<std::vector<double>> next_state_batch(10, std::vector<double>(this->state_dim));
-        int batch_idx = 10;  // the index to use in the batch
+        int batch_idx = num_sample;  // the index to use in the batch
         int mpnet_length = 0;
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number
@@ -944,15 +936,31 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         }
         else
         {
-            mpnet_length += 1;
+            // use from the batch
             flag=1;
             begin_time = clock();
-            //this->informer(obs_enc, state_t, goal_inform_state, next_state);
-            if (batch_idx == 10)
+            if (batch_idx == num_sample)
             {
                 // renew the batch
-                this->informer_batch(obs_enc, state_t, goal_inform_state, next_state_batch, 10);
+                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
+                auto next_state_batch_tensor_a = next_state_batch_tensor.accessor<float,2>(); // accesor for the tensor
+                // covert from tensor -> vector
+                for (unsigned j=0; j<num_sample; j++)
+                {
+                    std::vector<double> next_state_before_unnorm(this->state_dim);
+                    // copy to vector and unnormalize
+                    for (unsigned k=0; k<this->state_dim; k++)
+                    {
+                        next_state_before_unnorm[k] = next_state_batch_tensor_a[j][k];
+                    }
+                    // unnormalize to store in the next_state_batch
+                    unnormalize(next_state_before_unnorm, next_state_batch[j]);
+                }
+                // start using from the first state in the batch
                 batch_idx = 0;
+                // since the batch has been updated, waypoint length increases
+                mpnet_length += 1;
+
             }
             next_state = next_state_batch[batch_idx];  // take the next in the batch
             batch_idx ++;  // increase the batch
@@ -960,27 +968,20 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             std::cout << "informer time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
         #endif
         }
-        // according to next_state (MPNet sample), change start state to nearest_neighbors of next_state to
-        // use search tree
-        //for (unsigned j=0; j < this->state_dim; j++)
-        //{
-        //    state_t_ptr[j] = next_state[j];
-        //}
-        //SMP->nearest_state(state_t_ptr, state_t);
         // copy to c++ double* list from std::vector
         for (unsigned j=0; j < this->state_dim; j++)
         {
-            state_t_ptr[j] = state_t[j];
             next_state_ptr[j] = next_state[j];
         }
         // below tries to use step_with_sample to imitate DeepSMP
         double new_time = 0.;
-        int min_time_steps = 5;
-        int max_time_steps = 100;
-        SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.02);
+        //int min_time_steps = 5;
+        //int max_time_steps = 100;
+        SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, psopt_step_sz);
 
-        // only when using MPNet, update the state_t using next_state. Otherwise not change
-        if (flag)//flag=1: using MPNet.
+        // if currently using MPNet path as waypoints, and use up all samples in the batch
+        // then need to update state_t_batch to obtain a new batch
+        if (flag && batch_idx==num_sample)//flag=1: using MPNet. batch_idx==num_sample: need to renew the batch
         {
             /**
             if (new_time <= 0.01)
@@ -992,19 +993,17 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             // edit: if near goal, or long enough, then back to origin
             // calculate the distance to goal
             double distance_to_goal = SMP->get_distance(next_state.data(), goal_inform_state.data(), this->state_dim);
-            if (distance_to_goal <= goal_radius*2.0 || mpnet_length >= 40)
+            //if (distance_to_goal <= goal_radius*2.0 || mpnet_length >= 40)
+            if (distance_to_goal <= goal_radius*mpnet_goal_threshold || mpnet_length >= mpnet_length_threshold)
             {
-                state_t = start_state;
+                // if near goal, then reset the mpnet path to go from start
+                state_t_batch_tensor = start_state_tensor;
                 mpnet_length = 0;
             }
             else
             {
-                // propagation success
-                state_t = next_state; // this using MPNet next sample instead of propagated state
-                //for (unsigned j=0; j<this->state_dim; j++)
-                //{
-                //    state_t[j] = new_state[j];  // this uses propagated state after radom extension
-                //}
+                // need to update state_t_batch from next_state_batch
+                state_t_batch_tensor = next_state_batch_tensor;
             }
         }
          // check if solution exists
@@ -1018,7 +1017,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         if (res_x.size() != 0 && total_t <= cost_threshold)
         {
             // solved
-            delete state_t_ptr;
             delete next_state_ptr;
 
             delete new_state;
@@ -1331,9 +1329,9 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
                 //std::cout << "next_State_candidate[j]: [" << next_state_candidate[j] << "]" << std::endl;
 
                 //std::cout << "next_state_cost[j]: " << next_state_cost[j] << std::endl;
-                if (cost_step[j]+cost_to_goal[j] < best_cost)
+                if (cost_to_goal[j] < best_cost)
                 {
-                    best_cost = cost_step[j]+cost_to_goal[j];
+                    best_cost = cost_to_goal[j];
                     best_ind = j;
                 }
             }
@@ -1394,10 +1392,6 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             {
                 // propagation success
                 state_t = next_state; // this using MPNet next sample instead of propagated state
-                //for (unsigned j=0; j<this->state_dim; j++)
-                //{
-                //    state_t[j] = new_state[j];  // this uses propagated state after radom extension
-                //}
             }
         }
          // check if solution exists

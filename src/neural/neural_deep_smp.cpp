@@ -880,7 +880,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                     double mpnet_goal_threshold, int mpnet_length_threshold,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
-    std::cout << "inside plan_tree_SMP" << std::endl;
     //int num_sample = 10;
     torch::Tensor start_state_tensor = getStateTensorWithNormalization(start_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     start_state_tensor = start_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
@@ -915,11 +914,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        std::cout << "iteration " << i << std::endl;
-        if (i % 100 == 0)
-        {
-            std::cout << "iteration " << i << std::endl;
-        }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
@@ -942,35 +936,24 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         else
         {
             // use from the batch
-            std::cout << "using batch..." << std::endl;
             flag=1;
             begin_time = clock();
             if (batch_idx == num_sample)
             {
                 // renew the batch
-                std::cout << "before tensor_informer..." << std::endl;
                 next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor).to(at::kCPU);;
-                std::cout << "after tensor_informer..." << std::endl;
                 auto next_state_batch_tensor_a = next_state_batch_tensor.accessor<float,2>(); // accesor for the tensor
                 // covert from tensor -> vector
-                std::cout << "before convertting..." << std::endl;
-
                 for (unsigned j=0; j<num_sample; j++)
                 {
                     std::vector<double> next_state_before_unnorm(this->state_dim);
                     // copy to vector and unnormalize
-                    std::cout << "before copying..." << std::endl;
                     for (unsigned k=0; k<this->state_dim; k++)
                     {
                         next_state_before_unnorm[k] = next_state_batch_tensor_a[j][k];
                     }
-                    std::cout << "before unnormalize..." << std::endl;
-                    std::cout << "next_state_before_unnorm: " << std::endl;
-                    std::cout << next_state_before_unnorm << std::endl;
                     // unnormalize to store in the next_state_batch
                     unnormalize(next_state_before_unnorm, next_state_batch[j]);
-                    std::cout << "next_state_batch[j]" << std::endl;
-                    std::cout << next_state_batch[j] << std::endl;
                 }
                 // start using from the first state in the batch
                 batch_idx = 0;

@@ -942,14 +942,19 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         else
         {
             // use from the batch
+            std::cout << "using batch..." << std::endl;
             flag=1;
             begin_time = clock();
             if (batch_idx == num_sample)
             {
                 // renew the batch
+                std::cout << "before tensor_informer..." << std::endl;
                 next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
+                std::cout << "after tensor_informer..." << std::endl;
                 auto next_state_batch_tensor_a = next_state_batch_tensor.accessor<float,2>(); // accesor for the tensor
                 // covert from tensor -> vector
+                std::cout << "before convertting..." << std::endl;
+
                 for (unsigned j=0; j<num_sample; j++)
                 {
                     std::vector<double> next_state_before_unnorm(this->state_dim);

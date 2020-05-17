@@ -966,7 +966,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                     }
                     std::cout << "before unnormalize..." << std::endl;
                     std::cout << "next_state_before_unnorm: " << std::endl;
-                    std::cout << next-next_state_before_unnorm << std::endl;
+                    std::cout << next_state_before_unnorm << std::endl;
                     // unnormalize to store in the next_state_batch
                     unnormalize(next_state_before_unnorm, next_state_batch[j]);
                     std::cout << "next_state_batch[j]" << std::endl;

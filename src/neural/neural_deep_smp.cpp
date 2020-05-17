@@ -886,12 +886,12 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     torch::Tensor goal_state_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     goal_state_tensor = goal_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     torch::Tensor state_t_batch_tensor = start_state_tensor;
-    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device))).repeat({num_sample, 1});
+    torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));;
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device))).repeat({num_sample, 1});
     double* next_state_ptr = new double[this->state_dim];
     double* new_state = new double[this->state_dim];
     double* new_control = new double[this->control_dim];

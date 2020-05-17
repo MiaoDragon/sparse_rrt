@@ -959,10 +959,14 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                 {
                     std::vector<double> next_state_before_unnorm(this->state_dim);
                     // copy to vector and unnormalize
+                    std::cout << "before copying..." << std::endl;
                     for (unsigned k=0; k<this->state_dim; k++)
                     {
                         next_state_before_unnorm[k] = next_state_batch_tensor_a[j][k];
                     }
+                    std::cout << "before unnormalize..." << std::endl;
+                    std::cout << "next_state_before_unnorm: " << std::endl;
+                    std::cout << next-next_state_before_unnorm << std::endl;
                     // unnormalize to store in the next_state_batch
                     unnormalize(next_state_before_unnorm, next_state_batch[j]);
                     std::cout << "next_state_batch[j]" << std::endl;

@@ -1327,7 +1327,9 @@ public:
     }
 
     py::object plan_tree_SMP_hybrid(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
-                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold)
+                    double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold,
+                    int num_sample, int min_time_steps, int max_time_steps,
+                    double mpnet_goal_threshold, int mpnet_length_threshold, double random_sample_freq)
     {
 
         // load data from python
@@ -1391,8 +1393,11 @@ public:
         std::vector<std::vector<double>> res_u;
         std::vector<double> res_t;
         //std::cout << "neural_smp planning" << std::endl;
-        neural_smp->plan_tree_SMP_hybrid(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state, max_iteration, goal_radius, cost_threshold,
-                         res_x, res_u, res_t);
+        neural_smp->plan_tree_SMP_hybrid(planner.get(), system, psopt_system, obs_tensor, start_state, goal_state, goal_inform_state,
+                                  max_iteration, goal_radius, cost_threshold,
+                                  num_sample, min_time_steps, max_time_steps,
+                                  mpnet_goal_threshold, mpnet_length_threshold, random_sample_freq,
+                                  res_x, res_u, res_t);
         if (res_x.size() == 0)
         {
             std::cout << "python wrapper: solution length 0" << std::endl;
@@ -2326,7 +2331,13 @@ PYBIND11_MODULE(_sst_module, m) {
               "distance"_a,
               "delta_near"_a,
               "delta_drain"_a,
-              "cost_threshold"_a
+              "cost_threshold"_a,
+              "num_sample"_a,
+              "min_time_steps"_a,
+              "max_time_steps"_a,
+              "mpnet_goal_threshold"_a,
+              "mpnet_length_threshold"_a,
+              "random_sample_freq"_a
           )
           .def("plan_tree_SMP_cost", &DeepSMPWrapper::plan_tree_SMP_cost,
               "planner_name"_a,

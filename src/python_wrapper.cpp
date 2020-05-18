@@ -1218,7 +1218,9 @@ public:
     py::object plan_tree_SMP(std::string& planner_name, system_t* system, psopt_system_t* psopt_system, py::safe_array<double>& obs_py, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, py::safe_array<double>& goal_inform_py,
                     double goal_radius, int max_iteration, py::object distance_computer_py, double delta_near, double delta_drain, double cost_threshold,
                     int num_sample, int min_time_steps, int max_time_steps,
-                    double mpnet_goal_threshold, int mpnet_length_threshold)
+                    double mpnet_goal_threshold, int mpnet_length_threshold,
+                    double pick_goal_init_threshold, double pick_goal_end_threshold,
+                    double pick_goal_start_percent)
     {
 
         // load data from python
@@ -1286,6 +1288,8 @@ public:
                                   max_iteration, goal_radius, cost_threshold,
                                   num_sample, min_time_steps, max_time_steps,
                                   mpnet_goal_threshold, mpnet_length_threshold,
+                                  pick_goal_init_threshold, pick_goal_end_threshold,
+                                  pick_goal_start_percent,
                                   res_x, res_u, res_t);
         if (res_x.size() == 0)
         {
@@ -2320,7 +2324,10 @@ PYBIND11_MODULE(_sst_module, m) {
               "min_time_steps"_a,
               "max_time_steps"_a,
               "mpnet_goal_threshold"_a,
-              "mpnet_length_threshold"_a
+              "mpnet_length_threshold"_a,
+              "pick_goal_init_threshold"_a,
+              "pick_goal_end_threshold"_a,
+              "pick_goal_start_percent"_a
           )
           .def("plan_tree_SMP_hybrid", &DeepSMPWrapper::plan_tree_SMP_hybrid,
               "planner_name"_a,

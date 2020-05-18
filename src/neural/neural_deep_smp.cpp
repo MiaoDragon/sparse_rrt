@@ -916,7 +916,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        std::cout << "iteration: " << i << std::endl;
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
@@ -956,8 +955,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                     }
                     // unnormalize to store in the next_state_batch
                     unnormalize(next_state_before_unnorm, next_state_batch[j]);
-                    std::cout << "next_state_batch[j]" << std::endl;
-                    std::cout << next_state_batch[j] << std::endl;
                 }
                 // start using from the first state in the batch
                 batch_idx = 0;

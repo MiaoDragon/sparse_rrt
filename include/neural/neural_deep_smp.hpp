@@ -47,6 +47,8 @@ public:
                         int max_iteration, double goal_radius, double cost_threshold,
                         int num_sample, int min_time_steps, int max_time_steps,
                         double mpnet_goal_threshold, int mpnet_length_threshold, double random_sample_freq,
+                        double pick_goal_init_threshold, double pick_goal_end_threshold,
+                        double pick_goal_start_percent,
                         std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t);
     void plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
                         int max_iteration, double goal_radius, double cost_threshold,

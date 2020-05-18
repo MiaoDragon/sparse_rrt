@@ -1059,6 +1059,8 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
                     int max_iteration, double goal_radius, double cost_threshold,
                     int num_sample, int min_time_steps, int max_time_steps,
                     double mpnet_goal_threshold, int mpnet_length_threshold, double random_sample_freq,
+                    double pick_goal_init_threshold, double pick_goal_end_threshold,
+                    double pick_goal_start_percent,
                     std::vector<std::vector<double>>& res_x, std::vector<std::vector<double>>& res_u, std::vector<double>& res_t)
 {
     //int num_sample = 10;
@@ -1085,11 +1087,11 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;
     int flag=1;  // flag=1: using MPNet
                  // flag=0: not using MPNet
-     double pick_goal_threshold = 0.25;
+     double pick_goal_threshold = pick_goal_init_threshold;
      std::uniform_real_distribution<double> uni_distribution(0.0,1.0); // based on this sample goal
-     int goal_linear_inc_start_iter = floor(0.4*max_iteration);
+     int goal_linear_inc_start_iter = floor(pick_goal_start_percent*max_iteration);
      int goal_linear_inc_end_iter = max_iteration;
-     double goal_linear_inc_end_threshold = 0.95;
+     double goal_linear_inc_end_threshold = pick_goal_end_threshold;
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
 
      int batch_idx = num_sample;  // the index to use in the batch

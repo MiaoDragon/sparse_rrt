@@ -109,6 +109,7 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
         //std::cout << "number of nodes: " << number_of_nodes << std::endl;
     	return;
     }
+    std::cout << "solved" << std::endl;
 	sst_node_t* nearest_path_node = best_goal;
 
 	//now nearest_path_node should be the closest node to the goal state

@@ -1126,6 +1126,8 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             {
                 next_state[j] = next_state_ptr[j];
             }
+            std::cout << "next_state" << std::endl;
+            std::cout << next_state << std::endl;
             flag=0;
         }
         else if (use_goal_prob <= pick_goal_threshold)
@@ -1215,6 +1217,9 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         {
             total_t += res_t[j];
         }
+        std::cout << "solved" << std::endl;
+        std::cout << "cost: " << total_t << std::endl;
+        std::cout << "cost_threshold:" << cost_threshold << std::endl;
         if (res_x.size() != 0 && total_t <= cost_threshold)
         {
             // solved

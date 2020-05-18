@@ -910,7 +910,8 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
      double goal_linear_inc_end_threshold = 0.95;
      double goal_linear_inc = (goal_linear_inc_end_threshold - pick_goal_threshold) / (goal_linear_inc_end_iter - goal_linear_inc_start_iter);
 
-
+     int batch_idx = num_sample;  // the index to use in the batch
+     int mpnet_length = 0;
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
@@ -919,8 +920,6 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
-        int batch_idx = num_sample;  // the index to use in the batch
-        int mpnet_length = 0;
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number
         if (i > goal_linear_inc_start_iter)

@@ -382,8 +382,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
     for (unsigned i=0; i < num_steps-1; i++)
     {
-        int num_dis = std::floor(t_traj[i] / step_sz);
-        res_t = t_traj[i] - num_dis * step_sz;
+        int num_dis = std::round(t_traj[i] / step_sz);
         #ifdef DEBUG
         std::cout << "step_bvp propagating..." << std::endl;
         std::cout << "i=" << i << std::endl;
@@ -437,41 +436,9 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             break;
         }
-
-        val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
-                  1, end_state, res_t);
-        if (!val)
-        {
-            #ifdef DEBUG
-            std::cout << "invalid propagation in step_bvp" << std::endl;
-            std::cout << "res_t=" << res_t << std::endl;
-            #endif
-            break;
-        }
-        #ifdef DEBUG
-        std::cout << "after propagation in step_bvp" << std::endl;
-        std::cout << "res_t=" << res_t << std::endl;
-        std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
-        std::cout << "end_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
-        #endif
-        std::vector<double> res_x_i;
-        std::vector<double> res_u_i;
-        for (unsigned k=0; k < this->state_dimension; k++)
-        {
-            res_x_i.push_back(end_state[k]);
-            state_t[k] = end_state[k];
-        }
-        for (unsigned k=0; k < this->control_dimension; k++)
-        {
-            res_u_i.push_back(u_traj_i[k]);
-        }
-        step_res.x.push_back(res_x_i);
-        step_res.u.push_back(res_u_i);
-        step_res.t.push_back(res_t);
-
-        // add the last valid node to tree, with the same control for t_traj[i] time
-        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, t_traj[i]);
-        total_t += t_traj[i];
+        // add the last valid node to tree, with the same control
+        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, num_dis*step_sz);
+        total_t += num_dis*step_sz;
         x_tree = new_x_tree;
 
     }

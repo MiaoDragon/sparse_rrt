@@ -554,7 +554,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;

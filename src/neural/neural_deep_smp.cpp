@@ -682,6 +682,10 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
         */
 
     // check if solution exists
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
+
     SMP->get_solution(res_x, res_u, res_t);
     if (res_x.size() != 0)
     {
@@ -692,6 +696,10 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
     }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
+
     SMP->get_solution(res_x, res_u, res_t);
     // visualize
 
@@ -849,6 +857,9 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
          }
 
         // check if solution exists
+        res_x.clear();
+        res_u.clear();
+        res_t.claer();
         SMP->get_solution(res_x, res_u, res_t);
         if (res_x.size() != 0)
         {
@@ -860,6 +871,10 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
         }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
+
     SMP->get_solution(res_x, res_u, res_t);
     // visualize
 
@@ -1007,6 +1022,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             }
         }
          // check if solution exists
+         res_x.clear();
+         res_u.clear();
+         res_t.claer();
+
          SMP->get_solution(res_x, res_u, res_t);
 
         double total_t = 0.;
@@ -1027,6 +1046,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
+
     SMP->get_solution(res_x, res_u, res_t);
 
     delete next_state_ptr;
@@ -1208,6 +1231,10 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             }
         }
          // check if solution exists
+         res_x.clear();
+         res_u.clear();
+         res_t.claer();
+ 
          SMP->get_solution(res_x, res_u, res_t);
 
         double total_t = 0.;
@@ -1232,6 +1259,9 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
         }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
     SMP->get_solution(res_x, res_u, res_t);
 
     delete next_state_ptr;
@@ -1443,6 +1473,9 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
             }
         }
          // check if solution exists
+         res_x.clear();
+         res_u.clear();
+         res_t.claer();
          SMP->get_solution(res_x, res_u, res_t);
 
         double total_t = 0.;
@@ -1464,6 +1497,9 @@ void MPNetSMP::plan_tree_SMP_cost(planner_t* SMP, system_t* system, psopt_system
         }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
     SMP->get_solution(res_x, res_u, res_t);
 
     delete state_t_ptr;
@@ -1663,6 +1699,9 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
             }
         }
          // check if solution exists
+         res_x.clear();
+         res_u.clear();
+         res_t.claer();
          SMP->get_solution(res_x, res_u, res_t);
 
         double total_t = 0.;
@@ -1684,6 +1723,9 @@ void MPNetSMP::plan_tree_SMP_cost_gradient(planner_t* SMP, system_t* system, pso
         }
     }
     // check if solved
+    res_x.clear();
+    res_u.clear();
+    res_t.claer();
     SMP->get_solution(res_x, res_u, res_t);
 
     delete state_t_ptr;

@@ -1097,8 +1097,14 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
      int batch_idx = num_sample;  // the index to use in the batch
      int mpnet_length = 0;
 
+     int pick_rand_times = 0;
     for (unsigned i=1; i<=max_iteration; i++)
     {
+        if (i % 100 == 0)
+        {
+            std::cout << "iteration: " << i << std::endl;
+            std::cout << "pick_rand_times: " << pick_rand_times << std::endl;
+        }
         #ifdef DEBUG
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
@@ -1113,6 +1119,7 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
 
         if (random_sample_prob <= random_sample_freq)
         {
+            pick_rand_times += 1;
             // unifromly sample for fine-tuning
             SMP->random_state(next_state_ptr);
             for (unsigned j=0; j<this->state_dim; j++)

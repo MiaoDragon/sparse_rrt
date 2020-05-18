@@ -897,6 +897,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     double* new_control = new double[this->control_dim];
     double* from_state = new double[this->state_dim];
     at::Tensor next_state_batch_tensor;
+    at::Tensor next_state_batch_tensor_cpu;
     std::vector<std::vector<double>> next_state_batch(num_sample, std::vector<double>(this->state_dim));
     std::vector<double> next_state(this->state_dim);
 
@@ -941,8 +942,9 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             if (batch_idx == num_sample)
             {
                 // renew the batch
-                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor).to(at::kCPU);;
-                auto next_state_batch_tensor_a = next_state_batch_tensor.accessor<float,2>(); // accesor for the tensor
+                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
+                next_state_batch_tensor_cpu = next_state_batch_tensor.to(at::kCPU);;
+                auto next_state_batch_tensor_a = next_state_batch_tensor_cpu.accessor<float,2>(); // accesor for the tensor
                 // covert from tensor -> vector
                 for (unsigned j=0; j<num_sample; j++)
                 {

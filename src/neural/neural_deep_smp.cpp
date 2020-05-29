@@ -1795,17 +1795,17 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     std::vector<double> next_state(this->state_dim);
     if (!flag)
     {
-        //next_state = goal_state;
-        //mpnet_res = goal_state;
+        next_state = goal_state;
+        mpnet_res = goal_state;
 
         // unifromly sample for fine-tuning
-        SMP->random_state(next_state_ptr);
-        for (unsigned j=0; j<this->state_dim; j++)
-        {
-            next_state[j] = next_state_ptr[j];
-        }
+        //SMP->random_state(next_state_ptr);
+        //for (unsigned j=0; j<this->state_dim; j++)
+        //{
+        //    next_state[j] = next_state_ptr[j];
+        //}
         flag=0;
-        mpnet_res = next_state;
+        //mpnet_res = next_state;
     }
     else
     {

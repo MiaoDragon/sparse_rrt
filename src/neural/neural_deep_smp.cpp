@@ -997,7 +997,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
                         else
                         {
                             // use the previously valid state instead for the next_state_batch_tensor
-                            next_state_batch_tensor[j] = start_t_batch_tensor[j];
+                            next_state_batch_tensor[j] = state_t_batch_tensor[j];
                             unnormalize(state_t_before_unnorm, next_state_batch[j]);
                         }
                     }

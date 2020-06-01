@@ -1018,6 +1018,8 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
         std::cout << "next_state:" << std::endl;
         std::cout << next_state << std::endl;
+        std::cout << "goal_state:" << std::endl;
+        std::cout << goal_state << std::endl;
 
         // copy to c++ double* list from std::vector
         for (unsigned j=0; j < this->state_dim; j++)

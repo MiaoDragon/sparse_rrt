@@ -1167,6 +1167,11 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
+        if (i % (max_iteration / 10) == 0)
+        {
+            std::cout << "iteratoin " << i << std::endl;
+        }
+
         double random_sample_prob = uni_distribution(generator);
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number

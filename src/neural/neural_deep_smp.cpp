@@ -935,10 +935,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
 
     for (unsigned i=1; i<=max_iteration; i++)
     {
-        //#ifdef DEBUG
-        std::cout << "iteration " << i << std::endl;
-        //std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
-        //#endif
+        #ifdef DEBUG
+            std::cout << "iteration " << i << std::endl;
+            //std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
+        #endif
 
         if (i % (max_iteration / 10) == 0)
         {
@@ -1017,10 +1017,10 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
         #endif
         }
 
-        std::cout << "next_state:" << std::endl;
-        std::cout << next_state << std::endl;
-        std::cout << "goal_state:" << std::endl;
-        std::cout << goal_state << std::endl;
+        //std::cout << "next_state:" << std::endl;
+        //std::cout << next_state << std::endl;
+        //std::cout << "goal_state:" << std::endl;
+        //std::cout << goal_state << std::endl;
 
         // copy to c++ double* list from std::vector
         for (unsigned j=0; j < this->state_dim; j++)

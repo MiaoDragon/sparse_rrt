@@ -904,6 +904,7 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
     torch::Tensor goal_state_tensor = getStateTensorWithNormalization(goal_inform_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     goal_state_tensor = goal_state_tensor.repeat({num_sample, 1}).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     torch::Tensor state_t_batch_tensor = start_state_tensor;
+    at::Tensor state_t_batch_tensor_cpu;
     torch::Tensor obs_tensor = obs.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     clock_t begin_time;
     //mlp_input_tensor = torch::cat({obs_enc,sg}, 1);

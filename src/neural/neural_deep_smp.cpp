@@ -1841,7 +1841,7 @@ void MPNetSMP::plan_tree_SMP_step(planner_t* SMP, system_t* system, psopt_system
     }
     // below tries to use step_with_sample to imitate DeepSMP
     double new_time = 0.;
-    int min_time_steps = 10;
+    int min_time_steps = 80;
     int max_time_steps = 200;
     SMP->step_with_sample(system, next_state_ptr, from_state, new_state, new_control, new_time, min_time_steps, max_time_steps, 0.002);
     std::cout << "neural_deep_smp: after step_with_sample, new_time: " << new_time << std::endl;

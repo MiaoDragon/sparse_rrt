@@ -61,6 +61,7 @@ MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
 
 MPNetSMP::~MPNetSMP()
 {
+    std::cout << "deleting MPNetSMP" << std::endl;
     MLP.reset();
     encoder.reset();
     cost_MLP.reset();
@@ -937,6 +938,12 @@ void MPNetSMP::plan_tree_SMP(planner_t* SMP, system_t* system, psopt_system_t* p
             std::cout << "iteration " << i << std::endl;
             std::cout << "state_t = [" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3] <<"]" << std::endl;
         #endif
+
+        if (i % (max_iteration / 10) == 0)
+        {
+            std::cout << "iteratoin " << i << std::endl;
+        }
+
         double use_goal_prob = uni_distribution(generator);
         // update pick_goal_threshold based on iteration number
         if (i > goal_linear_inc_start_iter)

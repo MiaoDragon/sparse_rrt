@@ -1196,22 +1196,45 @@ void MPNetSMP::plan_tree_SMP_hybrid(planner_t* SMP, system_t* system, psopt_syst
             begin_time = clock();
             if (batch_idx == num_sample)
             {
-                // renew the batch
-                next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
-                next_state_batch_tensor_cpu = next_state_batch_tensor.to(at::kCPU);;
-                auto next_state_batch_tensor_a = next_state_batch_tensor_cpu.accessor<float,2>(); // accesor for the tensor
-                // covert from tensor -> vector
-                for (unsigned j=0; j<num_sample; j++)
                 {
-                    std::vector<double> next_state_before_unnorm(this->state_dim);
-                    // copy to vector and unnormalize
-                    for (unsigned k=0; k<this->state_dim; k++)
+                    // renew the batch, until obtain inbound tensor
+                    next_state_batch_tensor = this->tensor_informer(obs_enc, state_t_batch_tensor, goal_state_tensor);
+                    state_t_batch_tensor_cpu = state_t_batch_tensor.to(at::kCPU);
+                    auto state_t_batch_tensor_a = state_t_batch_tensor_cpu.accessor<float,2>();
+                    next_state_batch_tensor_cpu = next_state_batch_tensor.to(at::kCPU);
+                    auto next_state_batch_tensor_a = next_state_batch_tensor_cpu.accessor<float,2>(); // accesor for the tensor
+                    // covert from tensor -> vector
+                    // check if the tensor goes out of bound
+                    for (unsigned j=0; j<num_sample; j++)
                     {
-                        next_state_before_unnorm[k] = next_state_batch_tensor_a[j][k];
+                        int inbound = 1;
+                        std::vector<double> state_t_before_unnorm(this->state_dim);
+                        std::vector<double> next_state_before_unnorm(this->state_dim);
+                        // copy to vector and unnormalize
+                        for (unsigned k=0; k<this->state_dim; k++)
+                        {
+                            state_t_before_unnorm[k] = state_t_batch_tensor_a[j][k];
+                            next_state_before_unnorm[k] = next_state_batch_tensor_a[j][k];
+                            if (next_state_before_unnorm[k] < -1.0 || next_state_before_unnorm[k] > 1.0)
+                            {
+                                // out of bound
+                                inbound = 0;
+                            }
+                        }
+                        if (inbound)
+                        {
+                            // unnormalize to store in the next_state_batch
+                            unnormalize(next_state_before_unnorm, next_state_batch[j]);
+                        }
+                        else
+                        {
+                            // use the previously valid state instead for the next_state_batch_tensor
+                            next_state_batch_tensor[j] = state_t_batch_tensor[j];
+                            unnormalize(state_t_before_unnorm, next_state_batch[j]);
+                        }
                     }
-                    // unnormalize to store in the next_state_batch
-                    unnormalize(next_state_before_unnorm, next_state_batch[j]);
                 }
+
                 // start using from the first state in the batch
                 batch_idx = 0;
                 // since the batch has been updated, waypoint length increases

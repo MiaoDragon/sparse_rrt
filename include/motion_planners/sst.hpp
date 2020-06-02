@@ -205,6 +205,9 @@ public:
 
 	virtual void nearest_state(const double* state, std::vector<double> &res_state);
 
+	int add_to_tree_public(const double* sample_state, const double* sample_control, double duration);
+
+
 protected:
 
     /**

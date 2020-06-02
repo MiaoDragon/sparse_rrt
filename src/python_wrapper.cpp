@@ -432,6 +432,32 @@ public:
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
             (res_state, res_control, res_time));
     }
+
+    int add_to_tree(py::safe_array<double>& sample_state_py, py::safe_array<double>& sample_control_py, double duration)
+    {
+        auto sample_state_data_py = sample_state_py.unchecked<1>();
+        auto sample_control_data_py = sample_control_py.unchecked<1>();
+        int state_len = sample_state_data_py.shape(0);
+        int control_len = sample_control_data_py.shape(0);
+        std::vector<double> sample_state;
+        std::vector<double> sample_control;
+        double* sample_state = new double[state_len];
+        double* sample_control = new_double[control_len];
+        for (unsigned i=0; i < state_len; i++)
+        {
+            sample_state[i] = sample_state_data_py[i];
+        }
+        for (unsigned i=0; i < control_len; i++)
+        {
+            sample_control[i] = sample_control_data_py[i];
+        }
+        int res =  planner->add_to_tree_public(sample_state, sample_control,  duration);
+        delete sample_state;
+        delete sample_control;
+        return res;
+    }
+
+
 private:
 
 	/**
@@ -2225,6 +2251,8 @@ PYBIND11_MODULE(_sst_module, m) {
             "sst_delta_drain"_a
         )
         .def("step_bvp", &SSTWrapper::step_bvp)
+        .def("add_to_tree", &SSTWrapper::add_to_tree)
+
    ;
 
     py::class_<PSOPTBVPWrapper>(m, "PSOPTBVPWrapper")

@@ -142,6 +142,19 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 	}
 }
 
+int sst::add_to_tree_public(const double* sample_state, const double* sample_control,  double duration)
+{
+    sst_node_t* nearest = nearest_vertex(sample_state);
+    sst_node_t* res = add_to_tree(sample_state, sample_control, nearest, duration);
+    if (res == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
 
 void sst_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {

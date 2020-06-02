@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "systems/pendulum.hpp"
@@ -31,27 +31,41 @@
 #define DAMPING .05
 
 
-bool pendulum_t::propagate(
+int pendulum_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
 {
 	temp_state[0] = start_state[0]; temp_state[1] = start_state[1];
-	bool validity = true;
+	bool validity = false;
+
+    int actual_num_steps = 0;
+
 	for(int i=0;i<num_steps;i++)
 	{
 		double temp0 = temp_state[0];
 		double temp1 = temp_state[1];
 		temp_state[0] += integration_step*temp1;
 		temp_state[1] += integration_step*
-							((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5 
+							((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5
 										 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
 		enforce_bounds();
-		validity = validity && valid_state();
+
+        if (valid_state() == true)
+        {
+            result_state[0] = temp_state[0];
+            result_state[1] = temp_state[1];
+            validity = true;
+            actual_num_steps += 1;
+        }
+        else
+        {
+            // Found the earliest invalid position. break the loop and return
+            validity = false; // need to update validity because one node is invalid, the propagation fails
+            break;
+        }
 	}
-	result_state[0] = temp_state[0];
-	result_state[1] = temp_state[1];
-	return validity;
+	return actual_num_steps;
 }
 
 void pendulum_t::enforce_bounds()

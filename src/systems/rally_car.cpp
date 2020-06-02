@@ -79,7 +79,7 @@
 //}
 
 
-bool rally_car_t::propagate(
+int rally_car_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
@@ -92,7 +92,11 @@ bool rally_car_t::propagate(
         temp_state[5] = start_state[5];
         temp_state[6] = start_state[6];
         temp_state[7] = start_state[7];
-        bool validity = true;
+        bool validity = false;
+
+        int actual_num_steps = 0;
+
+
         for(int i=0;i<num_steps;i++)
         {
                 update_derivative(control);
@@ -105,16 +109,27 @@ bool rally_car_t::propagate(
                 temp_state[6] += integration_step*deriv[6];
                 temp_state[7] += integration_step*deriv[7];
                 enforce_bounds();
-                validity = validity && valid_state();
+                //validity = validity && valid_state();
+                if (valid_state() == true)
+                {
+                    result_state[0] = temp_state[0];
+                    result_state[1] = temp_state[1];
+                    result_state[2] = temp_state[2];
+                    result_state[3] = temp_state[3];
+                    result_state[4] = temp_state[4];
+                    result_state[5] = temp_state[5];
+                    result_state[6] = temp_state[6];
+                    result_state[7] = temp_state[7];
+                    validity = true;
+                    actual_num_steps += 1;
+                }
+                else
+                {
+                    // Found the earliest invalid position. break the loop and return
+                    validity = false; // need to update validity because one node is invalid, the propagation fails
+                    break;
+                }
         }
-        result_state[0] = temp_state[0];
-        result_state[1] = temp_state[1];
-        result_state[2] = temp_state[2];
-        result_state[3] = temp_state[3];
-        result_state[4] = temp_state[4];
-        result_state[5] = temp_state[5];
-        result_state[6] = temp_state[6];
-        result_state[7] = temp_state[7];
         return validity;
 }
 

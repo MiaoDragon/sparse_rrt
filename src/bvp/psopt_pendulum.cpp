@@ -26,13 +26,18 @@ double psopt_pendulum_t::max_distance() const
 {
     return sqrt(M_PI*M_PI+(MAX_W-MIN_W)*(MAX_W-MIN_W));
 }
-bool psopt_pendulum_t::propagate(
+
+
+int psopt_pendulum_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
 {
 	temp_state[0] = start_state[0]; temp_state[1] = start_state[1];
-	bool validity = true;
+	bool validity = false;
+
+    int actual_num_steps = 0;
+
 	for(int i=0;i<num_steps;i++)
 	{
 		double temp0 = temp_state[0];
@@ -42,13 +47,23 @@ bool psopt_pendulum_t::propagate(
 							((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5
 										 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
 		enforce_bounds();
-		validity = validity && valid_state();
-	}
-	result_state[0] = temp_state[0];
-	result_state[1] = temp_state[1];
-	return validity;
-}
 
+        if (valid_state() == true)
+        {
+            result_state[0] = temp_state[0];
+            result_state[1] = temp_state[1];
+            validity = true;
+            actual_num_steps += 1;
+        }
+        else
+        {
+            // Found the earliest invalid position. break the loop and return
+            validity = false; // need to update validity because one node is invalid, the propagation fails
+            break;
+        }
+	}
+	return actual_num_steps;
+}
 void psopt_pendulum_t::enforce_bounds()
 {
 	if(temp_state[0]<-M_PI)

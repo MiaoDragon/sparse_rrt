@@ -50,7 +50,7 @@ double psopt_acrobot_obs_t::max_distance() const
 {
     return sqrt((MAX_V_1-MIN_V_1)*(MAX_V_1-MIN_V_1)+(MAX_V_2-MIN_V_2)*(MAX_V_2-MIN_V_2)+(MAX_T-MIN_T)*(MAX_T-MIN_T)+M_PI*M_PI);
 }
-bool psopt_acrobot_obs_t::propagate(
+int psopt_acrobot_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
@@ -60,6 +60,8 @@ bool psopt_acrobot_obs_t::propagate(
         temp_state[2] = start_state[2];
         temp_state[3] = start_state[3];
         bool validity = false;
+        int actual_num_steps = 0;
+
         // find the last valid position, if no valid position is found, then return false
         for(int i=0;i<num_steps;i++)
         {
@@ -77,6 +79,7 @@ bool psopt_acrobot_obs_t::propagate(
                     result_state[2] = temp_state[2];
                     result_state[3] = temp_state[3];
                     validity = true;
+                    actual_num_steps += 1;
                 }
                 else
                 {
@@ -89,7 +92,7 @@ bool psopt_acrobot_obs_t::propagate(
         //result_state[1] = temp_state[1];
         //result_state[2] = temp_state[2];
         //result_state[3] = temp_state[3];
-        return validity;
+        return actual_num_steps;
 }
 
 void psopt_acrobot_obs_t::enforce_bounds()

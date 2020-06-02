@@ -200,11 +200,12 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
 
   ///**
   //#### below is the previous working case: if collision then throw the entire trajectory
-  if(system->propagate(
+  int propagated_step = system->propagate(
       nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
-      num_steps, new_state, integration_step))
+      num_steps, new_state, integration_step);
+  if(propagated_step)
   {
-      new_time = num_steps*integration_step;
+      new_time = propagated_step*integration_step;
       add_to_tree(new_state, new_control, nearest, new_time);
   }
   else
@@ -212,78 +213,7 @@ void sst_t::step_with_sample(system_interface* system, double* sample_state, dou
       new_time = 0.; // not added to the tree
   }
   return;
-  //#####
-  //*/
 
-
-
-
-
- // below propagate every step until collision happens
-
- double* past_valid_state = new double[this->state_dimension];
- for (unsigned i=0; i<this->state_dimension; i++)
- {
-     past_valid_state[i] = nearest->get_point()[i]; // starting point
- }
- int propagated_step = 0;
- for (unsigned t=0; t<num_steps; t++)
- {
-     // obtain the propagation result
-     bool val = system->propagate(
-         past_valid_state, this->state_dimension, new_control, this->control_dimension,
-         1, new_state, integration_step);
-    //std::cout << "propagation step: " << t << std::endl;
-    if (t==0 && !val)
-    {
-        // if iteration is 0 and the propagation fails (didn't step at all)
-        // return failure
-        delete past_valid_state;
-        //std::cout << "after step_with_sample, failed" << std::endl;
-
-        return;
-    }
-    if (!val)
-    {
-        // if the propagation is not valid, then add the last valid point to tree
-        new_time = propagated_step*integration_step;
-        add_to_tree(past_valid_state, new_control, nearest, new_time);
-        // set the past_valid_state to new_state
-        for (unsigned i=0; i<this->state_dimension; i++)
-        {
-            new_state[i] = past_valid_state[i];
-        }
-        // return success
-        //std::cout << "step_with_sample return: new_time: " << new_time << std::endl;
-        delete past_valid_state;
-        //std::cout << "after step_with_sample" << std::endl;
-
-        return;
-    }
-    // otherwise update the past_valid_state
-    for (unsigned i=0; i<this->state_dimension; i++)
-    {
-        past_valid_state[i] = new_state[i];
-    }
-    propagated_step += 1;  // valid propagation +1
- }
- // success after all propagation
- // then add the last valid point to tree
- new_time = propagated_step*integration_step;
- add_to_tree(past_valid_state, new_control, nearest, new_time);
- // set the past_valid_state to new_state
- for (unsigned i=0; i<this->state_dimension; i++)
- {
-     new_state[i] = past_valid_state[i];
- }
- // return success
- delete past_valid_state;
- //std::cout << "after step_with_sample" << std::endl;
- return;
-
-
-
-  //std::cout << "after step in C++" << std::endl;
 }
 
 
@@ -305,10 +235,12 @@ void sst_t::step(system_interface* system, int min_time_steps, int max_time_step
 	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
     double duration = num_steps*integration_step;
     //std::cout << "before propagating in C++" << std::endl;
-	if(system->propagate(
+    int propagated_step = system->propagate(
 	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
-	    num_steps, sample_state, integration_step))
+	    num_steps, sample_state, integration_step);
+    if (propagated_step)
 	{
+        duration = num_steps * integration_step;
 		add_to_tree(sample_state, sample_control, nearest, duration);
 	}
     //std::cout << "after step in C++" << std::endl;

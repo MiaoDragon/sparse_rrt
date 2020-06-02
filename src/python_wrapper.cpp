@@ -625,7 +625,7 @@ public:
 	/**
 	 * @copydoc system_interface::propagate()
 	 */
-    bool propagate(
+    int propagate(
         const double* start_state, unsigned int state_dimension,
         const double* control, unsigned int control_dimension,
         int num_steps,
@@ -743,7 +743,7 @@ public:
          }
     }
 
-    bool propagate(
+    int propagate(
              const double* start_state, unsigned int state_dimension,
              const double* control, unsigned int control_dimension,
      	    int num_steps, double* result_state, double integration_step)

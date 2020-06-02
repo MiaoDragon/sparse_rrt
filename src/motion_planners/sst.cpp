@@ -146,14 +146,20 @@ int sst_t::add_to_tree_public(system_interface* system, const double* sample_sta
 {
     sst_node_t* nearest = nearest_vertex(sample_state);
     double* new_state = new double[this->state_dimension];
+    std::cout << "sample state:" << std::endl;
+    std::cout << sample_state[0] << ", "<< sample_state[1] << ", "<< sample_state[2] << ", "<< sample_state[3] << std::endl;
+
+    std::cout << "nearest_state:" << std::endl;
+    std::cout << nearest->get_point()[0] << ", "<< nearest->get_point()[1] << ", "<< nearest->get_point()[2] << ", "<< nearest->get_point()[3] << std::endl;
+
 
     if(system->propagate(
         nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
         num_steps, new_state, integration_step))
     {
         std::cout << "propagte ok!" << std::endl;
-        std::cout << "new state:" << std::endl;
-        std::cout << new_state[0] << ", "<< new_state[1] << ", "<< new_state[2] << ", "<< new_state[3] << std::endl;
+        //std::cout << "new state:" << std::endl;
+        //std::cout << new_state[0] << ", "<< new_state[1] << ", "<< new_state[2] << ", "<< new_state[3] << std::endl;
         sst_node_t* res = add_to_tree(new_state, sample_control, nearest, num_steps*integration_step);
         if (res != NULL)
         {

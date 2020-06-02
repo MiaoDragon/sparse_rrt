@@ -442,7 +442,7 @@ public:
         std::vector<double> sample_state;
         std::vector<double> sample_control;
         double* sample_state = new double[state_len];
-        double* sample_control = new_double[control_len];
+        double* sample_control = new double[control_len];
         for (unsigned i=0; i < state_len; i++)
         {
             sample_state[i] = sample_state_data_py[i];
@@ -2252,7 +2252,6 @@ PYBIND11_MODULE(_sst_module, m) {
         )
         .def("step_bvp", &SSTWrapper::step_bvp)
         .def("add_to_tree", &SSTWrapper::add_to_tree)
-
    ;
 
     py::class_<PSOPTBVPWrapper>(m, "PSOPTBVPWrapper")

@@ -151,7 +151,7 @@ int sst_t::add_to_tree_public(system_interface* system, const double* sample_sta
         nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
         num_steps, new_state, integration_step))
     {
-        std::cout << "propagte ok!" std::endl;
+        std::cout << "propagte ok!" << std::endl;
         sst_node_t* res = add_to_tree(new_state, sample_control, nearest, num_steps*integration_step);
         if (res != NULL)
         {

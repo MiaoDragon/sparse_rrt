@@ -158,8 +158,8 @@ int sst_t::add_to_tree_public(system_interface* system, const double* sample_sta
         num_steps, new_state, integration_step))
     {
         std::cout << "propagte ok!" << std::endl;
-        //std::cout << "new state:" << std::endl;
-        //std::cout << new_state[0] << ", "<< new_state[1] << ", "<< new_state[2] << ", "<< new_state[3] << std::endl;
+        std::cout << "new state:" << std::endl;
+        std::cout << new_state[0] << ", "<< new_state[1] << ", "<< new_state[2] << ", "<< new_state[3] << std::endl;
         sst_node_t* res = add_to_tree(new_state, sample_control, nearest, num_steps*integration_step);
         if (res != NULL)
         {

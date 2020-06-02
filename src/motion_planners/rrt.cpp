@@ -105,7 +105,7 @@ int rrt_t::add_to_tree_public(system_interface* system, const double* sample_sta
   	  rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
   		  new_state, this->state_dimension, nearest,
   		  tree_edge_t(sample_control, this->control_dimension, num_steps*integration_step),
-  		  nearest->get_cost() + new_time)
+  		  nearest->get_cost() + num_steps*integration_step)
   	  ));
   	  metric.add_node(new_node);
   	  number_of_nodes++;

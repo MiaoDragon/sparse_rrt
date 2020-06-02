@@ -432,8 +432,7 @@ public:
         return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
             (res_state, res_control, res_time));
     }
-
-    int add_to_tree(py::safe_array<double>& sample_state_py, py::safe_array<double>& sample_control_py, double duration)
+    int add_to_tree(system_interface* propagate_system, py::safe_array<double>& sample_state_py, py::safe_array<double>& sample_control_py, int num_steps, double integration_step)
     {
         auto sample_state_data_py = sample_state_py.unchecked<1>();
         auto sample_control_data_py = sample_control_py.unchecked<1>();
@@ -451,7 +450,7 @@ public:
         {
             sample_control[i] = sample_control_data_py[i];
         }
-        int res =  planner->add_to_tree_public(sample_state, sample_control,  duration);
+        int res =  planner->add_to_tree_public(propagate_system, sample_state,  sample_control, num_steps, integration_step);
         delete sample_state;
         delete sample_control;
         return res;

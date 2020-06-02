@@ -123,6 +123,7 @@ public:
 		std::vector<std::vector<double>> &u_init,
 		std::vector<double> &t_init);
 	virtual void nearest_state(const double* state, std::vector<double> &res_state);
+	virtual int add_to_tree_public(system_interface* system, const double* sample_state, const double* sample_control, int num_steps, double integration_step);
 
 protected:
 

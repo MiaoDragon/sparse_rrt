@@ -87,7 +87,7 @@ public:
 	 * @param costs The list of costs of the edges which comprise the solution.
 	 */
 	virtual void get_solution(std::vector<std::vector<double>>& solution_path, std::vector<std::vector<double>>& controls, std::vector<double>& costs) = 0;
-
+	virtual int add_to_tree_public(system_interface* system, const double* sample_state, const double* sample_control, int num_steps, double integration_step) =0;
 	/**
 	 * @brief Perform an iteration of a motion planning algorithm.
 	 * @details Perform an iteration of a motion planning algorithm.
@@ -107,7 +107,7 @@ public:
 	virtual void nearest_state(const double* state, std::vector<double> &res_state) = 0;
 	virtual double get_distance(const double* state1, const double* state2, int dimension)
 	{
-		return this->distance(state1, state2, this->state_dimension);	
+		return this->distance(state1, state2, this->state_dimension);
 	};
     /**
 	 * @brief Return the root of the planning tree

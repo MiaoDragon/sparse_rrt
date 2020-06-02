@@ -93,6 +93,30 @@ void rrt_t::nearest_state(const double* state, std::vector<double> &res_state)
 }
 
 
+int rrt_t::add_to_tree_public(system_interface* system, const double* sample_state, const double* sample_control, int num_steps, double integration_step)
+{
+    sst_node_t* nearest = nearest_vertex(sample_state);
+	double* new_state = new double[this->state_dimension];
+	if(system->propagate(
+  	  nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
+  	  num_steps, new_state, integration_step))
+    {
+  	  //create a new tree node
+  	  rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
+  		  new_state, this->state_dimension, nearest,
+  		  tree_edge_t(sample_control, this->control_dimension, num_steps*integration_step),
+  		  nearest->get_cost() + new_time)
+  	  ));
+  	  metric.add_node(new_node);
+  	  number_of_nodes++;
+	  delete new_state;
+	  return 1;
+    }
+	delete new_state;
+	return 0;
+}
+
+
 
 void rrt_t::step_with_sample(system_interface* system, double* sample_state, double* from_state, double* new_state, double* new_control, double& new_time, int min_time_steps, int max_time_steps, double integration_step)
 {

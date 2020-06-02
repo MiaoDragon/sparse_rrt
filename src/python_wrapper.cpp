@@ -438,8 +438,6 @@ public:
         auto sample_control_data_py = sample_control_py.unchecked<1>();
         int state_len = sample_state_data_py.shape(0);
         int control_len = sample_control_data_py.shape(0);
-        std::vector<double> sample_state;
-        std::vector<double> sample_control;
         double* sample_state = new double[state_len];
         double* sample_control = new double[control_len];
         for (unsigned i=0; i < state_len; i++)

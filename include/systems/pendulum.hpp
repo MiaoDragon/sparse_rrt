@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- *
+ * 
  */
 
 #ifndef SPARSE_PENDULUM_HPP
@@ -31,7 +31,7 @@ public:
 	/**
 	 * @copydoc system_t::propagate(double*, double*, int, int, double*, double& )
 	 */
-	virtual int propagate(
+	virtual bool propagate(
 		const double* start_state, unsigned int state_dimension,
         const double* control, unsigned int control_dimension,
 	    int num_steps, double* result_state, double integration_step);
@@ -40,7 +40,7 @@ public:
 	 * @copydoc system_t::enforce_bounds()
 	 */
 	virtual void enforce_bounds();
-
+	
 	/**
 	 * @copydoc system_t::valid_state()
 	 */

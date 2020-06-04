@@ -43,7 +43,7 @@
 #define MAX_W 2
 
 
-int cart_pole_t::propagate(
+bool cart_pole_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
@@ -53,9 +53,6 @@ int cart_pole_t::propagate(
             temp_state[2] = start_state[2];
             temp_state[3] = start_state[3];
             bool validity = false;
-
-            int actual_num_steps = 0;
-
             for(int i=0;i<num_steps;i++)
             {
                     update_derivative(control);
@@ -72,8 +69,6 @@ int cart_pole_t::propagate(
                         result_state[2] = temp_state[2];
                         result_state[3] = temp_state[3];
                         validity = true;
-                        actual_num_steps += 1;
-
                     }
                     else
                     {
@@ -86,7 +81,7 @@ int cart_pole_t::propagate(
             //result_state[1] = temp_state[1];
             //result_state[2] = temp_state[2];
             //result_state[3] = temp_state[3];
-        return actual_num_steps;
+            return validity;
     }
 
 void cart_pole_t::enforce_bounds()

@@ -38,7 +38,7 @@ struct system_interface {
 	 * @param duration The amount of simulation time used.
 	 * @return True if this propagation was valid, false if not.
 	 */
-    virtual int propagate(
+    virtual bool propagate(
         const double* start_state, unsigned int state_dimension,
         const double* control, unsigned int control_dimension,
         int num_steps, double* result_state, double integration_step) = 0;

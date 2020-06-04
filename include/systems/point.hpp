@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- *
+ * 
  */
 
 #ifndef SPARSE_POINT_HPP
@@ -22,7 +22,7 @@ class Rectangle_t
 public:
 	/**
 	 * @brief Create a rectangle using two corners
-	 *
+	 * 
 	 * @param lx Bottom Left X coordinate
 	 * @param ly Bottom Left Y coordinate
 	 * @param hx Top Right X coordinate
@@ -58,7 +58,7 @@ public:
 };
 
 /**
- * @brief A simple system implementing a 2d point.
+ * @brief A simple system implementing a 2d point. 
  * @details A simple system implementing a 2d point. It's controls include velocity and direction.
  */
 class point_t : public system_t
@@ -87,7 +87,7 @@ public:
 	/**
 	 * @copydoc system_t::propagate(double*, double*, int, int, double*, double& )
 	 */
-	virtual int propagate(
+	virtual bool propagate(
 	    const double* start_state, unsigned int state_dimension,
         const double* control, unsigned int control_dimension,
 	    int num_steps, double* result_state, double integration_step) override;
@@ -96,7 +96,7 @@ public:
 	 * @copydoc system_t::enforce_bounds()
 	 */
 	virtual void enforce_bounds() override;
-
+	
 	/**
 	 * @copydoc system_t::valid_state()
 	 */

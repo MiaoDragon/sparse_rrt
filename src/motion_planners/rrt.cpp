@@ -136,13 +136,12 @@ void rrt_t::step_with_sample(system_interface* system, double* sample_state, dou
       from_state[i] = nearest->get_point()[i];
   }
   int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-  int propagated_step = system->propagate(
+  new_time = num_steps*integration_step;
+  if(system->propagate(
 	  nearest->get_point(), this->state_dimension, new_control, this->control_dimension,
-	  num_steps, new_state, integration_step);
-  if (propagated_step)
+	  num_steps, new_state, integration_step))
   {
 	  //create a new tree node
-	  new_time = propagated_step*integration_step;
 	  rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
 		  new_state, this->state_dimension, nearest,
 		  tree_edge_t(new_control, this->control_dimension, new_time),
@@ -165,12 +164,10 @@ void rrt_t::step(system_interface* system, int min_time_steps, int max_time_step
     nearest = nearest_vertex(sample_state);
     int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
     double duration = num_steps*integration_step;
-	int propagated_step = system->propagate(
+    if(system->propagate(
         nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
-        num_steps, sample_state, integration_step);
-    if(propagated_step)
+        num_steps, sample_state, integration_step))
     {
-		duration = propagated_step*integration_step;
         //create a new tree node
         rrt_node_t* new_node = static_cast<rrt_node_t*>(nearest->add_child(new rrt_node_t(
             sample_state, this->state_dimension, nearest,

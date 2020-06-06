@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "systems/point.hpp"
@@ -69,16 +69,16 @@ bool point_t::valid_state()
 	//any obstacles need to be checked here
 	for(unsigned i=0;i<obstacles.size() && !obstacle_collision;i++)
 	{
-		if(	temp_state[0]>obstacles[i].low_x && 
-			temp_state[0]<obstacles[i].high_x && 
-			temp_state[1]>obstacles[i].low_y && 
+		if(	temp_state[0]>obstacles[i].low_x &&
+			temp_state[0]<obstacles[i].high_x &&
+			temp_state[1]>obstacles[i].low_y &&
 			temp_state[1]<obstacles[i].high_y)
 		{
 			obstacle_collision = true;
 		}
 	}
 
-	return !obstacle_collision && 
+	return !obstacle_collision &&
 			(temp_state[0]!=MIN_X) &&
 			(temp_state[0]!=MAX_X) &&
 			(temp_state[1]!=MIN_Y) &&

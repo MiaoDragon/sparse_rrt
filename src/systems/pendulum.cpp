@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "systems/pendulum.hpp"
@@ -30,7 +30,6 @@
 #define MASS 1
 #define DAMPING .05
 
-
 bool pendulum_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
@@ -44,7 +43,7 @@ bool pendulum_t::propagate(
 		double temp1 = temp_state[1];
 		temp_state[0] += integration_step*temp1;
 		temp_state[1] += integration_step*
-							((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5 
+							((control[0] - MASS * (9.81) * LENGTH * cos(temp0)*0.5
 										 - DAMPING * temp1)* 3 / (MASS * LENGTH * LENGTH));
 		enforce_bounds();
 		validity = validity && valid_state();

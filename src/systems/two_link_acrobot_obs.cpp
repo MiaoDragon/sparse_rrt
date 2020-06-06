@@ -61,42 +61,27 @@ bool two_link_acrobot_obs_t::propagate(
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
 {
-            temp_state[0] = start_state[0];
-            temp_state[1] = start_state[1];
-            temp_state[2] = start_state[2];
-            temp_state[3] = start_state[3];
-            bool validity = false;
-            // find the last valid position, if no valid position is found, then return false
-            for(int i=0;i<num_steps;i++)
-            {
-                    update_derivative(control);
-                    temp_state[0] += integration_step*deriv[0];
-                    temp_state[1] += integration_step*deriv[1];
-                    temp_state[2] += integration_step*deriv[2];
-                    temp_state[3] += integration_step*deriv[3];
-                    enforce_bounds();
-                    //validity = validity && valid_state();
-                    if (valid_state() == true)
-                    {
-                        result_state[0] = temp_state[0];
-                        result_state[1] = temp_state[1];
-                        result_state[2] = temp_state[2];
-                        result_state[3] = temp_state[3];
-                        validity = true;
-                    }
-                    else
-                    {
-                        // Found the earliest invalid position. break the loop and return
-                        validity = false;  // need to update validity because one node is invalid, the propagation fails
-                        break;
-                    }
-            }
-            //result_state[0] = temp_state[0];
-            //result_state[1] = temp_state[1];
-            //result_state[2] = temp_state[2];
-            //result_state[3] = temp_state[3];
-            return validity;
-    }
+        temp_state[0] = start_state[0];
+        temp_state[1] = start_state[1];
+        temp_state[2] = start_state[2];
+        temp_state[3] = start_state[3];
+        bool validity = true;
+        for(int i=0;i<num_steps;i++)
+        {
+                update_derivative(control);
+                temp_state[0] += integration_step*deriv[0];
+                temp_state[1] += integration_step*deriv[1];
+                temp_state[2] += integration_step*deriv[2];
+                temp_state[3] += integration_step*deriv[3];
+                enforce_bounds();
+                validity = validity && valid_state();
+        }
+        result_state[0] = temp_state[0];
+        result_state[1] = temp_state[1];
+        result_state[2] = temp_state[2];
+        result_state[3] = temp_state[3];
+        return validity;
+}
 
 void two_link_acrobot_obs_t::enforce_bounds()
 {

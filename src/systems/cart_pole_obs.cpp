@@ -45,7 +45,7 @@
 #define MAX_W 2
 
 
-bool cart_pole_t::propagate(
+bool cart_pole_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)

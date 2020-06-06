@@ -885,7 +885,7 @@ public:
             obs_list[i][1] = py_obs_list(i, 1);
         }
 
-        for(unsigned i=0;i<_obs_list.size();i++)
+        for(unsigned i=0;i<obs_list.size();i++)
         {
             // each obstacle is represented by its middle point
             std::vector<double> obs(4*2);

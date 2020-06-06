@@ -442,11 +442,11 @@ public:
         double* sample_control = new double[control_len];
         for (unsigned i=0; i < state_len; i++)
         {
-            sample_state[i] = sample_state_data_py[i];
+            sample_state[i] = sample_state_data_py(i);
         }
         for (unsigned i=0; i < control_len; i++)
         {
-            sample_control[i] = sample_control_data_py[i];
+            sample_control[i] = sample_control_data_py(i);
         }
         int res =  planner->add_to_tree_public(propagate_system, sample_state,  sample_control, num_steps, integration_step);
         delete sample_state;
@@ -761,6 +761,7 @@ public:
     {
     //    return system_obs->valid_state();
     }
+
     std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension) const override
     {
         return system_obs->visualize_point(state, state_dimension);
@@ -831,6 +832,151 @@ public:
         delete[] start;
         return res_state;
     }
+};
+
+int propagate_validate(system_interface* system, py::safe_array<double>& start_py, py::safe_array<double>& control_py, double integration_step)
+{
+    auto start_data_py = start_py.unchecked<1>();
+    auto control_data_py = control_py.unchecked<1>();
+    int state_size = start_data_py.shape(0);
+    int control_size = control_data_py.shape(0);
+    double* start = new double[state_size];
+    double* control = new double[control_size];
+    double* result_state = new double[state_size];
+    // copy start and control
+    for (unsigned i=0; i < state_size; i++)
+    {
+        start[i] = start_data_py(i);
+    }
+    for (unsigned i=0; i < control_size; i++)
+    {
+        control[i] = control_data_py(i);
+    }
+
+    int res = system->propagate(start, state_size, control, control_size, 1, result_state, integration_step);
+    delete[] result_state;
+    delete[] control;
+    delete[] start;
+    return res;
+};
+
+int cartpole_validate(py::safe_array<double>& state_py, const py::safe_array<double> &_obs_list, double width)
+{
+
+    // check the pole with the rectangle to see if in collision
+    // calculate the pole state
+    // check if the position is within bound
+    auto state_data_py = state_py.unchecked<1>();
+    if (_obs_list.shape()[0] == 0) {
+        throw std::runtime_error("Should contain at least one obstacles.");
+    }
+    if (_obs_list.shape()[1] != 2) {
+        throw std::runtime_error("Shape of the obstacle input should be (N,2).");
+    }
+    if (width <= 0.) {
+        throw std::runtime_error("obstacle width should be non-negative.");
+    }
+    auto py_obs_list = _obs_list.unchecked<2>();
+    // initialize the array
+    std::vector<std::vector<double>> obs_list(_obs_list.shape()[0], std::vector<double>(2, 0.0));
+    std::vector<std::vector<double>> cc_obs_list;
+    // copy from python array to this array
+    for (unsigned int i = 0; i < obs_list.size(); i++) {
+        obs_list[i][0] = py_obs_list(i, 0);
+        obs_list[i][1] = py_obs_list(i, 1);
+    }
+
+    for(unsigned i=0;i<_obs_list.size();i++)
+    {
+        // each obstacle is represented by its middle point
+        std::vector<double> obs(4*2);
+        // calculate the four points representing the rectangle in the order
+        // UL, UR, LR, LL
+        // the obstacle points are concatenated for efficient calculation
+        double x = _obs_list[i][0];
+        double y = _obs_list[i][1];
+        obs[0] = x - width / 2;  obs[1] = y + width / 2;
+        obs[2] = x + width / 2;  obs[3] = y + width / 2;
+        obs[4] = x + width / 2;  obs[5] = y - width / 2;
+        obs[6] = x - width / 2;  obs[7] = y - width / 2;
+        cc_obs_list.push_back(obs);
+    }
+
+    #define I 10
+    #define L 2.5
+    #define M 10
+    #define m 5
+    #define g 9.8
+    // height of the cart
+    #define H 0.5
+
+    #define STATE_X 0
+    #define STATE_V 1
+    #define STATE_THETA 2
+    #define STATE_W 3
+    #define CONTROL_A 0
+
+    #define MIN_X -30
+    #define MAX_X 30
+    #define MIN_V -40
+    #define MAX_V 40
+    #define MIN_W -2
+    #define MAX_W 2
+
+    if (state_data_py[0] < MIN_X or state_data_py[0] > MAX_X)
+    {
+        return false;
+    }
+    double pole_x1 = state_data_py[0];
+    double pole_y1 = H;
+    double pole_x2 = state_data_py[0] + L * sin(state_data_py[2]);
+    double pole_y2 = H + L * cos(state_data_py[2]);
+    //std::cout << "state:" << temp_state[0] << "\n";
+    //std::cout << "pole point 1: " << "(" << pole_x1 << ", " << pole_y1 << ")\n";
+    //std::cout << "pole point 2: " << "(" << pole_x2 << ", " << pole_y2 << ")\n";
+    for(unsigned int i = 0; i < cc_obs_list.size(); i++)
+    {
+        // check if any obstacle has intersection with pole
+        //std::cout << "obstacle " << i << "\n";
+        //std::cout << "points: \n";
+        for (unsigned int j = 0; j < 8; j+=2)
+        {
+
+            //std::cout << j << "-th point: " << "(" << obs_list[i][j] << ", " << obs_list[i][j+1] << ")\n";
+        }
+        for (unsigned int j = 0; j < 8; j+=2)
+        {
+            // check each line of the obstacle
+            double x1 = cc_obs_list[i][j];
+            double y1 = cc_obs_list[i][j+1];
+            double x2 = cc_obs_list[i][(j+2) % 8];
+            double y2 = cc_obs_list[i][(j+3) % 8];
+            if (lineLine(pole_x1, pole_y1, pole_x2, pole_y2, x1, y1, x2, y2))
+            {
+                // intersect
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
+bool lineLine(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+// compute whether two lines intersect with each other
+{
+    // ref: http://www.jeffreythompson.org/collision-detection/line-rect.php
+    // calculate the direction of the lines
+    double uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+    double uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+
+    // if uA and uB are between 0-1, lines are colliding
+    if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+    {
+        // intersect
+        return true;
+    }
+    // not intersect
+    return false;
 };
 
 
@@ -2306,6 +2452,13 @@ PYBIND11_MODULE(_sst_module, m) {
              "control"_a,
              "integration_step"_a
         )
+        .def("propagate_validate", &SystemPropagator::propagate_validate,
+            "system"_a,
+            "start"_a,
+            "control"_a,
+            "integration_step"_a)
+        .def("cartpole_validate", &SystemPropagator::cartpole_validate,
+            "state"_a, "obs_list"_a, "width"_a)
     ;
     py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
         .def(py::init<std::string&, std::string&, std::string&, std::string&,

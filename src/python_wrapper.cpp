@@ -902,26 +902,11 @@ int cartpole_validate(py::safe_array<double>& state_py, const py::safe_array<dou
         cc_obs_list.push_back(obs);
     }
 
-    #define I 10
-    #define L 2.5
-    #define M 10
-    #define m 5
-    #define g 9.8
-    // height of the cart
-    #define H 0.5
 
-    #define STATE_X 0
-    #define STATE_V 1
-    #define STATE_THETA 2
-    #define STATE_W 3
-    #define CONTROL_A 0
-
-    #define MIN_X -30
-    #define MAX_X 30
-    #define MIN_V -40
-    #define MAX_V 40
-    #define MIN_W -2
-    #define MAX_W 2
+    double MIN_X = -30.;
+    double MAX_X = 30.;
+    double L = 2.5;
+    double H = 0.5;
 
     if (state_data_py[0] < MIN_X or state_data_py[0] > MAX_X)
     {

@@ -893,8 +893,8 @@ int cartpole_validate(py::safe_array<double>& state_py, const py::safe_array<dou
         // calculate the four points representing the rectangle in the order
         // UL, UR, LR, LL
         // the obstacle points are concatenated for efficient calculation
-        double x = _obs_list[i][0];
-        double y = _obs_list[i][1];
+        double x = obs_list[i][0];
+        double y = obs_list[i][1];
         obs[0] = x - width / 2;  obs[1] = y + width / 2;
         obs[2] = x + width / 2;  obs[3] = y + width / 2;
         obs[4] = x + width / 2;  obs[5] = y - width / 2;

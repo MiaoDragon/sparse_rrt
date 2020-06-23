@@ -536,13 +536,13 @@ sst_node_t* sst_t::add_to_tree(const double* sample_state, const double* sample_
             ));
 			number_of_nodes++;
 
-	        if(best_goal==NULL && this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
+	        if(best_goal==NULL && this->goal_distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {
 	        	best_goal = new_node;
 	        	branch_and_bound((sst_node_t*)root);
 	        }
 	        else if(best_goal!=NULL && best_goal->get_cost() > new_node->get_cost() &&
-	                this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
+	                this->goal_distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {
 	        	best_goal = new_node;
 	        	branch_and_bound((sst_node_t*)root);

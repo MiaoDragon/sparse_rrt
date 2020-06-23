@@ -109,6 +109,28 @@ public:
 	{
 		return this->distance(state1, state2, this->state_dimension);
 	};
+	virtual double goal_distance(const double* state1, const double* state2, int dimension)
+	{
+		double result = 0;
+        for (unsigned int i=0; i<state_dimensions; ++i) {
+			if (i==1 || i == 3)
+			{
+				continue;
+			}
+            if (i == 2) {
+                double val = fabs(point1[i]-point2[i]);
+                if(val > M_PI)
+                    val = 2*M_PI-val;
+                result += val*val;
+            } else {
+                result += (point1[i]-point2[i]) * (point1[i]-point2[i]);
+            }
+        }
+        //std::cout << "point1: [" << point1[0] << ", " << point1[1] << ", " << point1[2] << ", " << point1[3] << "]" << std::endl;
+        //std::cout << "point2: [" << point2[0] << ", " << point2[1] << ", " << point2[2] << ", " << point2[3] << "]" << std::endl;
+        //std::cout << "ddistance: " << std::sqrt(result) << std::endl;
+        return std::sqrt(result);
+	};
     /**
 	 * @brief Return the root of the planning tree
 	 * @details Return the root of the planning tree

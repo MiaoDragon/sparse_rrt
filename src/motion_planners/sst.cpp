@@ -105,8 +105,8 @@ void sst_t::get_solution(std::vector<std::vector<double>>& solution_path, std::v
 {
 	if(best_goal==NULL)
     {
-        std::cout << "haven't found a path yet." << std::endl;
-        std::cout << "number of nodes: " << number_of_nodes << std::endl;
+        //std::cout << "haven't found a path yet." << std::endl;
+        //std::cout << "number of nodes: " << number_of_nodes << std::endl;
     	return;
     }
 	sst_node_t* nearest_path_node = best_goal;

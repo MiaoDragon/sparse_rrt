@@ -19,7 +19,7 @@
 #include <vector>
 #include <cmath>
 #include <assert.h>
-
+#include <iostream>
 
 class distance_t
 {
@@ -79,6 +79,9 @@ public:
                 result += (point1[i]-point2[i]) * (point1[i]-point2[i]);
             }
         }
+        std::cout << "point1: [" << point1[0] << ", " << point1[1] << ", " << point1[2] << ", " << point1[3] << "]" << std::endl;
+        std::cout << "point2: [" << point2[0] << ", " << point2[1] << ", " << point2[2] << ", " << point2[3] << "]" << std::endl;
+        std::cout << "ddistance: " << std::sqrt(result) << std::endl;
         return std::sqrt(result);
     };
 

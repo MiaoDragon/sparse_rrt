@@ -109,7 +109,7 @@ public:
 	{
 		return this->distance(state1, state2, this->state_dimension);
 	};
-	virtual double goal_distance(const double* point1, const double* point2, int dimension)
+	virtual double goal_distance(const double* point1, const double* point2, int state_dimensions)
 	{
 		double result = 0;
         for (unsigned int i=0; i<state_dimensions; ++i) {

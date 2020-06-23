@@ -66,6 +66,10 @@ public:
         double result = 0;
         assert(state_dimensions == _is_circular_topology.size());
         for (unsigned int i=0; i<state_dimensions; ++i) {
+            if (i ==1 || i == 3)
+            {
+                continue;
+            }
             if (_is_circular_topology[i]) {
                 double val = fabs(point1[i]-point2[i]);
                 if(val > M_PI)

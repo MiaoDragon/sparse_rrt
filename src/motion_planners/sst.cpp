@@ -536,9 +536,9 @@ sst_node_t* sst_t::add_to_tree(const double* sample_state, const double* sample_
             ));
 			number_of_nodes++;
 
-            std::cout << "node1: [" << new_node->get_point()[0] << ", " << new_node->get_point()[1] << ", " << new_node->get_point()[2] << ", " << new_node->get_point()[3] << "]" << std::endl;
-            std::cout << "node2: [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] << "]" << std::endl;
-            std::cout << "distance (node1, node2): " << this->distance(new_node->get_point(), goal_state, this->state_dimension) << std::endl;
+            //std::cout << "node1: [" << new_node->get_point()[0] << ", " << new_node->get_point()[1] << ", " << new_node->get_point()[2] << ", " << new_node->get_point()[3] << "]" << std::endl;
+            //std::cout << "node2: [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] << "]" << std::endl;
+            //std::cout << "distance (node1, node2): " << this->distance(new_node->get_point(), goal_state, this->state_dimension) << std::endl;
 
 	        if(best_goal==NULL && this->distance(new_node->get_point(), goal_state, this->state_dimension)<goal_radius)
 	        {

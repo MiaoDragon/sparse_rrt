@@ -212,7 +212,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);//.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;
@@ -2171,7 +2171,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
 
     std::vector<torch::jit::IValue> obs_input;
     obs_input.push_back(obs_tensor);
-    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::kCPU);
+    at::Tensor obs_enc = encoder->forward(obs_input).toTensor().to(at::Device("cuda:"+std::to_string(this->gpu_device)));//.to(at::kCPU);
     double* state_t_ptr = new double[this->state_dim];
     double* next_state_ptr = new double[this->state_dim];
     //std::cout << "this->psopt_num_iters: " << this->psopt_num_iters << std::endl;

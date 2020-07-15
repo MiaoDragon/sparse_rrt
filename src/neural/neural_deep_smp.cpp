@@ -212,7 +212,7 @@ void MPNetSMP::informer(at::Tensor obs, const std::vector<double>& start_state, 
     int dim = this->state_dim;
     // get start, goal in tensor form
 
-    torch::Tensor sg = getStartGoalTensor(start_state, goal_state).to(at::Device("cuda:"+std::to_string(this->gpu_device)));
+    torch::Tensor sg = getStartGoalTensor(start_state, goal_state);//.to(at::Device("cuda:"+std::to_string(this->gpu_device)));
     //torch::Tensor gs = getStartGoalTensor(goal, start, dim);
 
     torch::Tensor mlp_input_tensor;

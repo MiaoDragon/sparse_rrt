@@ -480,6 +480,42 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
 
     }
 
+
+    if (total_t == 0.)
+    {
+        // random propagate
+        double* sample_state = new double[this->state_dimension];
+        double* sample_control = new double[this->control_dimension];
+        this->random_control(sample_control);
+        int sst_num_steps = this->random_generator.uniform_int_random(5, 100);
+        double duration = sst_num_steps*step_sz;
+        //std::cout << "before propagating in C++" << std::endl;
+        if(propagate_system->propagate(
+            nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
+            sst_num_steps, sample_state, step_sz))
+        {
+            add_to_tree(sample_state, sample_control, nearest, duration);
+
+            std::vector<double> res_x_i;
+            std::vector<double> res_u_i;
+            for (unsigned k=0; k < this->state_dimension; k++)
+            {
+                res_x_i.push_back(sample_state[k]);
+            }
+            for (unsigned k=0; k < this->control_dimension; k++)
+            {
+                res_u_i.push_back(sample_control[k]);
+            }
+            step_res.x.push_back(res_x_i);
+            step_res.u.push_back(res_u_i);
+            step_res.t.push_back(duration);
+
+        }
+        //std::cout << "after step in C++" << std::endl;
+        delete sample_state;
+        delete sample_control;
+
+    }
     delete u_traj_i;
     delete end_state;
     //std::cout << "after sst: step_bvp" << std::endl;

@@ -30,7 +30,8 @@ public:
     MPNetSMP(std::string mlp_path, std::string encoder_path,
              std::string cost_mlp_path, std::string cost_encoder_path,
              system_t* system,
-             int num_iters_in, int num_steps_in, double step_sz_in, int gpu_device
+             int psopt_num_iters_in, int psopt_num_steps_in, double psopt_step_sz_in, 
+             double step_sz_in, int gpu_device
              );
     void plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt_system, at::Tensor &obs, std::vector<double>& start_state, std::vector<double>& goal_state, std::vector<double>& goal_inform_state,
               int max_iteration, double goal_radius,
@@ -85,6 +86,7 @@ protected:
     int _max_length;
     int state_dim, control_dim;
     double psopt_step_sz;
+    double step_sz;
     int psopt_num_iters, psopt_num_steps;
     int gpu_device;
     //at::Tensor obs_enc; // two dimensional or one dimensional

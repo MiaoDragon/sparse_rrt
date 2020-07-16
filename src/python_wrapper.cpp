@@ -158,7 +158,7 @@ public:
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
 
-    virtual py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    virtual py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py){}
@@ -361,7 +361,7 @@ public:
                         sst_delta_near, sst_delta_drain)
         );
     }
-    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py)
@@ -405,7 +405,7 @@ public:
 
         psopt_result_t step_res;
 
-        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
+        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, psopt_num_iters, psopt_num_steps, psopt_step_sz, step_sz,
                           x_init, u_init, t_init);
         py::safe_array<double> res_state({step_res.x.size(), x_init[0].size()});
         py::safe_array<double> res_control({step_res.u.size(), u_init[0].size()});
@@ -532,7 +532,7 @@ public:
                         random_seed)
         );
     }
-    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int num_iters, int num_steps, double step_sz,
+    py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
         const py::safe_array<double> &t_init_py)
@@ -576,7 +576,7 @@ public:
 
         psopt_result_t step_res;
 
-        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, num_iters, num_steps, step_sz,
+        planner->step_bvp(propagate_system, bvp_system, step_res, start_state, goal_state, psopt_num_iters, psopt_num_steps, psopt_step_sz, step_sz,
                           x_init, u_init, t_init);
         py::safe_array<double> res_state({step_res.x.size(), x_init[0].size()});
         py::safe_array<double> res_control({step_res.u.size(), u_init[0].size()});
@@ -1239,12 +1239,13 @@ class DeepSMPWrapper
 public:
     DeepSMPWrapper(std::string& mlp_path, std::string& encoder_path,
                    std::string& cost_mlp_path, std::string& cost_encoder_path,
-                       int num_iter_in, int num_steps_in, double step_sz_in,
+                       int psopt_num_iter_in, int psopt_num_steps_in, double psopt_step_sz_in,
+                       double step_sz_in,
                        system_t* system_in, int gpu_device
                   )
 
     {
-        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, cost_mlp_path, cost_encoder_path, system_in, num_iter_in, num_steps_in, step_sz_in, gpu_device));
+        neural_smp.reset(new MPNetSMP(mlp_path, encoder_path, cost_mlp_path, cost_encoder_path, system_in, psopt_num_iter_in, psopt_num_steps_in, psopt_step_sz_in, step_sz_in, gpu_device));
         planner.reset();
         std::cout << "created smp module" << std::endl;
     }
@@ -2205,7 +2206,37 @@ public:
             (state_array, control_array, time_array, mpnet_res_array));
     }
 
+    py::object get_solution() {
+        std::vector<std::vector<double>> solution_path;
+        std::vector<std::vector<double>> controls;
+        std::vector<double> costs;
+        planner->get_solution(solution_path, controls, costs);
 
+        if (controls.size() == 0) {
+            return py::none();
+        }
+
+        py::safe_array<double> controls_array({controls.size(), controls[0].size()});
+        py::safe_array<double> costs_array({costs.size()});
+        auto controls_ref = controls_array.mutable_unchecked<2>();
+        auto costs_ref = costs_array.mutable_unchecked<1>();
+        for (unsigned int i = 0; i < controls.size(); ++i) {
+            for (unsigned int j = 0; j < controls[0].size(); ++j) {
+                controls_ref(i, j) = controls[i][j];
+            }
+            costs_ref(i) = costs[i];
+        }
+
+        py::safe_array<double> state_array({solution_path.size(), solution_path[0].size()});
+        auto state_ref = state_array.mutable_unchecked<2>();
+        for (unsigned int i = 0; i < solution_path.size(); ++i) {
+            for (unsigned int j = 0; j < solution_path[0].size(); ++j) {
+                state_ref(i, j) = solution_path[i][j];
+            }
+        }
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>, py::safe_array<double>>
+            (state_array, controls_array, costs_array));
+    }
 
 
     std::string visualize_nodes_wrapper(
@@ -2446,10 +2477,11 @@ PYBIND11_MODULE(_sst_module, m) {
     ;
     py::class_<DeepSMPWrapper>(m, "DeepSMPWrapper")
         .def(py::init<std::string&, std::string&, std::string&, std::string&,
-                      int, int, double,
+                      int, int, double, double,
                       system_t*, int>(),
                       "mlp_path"_a, "encoder_path"_a, "cost_mlp_path"_a, "cost_encoder_path"_a,
-                      "num_iter"_a, "num_steps"_a, "step_sz"_a,
+                      "psopt_num_iter"_a, "psopt_num_steps"_a, "psopt_step_sz"_a,
+                      "step_sz"_a,
                       "system"_a, "device"_a
              )
         .def("plan", &DeepSMPWrapper::plan,
@@ -2605,6 +2637,7 @@ PYBIND11_MODULE(_sst_module, m) {
             "node_diameter"_a=5,
             "solution_node_diameter"_a=4
             )
+        .def("get_solution", &DeepSMPWrapper::get_solution)
         .def("visualize_tree", &DeepSMPWrapper::visualize_tree_wrapper,
             "system"_a,
             "image_width"_a=500,

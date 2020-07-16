@@ -225,7 +225,14 @@ adouble psopt_acrobot_t::endpoint_cost(adouble* initial_states, adouble* final_s
     //std::cout << "goal: [" << goal[0] << ", " << goal[1] << ", " << goal[2] << ", "<< goal[3] << "]"<< std::endl;
     //std::cout << "goal extracteed" << std::endl;
     adouble sum_of_square = 0;
-    for (unsigned i=0; i < STATE_N; i++)
+    for (unsigned i=0; i < 2; i++)
+    {
+        adouble dx = final_states[i] - goal[i];
+        //dx = dx - M_PI*2 * (dx>M_PI);
+        //dx = dx + M_PI*2 * (dx<-M_PI);
+        sum_of_square = sum_of_square + dx*dx;
+    }
+    for (unsigned i=2; i < 4; i++)
     {
         sum_of_square = sum_of_square + (final_states[i] - goal[i]) * (final_states[i] - goal[i]);
     }

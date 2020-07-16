@@ -332,7 +332,8 @@ void sst_t::nearest_state(const double* state, std::vector<double> &res_state)
 
 
 
-void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,
+void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz,
+    double step_sz,
     std::vector<std::vector<double>> &x_init,
     std::vector<std::vector<double>> &u_init,
     std::vector<double> &t_init)
@@ -369,11 +370,12 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     begin_time = clock();
     //std::cout << "bvp goal_state= [" << goal_state[0] << ", " << goal_state[1] << ", " << goal_state[2] << ", " << goal_state[3] <<"]" << std::endl;
 
-    bvp_solver->solve(res, state_t, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
+    bvp_solver->solve(res, state_t, goal_state, psopt_num_steps, psopt_num_iters, psopt_step_sz, psopt_step_sz*(psopt_num_steps-1), \
                       x_init, u_init, t_init);
+    std::cout << "psopt_num_iters: " << psopt_num_iters << std::endl;
     //std::cout << "step_bvp: solve time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
-    //std::cout << "sst: after solve. "<< std::endl;
+    std::cout << "sst: after solve. "<< std::endl;
 
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
@@ -382,14 +384,28 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     std::cout << "solution of bvp solver: t_traj" << std::endl;
     #endif
 
-    for (unsigned i=0; i < num_steps-1; i+=1)
+    for (unsigned i=0; i < psopt_num_steps-1; i+=1)
     {
         t_traj.push_back(res.t[i+1] - res.t[i]);
         #ifdef DEBUG
         std::cout << "res.t[" << i << "]: " << res.t[i] << std::endl;
         std::cout << "t_traj[" << i << "]: " << t_traj[i] << std::endl;
         #endif
+        std::cout << "x_traj:" << std::endl;
+        for (unsigned j=0; j < 4; j++)
+        {
+            std::cout << x_traj[i][j] << std::endl;
+
+        }        
+
+        std::cout << "u_traj:" << std::endl;
+        std::cout << u_traj[i][0] << std::endl;
+        std::cout <<  "t_traj:" << std::endl;
+        std::cout << t_traj[i] << std::endl;
     }
+
+
+
 
     double* end_state = new double[this->state_dimension];
     double* u_traj_i = new double[this->control_dimension];
@@ -409,9 +425,11 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     //std::cout << "sst: after copying res "<< std::endl;
     //std::cout << "number of nodes: " << number_of_nodes << std::endl;
 
-    for (unsigned i=0; i < num_steps-1; i++)
+    for (unsigned i=0; i < psopt_num_steps-1; i++)
     {
+        std::cout << "i = " << i << std::endl;
         int num_dis = std::round(t_traj[i] / step_sz);
+        std::cout << "num_dis: " << num_dis << std::endl;
         #ifdef DEBUG
         std::cout << "step_bvp propagating..." << std::endl;
         std::cout << "i=" << i << std::endl;
@@ -422,8 +440,8 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             u_traj_i[j] = u_traj[i][j];
         }
-
-        for (unsigned j=0; j < num_dis; j++)
+        int num_valid_steps = 0;
+        for (unsigned int j=0; j < num_dis; j++)
         {
             val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
 					  1, end_state, step_sz);
@@ -443,6 +461,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
             std::cout << "start_state=" << "[" << state_t[0] << ", " << state_t[1] << ", " << state_t[2] << ", " << state_t[3]<< "]"  << std::endl;
             std::cout << "goal_state=" << "[" << end_state[0] << ", " << end_state[1] << ", " << end_state[2] << ", " << end_state[3]<< "]"  << std::endl;
             #endif
+            num_valid_steps += 1;
             std::vector<double> res_x_i;
             std::vector<double> res_u_i;
             for (unsigned k=0; k < this->state_dimension; k++)
@@ -461,14 +480,19 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
                 state_t[k] = end_state[k];
             }
         }
+        std::cout << "num_valid_steps: " << num_valid_steps << std::endl;
+        if (num_valid_steps > 0)
+        {
+            // add the last valid node to tree, with the same control
+            sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, num_valid_steps*step_sz);
+            total_t += num_dis*step_sz;
+            x_tree = new_x_tree;
+        }
         if (!val)
         {
             break;
         }
-        // add the last valid node to tree, with the same control
-        sst_node_t* new_x_tree = bvp_add_to_tree_without_opt(state_t, u_traj_i, x_tree, num_dis*step_sz);
-        total_t += num_dis*step_sz;
-        x_tree = new_x_tree;
+
 
     }
     // add the last valid node to tree, with the same control for t_traj[i] time

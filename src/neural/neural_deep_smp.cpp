@@ -4,12 +4,14 @@
 MPNetSMP::MPNetSMP(std::string mlp_path, std::string encoder_path,
                    std::string cost_mlp_path, std::string cost_encoder_path,
                    system_t* system,
-                   int num_iters_in, int num_steps_in, double step_sz_in,
+                   int psopt_num_iters_in, int psopt_num_steps_in, double psopt_step_sz_in,
+                   double step_sz_in,
                    int device
                    )
-                   : psopt_num_iters(num_iters_in)
-                   , psopt_num_steps(num_steps_in)
-                   , psopt_step_sz(step_sz_in)
+                   : psopt_num_iters(psopt_num_iters_in)
+                   , psopt_num_steps(psopt_num_steps_in)
+                   , psopt_step_sz(psopt_step_sz_in)
+                   , step_sz(step_sz_in)
                    , gpu_device(device)
 {
     // neural network
@@ -356,18 +358,6 @@ void MPNetSMP::init_informer(at::Tensor obs, const std::vector<double>& start_st
             {
                 delta_x[i] = delta_x[i] - 2*M_PI;
             }
-            int rand_d = rand() % 2;  // use this to decide when angle close to PI
-            if (rand_d < 1 && abs(delta_x[i]) >= M_PI*0.9)
-            {
-                if (delta_x[i] > 0.)
-                {
-                    delta_x[i] = delta_x[i] - 2*M_PI;
-                }
-                else
-                {
-                    delta_x[i] = delta_x[i] + 2*M_PI;
-                }
-            }
         }
         delta_x[i] = delta_x[i] / (this->psopt_num_steps-1);
     }
@@ -640,7 +630,7 @@ void MPNetSMP::plan_tree(planner_t* SMP, system_t* system, psopt_system_t* psopt
             std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
         #endif
 
-        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz, step_sz,
    	                 init_traj.x, init_traj.u, init_traj.t);
         #ifdef COUNT_TIME
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
@@ -818,7 +808,7 @@ void MPNetSMP::plan_line(planner_t* SMP, system_t* system, psopt_system_t* psopt
             std::cout << "step_bvp next_state = [" << next_state[0] << ", " << next_state[1] << ", " << next_state[2] << ", " << next_state[3] <<"]" << std::endl;
         #endif
 
-        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+        SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz, step_sz,
    	                 init_traj.x, init_traj.u, init_traj.t);
         #ifdef COUNT_TIME
         std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
@@ -2248,7 +2238,7 @@ void MPNetSMP::plan_step(planner_t* SMP, system_t* system, psopt_system_t* psopt
     #endif
     begin_time = clock();
     // *** below is using bvp solver
-    SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz,
+    SMP->step_bvp(system, psopt_system, res, state_t_ptr, next_state_ptr, this->psopt_num_iters, this->psopt_num_steps, this->psopt_step_sz, this->step_sz,
                  init_traj.x, init_traj.u, init_traj.t);
     std::cout << "step_bvp time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 

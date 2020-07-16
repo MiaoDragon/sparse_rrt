@@ -183,7 +183,8 @@ void rrt_t::step(system_interface* system, int min_time_steps, int max_time_step
 
 
 
-void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int num_iters, int num_steps, double step_sz,
+void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, psopt_result_t& step_res, const double* start_state, const double* goal_state, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz,
+    double step_sz,
     std::vector<std::vector<double>> &x_init,
     std::vector<std::vector<double>> &u_init,
     std::vector<double> &t_init)
@@ -198,12 +199,12 @@ void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         bvp_solver = new PSOPT_BVP(bvp_system, this->state_dimension, this->control_dimension);
     }
     psopt_result_t res;
-    bvp_solver->solve(res, start_state, goal_state, num_steps, num_iters, step_sz, step_sz*(num_steps-1), \
+    bvp_solver->solve(res, start_state, goal_state, psopt_num_steps, psopt_num_iters, psopt_step_sz, psopt_step_sz*(psopt_num_steps-1), \
                       x_init, u_init, t_init);
     std::vector<std::vector<double>> x_traj = res.x;
     std::vector<std::vector<double>> u_traj = res.u;
     std::vector<double> t_traj;
-    for (unsigned i=0; i < num_steps-1; i+=1)
+    for (unsigned i=0; i < psopt_num_steps-1; i+=1)
     {
         t_traj.push_back(res.t[i+1] - res.t[i]);
     }
@@ -225,10 +226,10 @@ void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
     step_res.x.push_back(res_x_i);
     bool val = true;
     double res_t;
-    for (unsigned i=0; i < num_steps-1; i++)
+    for (unsigned i=0; i < psopt_num_steps-1; i++)
     {
-        int num_dis = std::floor(t_traj[i] / step_sz);
-        res_t = t_traj[i] - num_dis * step_sz;
+        int num_dis = std::round(t_traj[i] / step_sz);
+        //res_t = t_traj[i] - num_dis * step_sz;
         for (unsigned j=0; j < this->control_dimension; j++)
         {
             u_traj_i[j] = u_traj[i][j];
@@ -266,27 +267,6 @@ void rrt_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             break;
         }
-        val = propagate_system->propagate(state_t, this->state_dimension, u_traj_i, this->control_dimension,
-                  1, end_state, res_t);
-        if (!val)
-        {
-            break;
-        }
-        std::vector<double> res_x_i;
-        std::vector<double> res_u_i;
-        for (unsigned k=0; k < this->state_dimension; k++)
-        {
-            res_x_i.push_back(end_state[k]);
-            state_t[k] = end_state[k];
-        }
-        for (unsigned k=0; k < this->control_dimension; k++)
-        {
-            res_u_i.push_back(u_traj_i[k]);
-        }
-        step_res.x.push_back(res_x_i);
-        step_res.u.push_back(res_u_i);
-        step_res.t.push_back(res_t);
-
     }
     // add the last valid node to tree
     //sst_node_t* new_x_tree = add_to_tree(state_t, u_traj_i, x_tree, res_t);

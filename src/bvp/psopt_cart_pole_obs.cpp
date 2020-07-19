@@ -207,7 +207,27 @@ adouble psopt_cart_pole_obs_t::endpoint_cost(adouble* initial_states, adouble* f
     // Since we already set endpoint constraint in events, we don't need it here
     // TODO: maybe we can set one end free, but try to reduce the cost only
     // Here we use the time as endpoint cost for minimum time control
-    return tf;
+   // Since we already set endpoint constraint in events, we don't need it here
+    // TODO: maybe we can set one end free, but try to reduce the cost only
+    // Here we use the time as endpoint cost for minimum time control
+    //return 0.1*tf;
+    //return 0.;
+    double* goal = (double*) workspace->problem->user_data;
+    //std::cout << "goal extracteed" << std::endl;
+    adouble sum_of_square = 0;
+    // wrap the angle to [-pi, pi]
+    // if dx > pi, then dx = dx - 2pi
+    // if dx < -pi, then dx = dx + 2pi
+    for (unsigned i=0; i<4; i++)
+    {
+        // wrap the angle to [-pi, pi]
+        // if dx > pi, then dx = dx - 2pi
+        // if dx < -pi, then dx = dx + 2pi
+        adouble dx = final_state[i] - goal[i];
+        sum_of_square = sum_of_square + dx*dx;
+    }
+    //std::cout << "after sum_of_square" << std::endl;
+    return sum_of_square;
 }
 
 adouble psopt_cart_pole_obs_t::integrand_cost(adouble* states, adouble* controls, adouble* parameters, adouble& time, adouble* xad,
@@ -223,7 +243,7 @@ void psopt_cart_pole_obs_t::events(adouble* e, adouble* initial_states, adouble*
   for (unsigned i=0; i < STATE_N; i++)
   {
       e[i] = initial_states[i];
-      e[STATE_N+i] = final_states[i];
+      //e[STATE_N+i] = final_states[i];
   }
 }
 

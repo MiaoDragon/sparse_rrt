@@ -160,17 +160,17 @@ public:
     }
 
     py::object step_with_output(system_interface& system, int min_time_steps, int max_time_steps, double integration_step){
-        double* steer_start = new double[system.get_state_dimension()]();
-        double* steer_end = new double[system.get_state_dimension()]();
+        double* steer_start = new double[planner->get_state_dimension()]();
+        double* steer_end = new double[planner->get_state_dimension()]();
 
         planner->step_with_output(&system, min_time_steps, max_time_steps, integration_step, steer_start, steer_end);
 
-        py::safe_array<double> py_steer_start({system.get_state_dimension()}, steer_start);
-        py::safe_array<double> py_steer_end({system.get_state_dimension()}, steer_end);
+        py::safe_array<double> py_steer_start({planner->get_state_dimension()}, steer_start);
+        py::safe_array<double> py_steer_end({planner->get_state_dimension()}, steer_end);
         auto py_steer_start_ref = py_steer_start.mutable_unchecked<1>();
         auto py_steer_end_ref = py_steer_end.mutable_unchecked<1>();
 
-        for (unsigned i=0; i<system.get_state_dimension(); i++)
+        for (unsigned i=0; i<planner->get_state_dimension(); i++)
         {
              py_steer_start_ref(i) = steer_start[i];
              py_steer_end_ref(i) = steer_end[i];

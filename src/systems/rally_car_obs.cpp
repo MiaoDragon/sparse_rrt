@@ -22,7 +22,7 @@
 
 
 #include <cmath>
-
+#include <iostream>
 #define M 1450
 #define IZ 2740
 #define LF 1.3
@@ -309,6 +309,7 @@ void rally_car_obs_t::update_derivative(const double* control)
         deriv[STATE_THETADOT] = ((fFy*cos(_sta)+fFx*sin(_sta))*LF - fRy*LR)/IZ;
         deriv[STATE_WF] = (_tf-fFx*R)/IF;
         deriv[STATE_WR] = (_tr-fRx*R)/IR;
+        std::cout << "deriv: " << "[" << deriv[0] << ", " << deriv[1] << ", " << deriv[2] << ", " << deriv[3] << ", " << deriv[4] << ", " << deriv[5] << ", " << deriv[6] << ", " << deriv[7] << "]" << std::endl;
 }
 
 

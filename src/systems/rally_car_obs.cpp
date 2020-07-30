@@ -156,12 +156,12 @@ bool rally_car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::v
 {
     for (unsigned a = 0; a < 2; a++)
     {
-        double t = b1corner[0]*b2axis[a][0] + b1corner[1]*b2axis[a][1];
+        double t = b1corner[0][0]*b2axis[a][0] + b1corner[0][1]*b2axis[a][1];
         double tMin = t;
         double tMax = t;
         for (unsigned c = 1; c < 4; c++)
         {
-            t = b1corner[c*2]*b2axis[a][0]+b1corner[c*2+1]*b2axis[a][1];
+            t = b1corner[c][0]*b2axis[a][0]+b1corner[c][1]*b2axis[a][1];
             if (t < tMin)
             {
                 tMin = t;

@@ -277,28 +277,24 @@ void rally_car_obs_t::update_derivative(const double* control)
         double mu_R = D*sin(C*atan(B*s_R));
         double mu_Fx;
         double mu_Fy;
-        std::cout << "s_Fx != s_Fx: " << (s_Fx != s_Fx) << std::endl;
-        std::cout << "!(s_Fx != s_Fx): " << (!(s_Fx != s_Fx)) << std::endl;
-
-        if(!(s_Fx != s_Fx)) // check if is NaN
+        if(std::isfinite(s_Fx))
         {
                 mu_Fx = -1*(s_Fx/s_F)*mu_F;
-                std::cout << "s_Fx is infinite" << std::endl;
         }
         else
                 mu_Fx = -mu_F;
 
-        if(!(s_Fy != s_Fy))
+        if(std::isfinite(s_Fy))
                 mu_Fy = -1*(s_Fy/s_F)*mu_F;
         else
                 mu_Fy = -mu_F;
         double mu_Rx;
         double mu_Ry;
-        if(!(s_Rx != s_Rx))
+        if(std::isfinite(s_Rx))
                 mu_Rx = -1*(s_Rx/s_R)*mu_R;
         else
                 mu_Rx = -mu_R;
-        if(!(s_Ry != s_Ry))
+        if(std::isfinite(s_Ry))
                 mu_Ry = -1*(s_Ry/s_R)*mu_R;
         else
                 mu_Ry = -mu_R;

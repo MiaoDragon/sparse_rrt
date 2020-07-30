@@ -22,7 +22,6 @@
 
 
 #include <cmath>
-#include <math.h>
 #include <iostream>
 #define M 1450
 #define IZ 2740
@@ -285,7 +284,7 @@ void rally_car_obs_t::update_derivative(const double* control)
         }
         else
                 mu_Fx = -mu_F;
-        std::cout << "s_Fx is nan: " << s_Fx != s_Fx << std::endl;
+        std::cout << "s_Fx is nan: " << (s_Fx != s_Fx) << std::endl;
         std::cout << "mu_Fx: " << mu_Fx << std::endl;
 
         if(std::isfinite(s_Fy))

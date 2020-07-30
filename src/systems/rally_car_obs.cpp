@@ -58,7 +58,7 @@
 #define MIN_X -25
 #define MAX_X 25
 #define MIN_Y -35
-#define MAX_Y 25
+#define MAX_Y 35
 
 bool rally_car_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,

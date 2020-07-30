@@ -159,6 +159,30 @@ public:
         planner->step(&system, min_time_steps, max_time_steps, integration_step);
     }
 
+    py::object step_with_output(system_interface& system, int min_time_steps, int max_time_steps, double integration_step){
+        double* steer_start = new double[system->get_state_dimension()]();
+        double* steer_end = new double[system->get_state_dimension()]();
+
+        planner->step_with_output(&system, min_time_steps, max_time_steps, integration_step, steer_start, steer_end);
+
+        py::safe_array<double> py_steer_start({system->get_state_dimension()}, steer_start);
+        py::safe_array<double> py_steer_end({system->get_state_dimension()}, steer_end);
+        auto py_steer_start_ref = py_steer_start.mutable_unchecked<1>();
+        auto py_steer_end_ref = py_steer_end.mutable_unchecked<1>();
+
+        for (unsigned i=0; i<system->get_state_dimension(); i++)
+        {
+             py_steer_start_ref(i) = steer_start[i];
+             py_steer_end_ref(i) = steer_end[i];
+        }
+
+        delete steer_start;
+        delete steer_end;
+        return py::cast(std::tuple<py::safe_array<double>, py::safe_array<double>>
+            (py_steer_start, py_steer_end));
+    }
+
+
     virtual py::object step_bvp(system_interface* propagate_system, psopt_system_t* bvp_system, py::safe_array<double>& start_py, py::safe_array<double>& goal_py, int psopt_num_iters, int psopt_num_steps, double psopt_step_sz, double step_sz,
         const py::safe_array<double> &x_init_py,
         const py::safe_array<double> &u_init_py,
@@ -2359,6 +2383,7 @@ PYBIND11_MODULE(_sst_module, m) {
    planner
         .def("step_with_sample", &PlannerWrapper::step_with_sample)
         .def("step", &PlannerWrapper::step)
+        .def("step_with_output", &PlannerWrapper::step_with_output)
         .def("step_bvp", &PlannerWrapper::step_bvp)
         .def("visualize_tree", &PlannerWrapper::visualize_tree_wrapper,
             "system"_a,

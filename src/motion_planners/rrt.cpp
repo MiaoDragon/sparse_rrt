@@ -190,14 +190,16 @@ void rrt_t::step_with_output(system_interface* system, int min_time_steps, int m
      * Propagate for random time with constant random control from the closest node
      * If resulting state is valid, add a resulting state into the tree and perform sst-specific graph manipulations
      */
-    double* sample_state = new double[this->state_dimension];
-    double* sample_control = new double[this->control_dimension];
-	this->random_state(sample_state);
-	this->random_control(sample_control);
-    sst_node_t* nearest = nearest_vertex(sample_state);
-	int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
-    double duration = num_steps*integration_step;
-	if(system->propagate(
+	 double* sample_state = new double[this->state_dimension];
+     double* sample_control = new double[this->control_dimension];
+
+     this->random_state(sample_state);
+     this->random_control(sample_control);
+
+     nearest = nearest_vertex(sample_state);
+     int num_steps = this->random_generator.uniform_int_random(min_time_steps, max_time_steps);
+     double duration = num_steps*integration_step;
+ 	if(system->propagate(
 	    nearest->get_point(), this->state_dimension, sample_control, this->control_dimension,
 	    num_steps, sample_state, integration_step))
 	{

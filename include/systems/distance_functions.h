@@ -100,4 +100,13 @@ public:
     double distance(const double* point1, const double* point2, unsigned int state_dimensions) const override;
 };
 
+
+class rally_car_distance: public distance_t
+{
+public:
+	/**
+	 * @copydoc distance_t::distance()
+	 */
+    double distance(const double* point1, const double* point2, unsigned int state_dimensions) const override;
+};
 #endif //SPARSERRT_DISTANCE_FUNCTIONS_H

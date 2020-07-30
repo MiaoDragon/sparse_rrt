@@ -2340,6 +2340,8 @@ PYBIND11_MODULE(_sst_module, m) {
         .def(py::init<>());
    py::class_<euclidean_distance, distance_t>(m, "EuclideanDistance");
    py::class_<two_link_acrobot_distance, distance_t>(m, "TwoLinkAcrobotDistance").def(py::init<>());
+   py::class_<rally_car_distance, distance_t>(m, "RallyCarDistance").def(py::init<>());
+
    m.def("euclidean_distance", &create_euclidean_distance, "is_circular_topology"_a.noconvert());
 
    // Classes and interfaces for systems

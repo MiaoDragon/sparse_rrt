@@ -78,7 +78,7 @@ public:
         obs_axis.clear();
         obs_ori.clear();
     }
-
+	static double distance(const double* point1, const double* point2, unsigned int);
 	/**
 	 * @copydoc system_t::propagate(double*, double*, int, int, double*, double& )
 	 */

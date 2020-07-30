@@ -60,6 +60,25 @@
 #define MIN_Y -35
 #define MAX_Y 35
 
+double rally_car_obs_t::distance(const double* point1, const double* point2, unsigned int state_dimension)
+{
+
+    double result = 0;
+    assert(state_dimensions == _is_circular_topology.size());
+    // don't consider the last two dimensions of state
+    for (unsigned int i=0; i<state_dimensions-2; ++i) {
+        if (_is_circular_topology[i]) {
+            double val = fabs(point1[i]-point2[i]);
+            if(val > M_PI)
+                val = 2*M_PI-val;
+            result += val*val;
+        } else {
+            result += (point1[i]-point2[i]) * (point1[i]-point2[i]);
+        }
+    }
+    return std::sqrt(result);
+
+}
 bool rally_car_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,

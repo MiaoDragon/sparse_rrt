@@ -199,7 +199,6 @@ bool rally_car_obs_t::valid_state()
     Y1[0]=sin(temp_state[STATE_THETA])*(LENGTH/2.0);
     Y1[1]=cos(temp_state[STATE_THETA])*(LENGTH/2.0);
 
-    for j in range(0,2):
     for (unsigned j = 0; j < 2; j++)
     {
         robot_corner[0][j]=temp_state[j]-X1[j]-Y1[j];
@@ -227,7 +226,7 @@ bool rally_car_obs_t::valid_state()
     for (unsigned i=0; i<obs_list.size(); i++)
     {
         bool collision = true;
-        collision = overlap(robot_corner,robot_axis,robot_origin,obs[i],obs_axis[i],obs_origin[i]);
+        collision = overlap(robot_corner,robot_axis,robot_origin,obs_list[i],obs_axis[i],obs_origin[i]);
         if (collision)
         {
             return false;  // invalid state

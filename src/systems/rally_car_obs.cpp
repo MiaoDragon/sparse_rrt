@@ -64,6 +64,16 @@ double rally_car_obs_t::distance(const double* point1, const double* point2, uns
 {
 
     double result = 0;
+    static std::vector<bool> _is_circular_topology{
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false
+    };
     assert(state_dimensions == _is_circular_topology.size());
     // don't consider the last two dimensions of state
     for (unsigned int i=0; i<state_dimensions-2; ++i) {

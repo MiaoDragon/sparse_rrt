@@ -149,6 +149,12 @@ void rally_car_obs_t::enforce_bounds()
                 temp_state[7]=40;
 }
 
+std::tuple<double, double> rally_car_obs_t::visualize_point(const double* state, unsigned int state_dimension) const
+{
+        double x = (state[0]-MIN_X)/(MAX_X-MIN_X);
+        double y = (state[1]-MIN_Y)/(MAX_Y-MIN_Y);
+        return std::make_tuple(x, y);
+}
 
 bool rally_car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
                               std::vector<double>& b1orign, std::vector<double>& b2corner,

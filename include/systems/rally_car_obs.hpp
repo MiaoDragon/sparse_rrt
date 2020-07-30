@@ -94,6 +94,8 @@ public:
 	 */
 	virtual bool valid_state();
 
+    std::tuple<double, double> visualize_point(const double* state, unsigned int state_dimension) const override;
+
 	/**
 	 * @copydoc system_t::get_state_bounds()
 	 */

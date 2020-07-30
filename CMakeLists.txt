@@ -109,6 +109,7 @@ set(SOURCE_FILES
         src/systems/pendulum.cpp
         src/systems/point.cpp
         src/systems/rally_car.cpp
+        src/systems/rally_car_obs.cpp
         src/systems/two_link_acrobot.cpp
         src/systems/two_link_acrobot_obs.cpp
         src/utilities/random.cpp

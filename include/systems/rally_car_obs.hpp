@@ -76,7 +76,7 @@ public:
         delete deriv;
         obs_list.clear();
         obs_axis.clear();
-        obs_origin.clear();
+        obs_ori.clear();
     }
 
 	/**

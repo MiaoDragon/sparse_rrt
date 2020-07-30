@@ -55,7 +55,7 @@
 #define MIN_X -25
 #define MAX_X 25
 #define MIN_Y -35
-#define MAX_Y 25
+#define MAX_Y 35
 
 
 //void rally_car_t::random_state(double* state)

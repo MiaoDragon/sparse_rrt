@@ -44,7 +44,7 @@ public:
             obs[6] = x - width / 2;  obs[7] = y + width / 2;
             obs_list.push_back(obs);
 
-            std::vector<double> obs_axis_i(2, std::vector<double> (2, 0));
+            std::vector<std::vector<double>> obs_axis_i(2, std::vector<double> (2, 0));
             obs_axis_i[0][0] = obs[2] - obs[0];
             obs_axis_i[1][0] = obs[6] - obs[0];
             obs_axis_i[0][1] = obs[3] - obs[1];

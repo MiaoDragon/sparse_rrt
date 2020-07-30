@@ -195,7 +195,7 @@ bool rally_car_obs_t::valid_state()
 
     std::vector<std::vector<double>> robot_corner(4, std::vector<double> (2, 0));
     std::vector<std::vector<double>> robot_axis(2, std::vector<double> (2,0));
-    std::vector<double> robot_origin(2, 0);
+    std::vector<double> robot_ori(2, 0);
     std::vector<double> length(2, 0);
     std::vector<double> X1(2,0);
     std::vector<double> Y1(2,0);
@@ -226,13 +226,13 @@ bool rally_car_obs_t::valid_state()
             robot_axis[i][j]=robot_axis[i][j]/length[j];
         }
     }
-    robot_origin[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
-    robot_origin[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
+    robot_ori[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
+    robot_ori[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
 
     for (unsigned i=0; i<obs_list.size(); i++)
     {
         bool collision = true;
-        collision = overlap(robot_corner,robot_axis,robot_origin,obs_list[i],obs_axis[i],obs_origin[i]);
+        collision = overlap(robot_corner,robot_axis,robot_ori,obs_list[i],obs_axis[i],obs_ori[i]);
         if (collision)
         {
             return false;  // invalid state

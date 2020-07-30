@@ -63,8 +63,11 @@ public:
             obs_axis.push_back(obs_axis_i);
 
             // not sure if below is correct
-            std::vector<double> obs_origin_i{x, y};
-            obs_origin.push_back(obs_origin_i);
+            std::vector<double> obs_ori_i;
+            obs_ori_i.push_back(obs[0]*obs_axis_i[0][0]+ obs[1]*obs_axis_i[0][1]);
+            obs_ori_i.push_back(obs[0]*obs_axis_i[1][0]+ obs[1]*obs_axis_i[1][1]);
+
+            obs_ori.push_back(obs_ori_i);
         }
 
 	}
@@ -120,7 +123,7 @@ protected:
 	void update_derivative(const double* control);
     std::vector<std::vector<double>> obs_list;
     std::vector<std::vector<std::vector<double>>> obs_axis;
-    std::vector<std::vector<double>> obs_origin;
+    std::vector<std::vector<double>> obs_ori;
 
 };
 

@@ -277,6 +277,9 @@ void rally_car_obs_t::update_derivative(const double* control)
         double mu_R = D*sin(C*atan(B*s_R));
         double mu_Fx;
         double mu_Fy;
+        std::cout << "s_Fx != s_Fx: " << (s_Fx != s_Fx) << std::endl;
+        std::cout << "!(s_Fx != s_Fx): " << (!(s_Fx != s_Fx)) << std::endl;
+
         if(!(s_Fx != s_Fx)) // check if is NaN
         {
                 mu_Fx = -1*(s_Fx/s_F)*mu_F;

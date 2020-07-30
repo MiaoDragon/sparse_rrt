@@ -284,7 +284,8 @@ void rally_car_obs_t::update_derivative(const double* control)
         }
         else
                 mu_Fx = -mu_F;
-        std::cout << "mu_Fx: " << mu_Fx << std::endl; 
+        std::cout << "s_Fx is inf: " << std::isinf(s_Fx) << std::endl;
+        std::cout << "mu_Fx: " << mu_Fx << std::endl;
 
         if(std::isfinite(s_Fy))
                 mu_Fy = -1*(s_Fy/s_F)*mu_F;

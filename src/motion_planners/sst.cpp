@@ -396,7 +396,7 @@ void sst_t::step_bvp(system_interface* propagate_system, psopt_system_t* bvp_sys
         {
             std::cout << x_traj[i][j] << std::endl;
 
-        }        
+        }
 
         std::cout << "u_traj:" << std::endl;
         std::cout << u_traj[i][0] << std::endl;

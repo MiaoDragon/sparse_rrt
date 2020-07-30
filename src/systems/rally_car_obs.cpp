@@ -13,7 +13,7 @@
  */
 
 
-#include "systems/rally_car.hpp"
+#include "systems/rally_car_obs.hpp"
 #include "utilities/random.hpp"
 #include "image_creation/svg_image.hpp"
 
@@ -34,6 +34,9 @@
 #define B 7
 #define C 1.6
 #define D .52
+
+#define WIDTH 1.0
+#define LENGTH 2.0
 
 #define CRBRAKE 700
 #define CRACC 0
@@ -57,29 +60,7 @@
 #define MIN_Y -35
 #define MAX_Y 25
 
-
-//void rally_car_t::random_state(double* state)
-//{
-//        state[0] = uniform_random(MIN_X,MAX_X);
-//        state[1] = uniform_random(MIN_Y,MAX_Y);
-//        // state[2] = uniform_random(-18,18);
-//        // state[3] = uniform_random(-18,18);
-//        // state[5] = uniform_random(-17,17);
-//        // state[6] = uniform_random(-40,40);
-//        // state[7] = uniform_random(-40,40);
-//
-//        //compute the angle that is created
-//        double theta = atan2(state[1],state[0]);
-//        theta+=M_PI/2;
-//        theta = uniform_random(theta-M_PI/6.0,theta+M_PI/6.0);
-//        if(theta > 2*M_PI)
-//            theta -= 2*M_PI;
-//        state[4]  = theta;
-//        // state[4] = uniform_random(-M_PI,M_PI);
-//}
-
-
-bool rally_car_t::propagate(
+bool rally_car_obs_t::propagate(
     const double* start_state, unsigned int state_dimension,
     const double* control, unsigned int control_dimension,
     int num_steps, double* result_state, double integration_step)
@@ -118,7 +99,7 @@ bool rally_car_t::propagate(
         return validity;
 }
 
-void rally_car_t::enforce_bounds()
+void rally_car_obs_t::enforce_bounds()
 {
 // #x y xdot ydot theta thetadot wf wr
 // state_space:
@@ -126,7 +107,7 @@ void rally_car_t::enforce_bounds()
 //   max: [25, 25, 18, 18, 3.14, 17, 40, 40]
 
     // updatee: for x and y, we instead treat out-of-bound state as invalid
-
+        /**
         if(temp_state[0]<MIN_X)
                 temp_state[0]=MIN_X;
         else if(temp_state[0]>MAX_X)
@@ -136,7 +117,7 @@ void rally_car_t::enforce_bounds()
                 temp_state[1]=MIN_Y;
         else if(temp_state[1]>MAX_Y)
                 temp_state[1]=MAX_Y;
-
+        */
         if(temp_state[2]<-18)
                 temp_state[2]=-18;
         else if(temp_state[2]>18)
@@ -169,31 +150,93 @@ void rally_car_t::enforce_bounds()
 }
 
 
-bool rally_car_t::valid_state()
+bool rally_car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
+                              std::vector<double>& b1orign, std::vector<double>& b2corner,
+                              std::vector<std::vector<double>>& b2axis, std::vector<double>& b2orign)
 {
-        bool obstacle_collision = false;
-        //any obstacles need to be checked here
-        for(unsigned i=0;i<obstacles.size() && !obstacle_collision;i++)
+    for (unsigned a = 0; a < 2; a++)
+    {
+        double t = b1corner[0]*b2axis[a][0] + b1corner[1]*b2axis[a][1];
+        double tMin = t;
+        double tMax = t;
+        for (unsigned c = 1; c < 4; c++)
         {
-                if(     temp_state[0]>obstacles[i].low_x-1 &&
-                        temp_state[0]<obstacles[i].high_x+1 &&
-                        temp_state[1]>obstacles[i].low_y-1 &&
-                        temp_state[1]<obstacles[i].high_y+1)
-                {
-                        obstacle_collision = true;
-                }
+            t = b1corner[c*2]*b2axis[a][0]+b1corner[c*2+1]*b2axis[a][1];
+            if (t < tMin)
+            {
+                tMin = t;
+            }
+            else if (t > tMax)
+            {
+                tMax = t;
+            }
         }
-        return !obstacle_collision;
+        if ((tMin > (1 + b2orign[a])) || (tMax < b2orign[a]))
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
-std::tuple<double, double> rally_car_t::visualize_point(const double* state, unsigned int state_dimension) const
+bool rally_car_obs_t::valid_state()
 {
-        double x = (state[0]-MIN_X)/(MAX_X-MIN_X);
-        double y = (state[1]-MIN_Y)/(MAX_Y-MIN_Y);
-        return std::make_tuple(x, y);
+    if(temp_state[0] < MIN_X || temp_state[0] > MAX_X || temp_state[1] < MIN_Y || temp_state[1] > MAX_Y)
+    {
+        return false;
+    }
+
+    std::vector<std::vector<double>> robot_corner(4, std::vector<double> (2, 0));
+    std::vector<std::vector<double>> robot_axis(2, std::vector<double> (2,0));
+    std::vector<double> robot_origin(2, 0);
+    std::vector<double> length(2, 0);
+    std::vector<double> X1(2,0);
+    std::vector<double> Y1(2,0);
+
+    X1[0]=cos(temp_state[STATE_THETA])*(WIDTH/2.0);
+    X1[1]=-sin(temp_state[STATE_THETA])*(WIDTH/2.0);
+    Y1[0]=sin(temp_state[STATE_THETA])*(LENGTH/2.0);
+    Y1[1]=cos(temp_state[STATE_THETA])*(LENGTH/2.0);
+
+    for j in range(0,2):
+    for (unsigned j = 0; j < 2; j++)
+    {
+        robot_corner[0][j]=temp_state[j]-X1[j]-Y1[j];
+        robot_corner[1][j]=temp_state[j]+X1[j]-Y1[j];
+        robot_corner[2][j]=temp_state[j]+X1[j]+Y1[j];
+        robot_corner[3][j]=temp_state[j]-X1[j]+Y1[j];
+
+        robot_axis[0][j] = robot_corner[1][j] - robot_corner[0][j];
+        robot_axis[1][j] = robot_corner[3][j] - robot_corner[0][j];
+    }
+
+    length[0]=robot_axis[0][0]*robot_axis[0][0]+robot_axis[0][1]*robot_axis[0][1];
+    length[1]=robot_axis[1][0]*robot_axis[1][0]+robot_axis[1][1]*robot_axis[1][1];
+
+    for (unsigned i=0; i<2; i++)
+    {
+        for (unsigned j=0; j<2; j++)
+        {
+            robot_axis[i][j]=robot_axis[i][j]/length[j];
+        }
+    }
+    robot_orign[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
+    robot_orign[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
+
+    for (unsigned i=0; i<obs_list.size(); i++)
+    {
+        bool collision = true;
+        collision = overlap(robot_corner,robot_axis,robot_orign,obs[i],obs_axis[i],obs_orign[i]);
+        if (collision)
+        {
+            return false;  // invalid state
+        }
+    }
+    return true;
 }
 
-void rally_car_t::update_derivative(const double* control)
+void rally_car_obs_t::update_derivative(const double* control)
 {
         double _vx = temp_state[2];
         double _vy = temp_state[3];
@@ -263,28 +306,8 @@ void rally_car_t::update_derivative(const double* control)
         deriv[STATE_WR] = (_tr-fRx*R)/IR;
 }
 
-std::string rally_car_t::visualize_obstacles(int image_width, int image_height) const
-{
-    svg::Dimensions dims(image_width, image_height);
-    svg::DocumentBody doc(svg::Layout(dims, svg::Layout::BottomLeft));
 
-    double temp[2];
-    for(unsigned i=0;i<obstacles.size();i++)
-    {
-            temp[0] = obstacles[i].low_x;
-            temp[1] = obstacles[i].high_y;
-            double x, y;
-            std::tie(x, y) = this->visualize_point(temp, 8);
-            doc<<svg::Rectangle(svg::Point(x*dims.width, y*dims.height),
-                                (obstacles[i].high_x-obstacles[i].low_x)/(MAX_X-MIN_X) * dims.width,
-                                (obstacles[i].high_y-obstacles[i].low_y)/(MAX_Y-MIN_Y) * dims.height,
-                                svg::Color::Red);
-    }
-
-    return doc.toString();
-}
-
-std::vector<std::pair<double, double> > rally_car_t::get_state_bounds() const {
+std::vector<std::pair<double, double> > rally_car_obs_t::get_state_bounds() const {
         return {
                 {MIN_X,MAX_X},
                 {MIN_Y,MAX_Y},
@@ -297,7 +320,7 @@ std::vector<std::pair<double, double> > rally_car_t::get_state_bounds() const {
         };
 }
 
-std::vector<std::pair<double, double> > rally_car_t::get_control_bounds() const {
+std::vector<std::pair<double, double> > rally_car_obs_t::get_control_bounds() const {
         return {
                 {-1.0472,1.0472},
                 {-700,0},
@@ -305,7 +328,7 @@ std::vector<std::pair<double, double> > rally_car_t::get_control_bounds() const 
         };
 }
 
-std::vector<bool> rally_car_t::is_circular_topology() const {
+std::vector<bool> rally_car_obs_t::is_circular_topology() const {
     return {
             false,
             false,

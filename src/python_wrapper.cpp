@@ -24,6 +24,7 @@
 #include "systems/cart_pole_obs.hpp"
 #include "systems/pendulum.hpp"
 #include "systems/rally_car.hpp"
+#include "systems/rally_car_obs.hpp"
 #include "systems/two_link_acrobot.hpp"
 #include "systems/two_link_acrobot_obs.hpp"
 
@@ -740,6 +741,14 @@ public:
              );
              state_dimension = 4;
      		control_dimension = 1;
+         }
+         else if (env_name == "rally_car")
+         {
+             system_obs.reset(
+                     new rally_car_obs_t(obs_list, width)
+             );
+             state_dimension = 8;
+     		control_dimension = 3;
          }
     }
 

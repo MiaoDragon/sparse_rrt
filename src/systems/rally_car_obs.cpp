@@ -221,13 +221,13 @@ bool rally_car_obs_t::valid_state()
             robot_axis[i][j]=robot_axis[i][j]/length[j];
         }
     }
-    robot_orign[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
-    robot_orign[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
+    robot_origin[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
+    robot_origin[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
 
     for (unsigned i=0; i<obs_list.size(); i++)
     {
         bool collision = true;
-        collision = overlap(robot_corner,robot_axis,robot_orign,obs[i],obs_axis[i],obs_orign[i]);
+        collision = overlap(robot_corner,robot_axis,robot_origin,obs[i],obs_axis[i],obs_origin[i]);
         if (collision)
         {
             return false;  // invalid state

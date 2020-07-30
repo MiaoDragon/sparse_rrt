@@ -74,9 +74,8 @@ double rally_car_obs_t::distance(const double* point1, const double* point2, uns
             false,
             false
     };
-    assert(state_dimensions == _is_circular_topology.size());
     // don't consider the last two dimensions of state
-    for (unsigned int i=0; i<state_dimensions-2; ++i) {
+    for (unsigned int i=0; i<state_dimension-2; ++i) {
         if (_is_circular_topology[i]) {
             double val = fabs(point1[i]-point2[i]);
             if(val > M_PI)

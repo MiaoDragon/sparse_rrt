@@ -26,6 +26,8 @@ class RectangleObs(_sst_module.RectangleObsSystem):
             return _sst_module.TwoLinkAcrobotDistance()
         elif self.env_name == 'cartpole':
             return _sst_module.euclidean_distance(np.array(self.is_circular_topology()))
+        elif self.env_name == 'rally_car':
+            return _sst_module.euclidean_distance(np.array(self.is_circular_topology()))
 
 class Pendulum(_sst_module.Pendulum, WithEuclideanDistanceComputer):
     pass

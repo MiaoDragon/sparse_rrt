@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_CAR_HPP
@@ -66,6 +66,9 @@ public:
 	 * @copydoc system_t::is_circular_topology()
 	 */
 	std::vector<bool> is_circular_topology() const override;
+protected:
+	double* deriv;
+	void update_derivative(const double* control);
 
 };
 

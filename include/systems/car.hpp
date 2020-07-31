@@ -26,6 +26,7 @@ public:
 		state_dimension = 3;
 		control_dimension = 2;
 		temp_state = new double[state_dimension];
+		deriv = new double[state_dimension];
 	}
 	virtual ~car_t(){delete temp_state;}
 

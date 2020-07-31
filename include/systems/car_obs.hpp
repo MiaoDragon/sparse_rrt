@@ -68,7 +68,7 @@ public:
 
             obs_ori.push_back(obs_ori_i);
         }
-		std::cout << "after initialization" << std::endl;
+		//std::cout << "after initialization" << std::endl;
 	}
 	virtual ~car_obs_t()
 	{

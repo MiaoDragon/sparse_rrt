@@ -28,6 +28,8 @@ class RectangleObs(_sst_module.RectangleObsSystem):
             return _sst_module.euclidean_distance(np.array(self.is_circular_topology()))
         elif self.env_name == 'rally_car':
             return _sst_module.RallyCarDistance()
+        elif self.env_name == 'car':
+            return _sst_module.euclidean_distance(np.array(self.is_circular_topology()))
 
 class Pendulum(_sst_module.Pendulum, WithEuclideanDistanceComputer):
     pass

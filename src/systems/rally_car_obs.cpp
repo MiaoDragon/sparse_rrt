@@ -300,9 +300,24 @@ void rally_car_obs_t::update_derivative(const double* control)
 
         double s_F = sqrt(s_Fx*s_Fx+s_Fy*s_Fy);
         double s_R = sqrt(s_Rx*s_Rx+s_Ry*s_Ry);
-
-        double mu_F = D*sin(C*atan(B*s_F));
-        double mu_R = D*sin(C*atan(B*s_R));
+        double mu_F, mu_R;
+        if (std::isfinite(s_F))
+        {
+            mu_F = D*sin(C*atan(B*s_F));
+        }
+        else
+        {
+            // s_F = +infty, atan(B*s_F) = M_PI/2
+            mu_F = D*sin(C*M_PI/2);
+        }
+        if (std::isfinite(s_R))
+        {
+            mu_R = D*sin(C*atan(B*s_R));
+        }
+        else
+        {
+            mu_R = D*sin(C*M_PI/2);
+        }
         double mu_Fx;
         double mu_Fy;
         if(std::isfinite(s_Fx))

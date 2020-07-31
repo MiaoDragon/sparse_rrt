@@ -193,7 +193,7 @@ std::tuple<double, double> rally_car_t::visualize_point(const double* state, uns
         return std::make_tuple(x, y);
 }
 
-void rally_car_t::update_derivative(const double* control)
+void rally_car_obs_t::update_derivative(const double* control)
 {
         double _vx = temp_state[2];
         double _vy = temp_state[3];
@@ -224,15 +224,33 @@ void rally_car_t::update_derivative(const double* control)
 
         double s_F = sqrt(s_Fx*s_Fx+s_Fy*s_Fy);
         double s_R = sqrt(s_Rx*s_Rx+s_Ry*s_Ry);
-
-        double mu_F = D*sin(C*atan(B*s_F));
-        double mu_R = D*sin(C*atan(B*s_R));
+        double mu_F, mu_R;
+        if (std::isfinite(s_F))
+        {
+            mu_F = D*sin(C*atan(B*s_F));
+        }
+        else
+        {
+            // s_F = +infty, atan(B*s_F) = M_PI/2
+            mu_F = D*sin(C*M_PI/2);
+        }
+        if (std::isfinite(s_R))
+        {
+            mu_R = D*sin(C*atan(B*s_R));
+        }
+        else
+        {
+            mu_R = D*sin(C*M_PI/2);
+        }
         double mu_Fx;
         double mu_Fy;
         if(std::isfinite(s_Fx))
+        {
                 mu_Fx = -1*(s_Fx/s_F)*mu_F;
+        }
         else
                 mu_Fx = -mu_F;
+
         if(std::isfinite(s_Fy))
                 mu_Fy = -1*(s_Fy/s_F)*mu_F;
         else
@@ -261,6 +279,7 @@ void rally_car_t::update_derivative(const double* control)
         deriv[STATE_THETADOT] = ((fFy*cos(_sta)+fFx*sin(_sta))*LF - fRy*LR)/IZ;
         deriv[STATE_WF] = (_tf-fFx*R)/IF;
         deriv[STATE_WR] = (_tr-fRx*R)/IR;
+        //std::cout << "deriv: " << "[" << deriv[0] << ", " << deriv[1] << ", " << deriv[2] << ", " << deriv[3] << ", " << deriv[4] << ", " << deriv[5] << ", " << deriv[6] << ", " << deriv[7] << "]" << std::endl;
 }
 
 std::string rally_car_t::visualize_obstacles(int image_width, int image_height) const

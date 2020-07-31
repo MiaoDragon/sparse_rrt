@@ -20,6 +20,7 @@
 
 #include "systems/point.hpp"
 #include "systems/car.hpp"
+#include "systems/car_obs.hpp"
 #include "systems/cart_pole.hpp"
 #include "systems/cart_pole_obs.hpp"
 #include "systems/pendulum.hpp"
@@ -773,6 +774,14 @@ public:
              );
              state_dimension = 8;
      		control_dimension = 3;
+         }
+         else if (env_name == "car")
+         {
+             system_obs.reset(
+                     new car_obs_t(obs_list, width)
+             );
+             state_dimension = 3;
+           control_dimension = 2;
          }
     }
 

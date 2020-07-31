@@ -193,7 +193,7 @@ std::tuple<double, double> rally_car_t::visualize_point(const double* state, uns
         return std::make_tuple(x, y);
 }
 
-void rally_car_obs_t::update_derivative(const double* control)
+void rally_car_t::update_derivative(const double* control)
 {
         double _vx = temp_state[2];
         double _vy = temp_state[3];

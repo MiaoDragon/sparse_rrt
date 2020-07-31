@@ -50,6 +50,7 @@ bool car_obs_t::propagate(
 	result_state[0] = temp_state[0];
 	result_state[1] = temp_state[1];
 	result_state[2] = temp_state[2];
+    std::cout << "after propagation" << std::endl;
 	return validity;
 }
 
@@ -116,6 +117,8 @@ bool car_obs_t::valid_state()
     {
         return false;
     }
+    std::cout << "inside  valid_state" << std::endl;
+
     std::vector<std::vector<double>> robot_corner(4, std::vector<double> (2, 0));
     std::vector<std::vector<double>> robot_axis(2, std::vector<double> (2,0));
     std::vector<double> robot_ori(2, 0);
@@ -161,7 +164,10 @@ bool car_obs_t::valid_state()
             return false;  // invalid state
         }
     }
+    std::cout << "after valid" << std::endl;
+
     return true;
+
 
 
 }

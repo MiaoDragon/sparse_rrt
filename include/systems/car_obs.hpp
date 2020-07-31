@@ -16,7 +16,7 @@
 #define SPARSE_CAR_OBS_HPP
 
 #include "systems/system.hpp"
-
+#include <iostream>
 
 class car_obs_t : public system_t
 {
@@ -68,7 +68,7 @@ public:
 
             obs_ori.push_back(obs_ori_i);
         }
-
+		std::cout << "after initialization" << std::endl;
 	}
 	virtual ~car_obs_t()
 	{

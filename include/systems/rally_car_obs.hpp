@@ -12,6 +12,9 @@
  *
  */
 
+ //TODO: debug: 1. angle should be clockwise, or change IsInCollision code to be counter-clockwise
+ //				2. IsInCollision and overlap, and obstacle init should be changed
+
 #ifndef SPARSE_RALLY_CAR_OBS_HPP
 #define SPARSE_RALLY_CAR_OBS_HPP
 

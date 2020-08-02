@@ -15,8 +15,8 @@
 #include "systems/car_obs.hpp"
 #include "utilities/random.hpp"
 
-#define WIDTH 1.0
-#define LENGTH 2.0
+#define WIDTH 2.0
+#define LENGTH 1.0
 #define STATE_X 0
 #define STATE_Y 1
 #define STATE_THETA 2
@@ -57,7 +57,7 @@ bool car_obs_t::propagate(
 void car_obs_t::update_derivative(const double* control)
 {
     deriv[0] = cos(temp_state[2]) * control[0];
-    deriv[1] = sin(temp_state[2]) * control[0];
+    deriv[1] = -sin(temp_state[2]) * control[0];
     deriv[2] = control[1];
 }
 
@@ -82,8 +82,9 @@ void car_obs_t::enforce_bounds()
 }
 
 bool car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
-                              std::vector<double>& b1orign, std::vector<double>& b2corner,
-                              std::vector<std::vector<double>>& b2axis, std::vector<double>& b2orign)
+                              std::vector<double>& b1orign, std::vector<double>& b1ds,
+                              std::vector<double>& b2corner, std::vector<std::vector<double>>& b2axis,
+                              std::vector<double>& b2orign, std::vector<double>& b2ds)
 {
     for (unsigned a = 0; a < 2; a++)
     {
@@ -102,7 +103,7 @@ bool car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::vector<
                 tMax = t;
             }
         }
-        if ((tMin > (1 + b2orign[a])) || (tMax < b2orign[a]))
+        if ((tMin > (b2ds[a] + b2orign[a])) || (tMax < b2orign[a]))
         {
             return false;
         }
@@ -133,32 +134,38 @@ bool car_obs_t::valid_state()
 
     for (unsigned j = 0; j < 2; j++)
     {
+        // order: (left-bottom, right-bottom, right-upper, left-upper)
         robot_corner[0][j]=temp_state[j]-X1[j]-Y1[j];
         robot_corner[1][j]=temp_state[j]+X1[j]-Y1[j];
         robot_corner[2][j]=temp_state[j]+X1[j]+Y1[j];
         robot_corner[3][j]=temp_state[j]-X1[j]+Y1[j];
-
+        //axis: horizontal and vertical
         robot_axis[0][j] = robot_corner[1][j] - robot_corner[0][j];
         robot_axis[1][j] = robot_corner[3][j] - robot_corner[0][j];
     }
 
-    length[0]=robot_axis[0][0]*robot_axis[0][0]+robot_axis[0][1]*robot_axis[0][1];
-    length[1]=robot_axis[1][0]*robot_axis[1][0]+robot_axis[1][1]*robot_axis[1][1];
+    length[0]=sqrt(robot_axis[0][0]*robot_axis[0][0]+robot_axis[0][1]*robot_axis[0][1]);
+    length[1]=sqrt(robot_axis[1][0]*robot_axis[1][0]+robot_axis[1][1]*robot_axis[1][1]);
 
     for (unsigned i=0; i<2; i++)
     {
         for (unsigned j=0; j<2; j++)
         {
-            robot_axis[i][j]=robot_axis[i][j]/length[j];
+            robot_axis[i][j]=robot_axis[i][j]/length[i];
         }
     }
+    // obtain the projection of the left-bottom corner to the axis, to obtain the minimal projection length
     robot_ori[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
     robot_ori[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
 
     for (unsigned i=0; i<obs_list.size(); i++)
     {
         bool collision = true;
-        collision = overlap(robot_corner,robot_axis,robot_ori,obs_list[i],obs_axis[i],obs_ori[i]);
+        // do checking in both direction (b1 -> b2, b2 -> b1). It is only collision if both direcions are collision
+        collision = overlap(robot_corner,robot_axis,robot_ori,std::vector<double>{WIDTH, LENGTH},\
+                            obs_list[i],obs_axis[i],obs_ori[i],std::vector<double>{this->obs_width, this->obs_width});
+        collision = collision&overlap(obs_list[i],obs_axis[i],obs_ori[i],std::vector<double>{this->obs_width, this->obs_width},\
+                                      robot_corner,robot_axis,robot_ori,std::vector<double>{WIDTH, LENGTH});
         if (collision)
         {
             return false;  // invalid state

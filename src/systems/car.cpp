@@ -15,8 +15,8 @@
 #include "systems/car.hpp"
 #include "utilities/random.hpp"
 
-#define WIDTH 1.0
-#define LENGTH 2.0
+#define WIDTH 2.0
+#define LENGTH 1.0
 #define STATE_X 0
 #define STATE_Y 1
 #define STATE_THETA 2
@@ -55,8 +55,9 @@ bool car_t::propagate(
 
 void car_t::update_derivative(const double* control)
 {
+    // angle: clockwise
     deriv[0] = cos(temp_state[2]) * control[0];
-    deriv[1] = sin(temp_state[2]) * control[0];
+    deriv[1] = -sin(temp_state[2]) * control[0];
     deriv[2] = control[1];
 }
 

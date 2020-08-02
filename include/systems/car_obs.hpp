@@ -27,7 +27,7 @@ public:
 		control_dimension = 2;
 		temp_state = new double[state_dimension];
 		deriv = new double[state_dimension];
-
+		obs_width = width;
 		for(unsigned i=0;i<_obs_list.size();i++)
         {
             // each obstacle is represented by its middle point
@@ -37,12 +37,15 @@ public:
             // the obstacle points are concatenated for efficient calculation
             double x = _obs_list[i][0];
             double y = _obs_list[i][1];
+			// order: (left-bottom, right-bottom, right-upper, left-upper)
+
             obs[0] = x - width / 2;  obs[1] = y - width / 2;
             obs[2] = x + width / 2;  obs[3] = y - width / 2;
             obs[4] = x + width / 2;  obs[5] = y + width / 2;
             obs[6] = x - width / 2;  obs[7] = y + width / 2;
             obs_list.push_back(obs);
 
+			// horizontal axis and vertical
             std::vector<std::vector<double>> obs_axis_i(2, std::vector<double> (2, 0));
             obs_axis_i[0][0] = obs[2] - obs[0];
             obs_axis_i[1][0] = obs[6] - obs[0];
@@ -50,18 +53,19 @@ public:
             obs_axis_i[1][1] = obs[7] - obs[1];
 
             std::vector<double> obs_length;
-            obs_length.push_back(obs_axis_i[0][0]*obs_axis_i[0][0]+obs_axis_i[0][1]*obs_axis_i[0][1]);
-            obs_length.push_back(obs_axis_i[1][0]*obs_axis_i[1][0]+obs_axis_i[1][1]*obs_axis_i[1][1]);
+            obs_length.push_back(sqrt(obs_axis_i[0][0]*obs_axis_i[0][0]+obs_axis_i[0][1]*obs_axis_i[0][1]));
+            obs_length.push_back(sqrt(obs_axis_i[1][0]*obs_axis_i[1][0]+obs_axis_i[1][1]*obs_axis_i[1][1]));
+			// ormalize the axis
             for (unsigned i1=0; i1<2; i1++)
             {
                 for (unsigned j1=0; j1<2; j1++)
                 {
-                    obs_axis_i[i1][j1] = obs_axis_i[i1][j1] / obs_length[j1];
+                    obs_axis_i[i1][j1] = obs_axis_i[i1][j1] / obs_length[i1];
                 }
             }
             obs_axis.push_back(obs_axis_i);
 
-            // not sure if below is correct
+			// obtain the inner product of the left-bottom corner with the axis to obtain the minimal of projection value
             std::vector<double> obs_ori_i;
             obs_ori_i.push_back(obs[0]*obs_axis_i[0][0]+ obs[1]*obs_axis_i[0][1]);
             obs_ori_i.push_back(obs[0]*obs_axis_i[1][0]+ obs[1]*obs_axis_i[1][1]);
@@ -117,14 +121,16 @@ public:
 	 */
 	std::vector<bool> is_circular_topology() const override;
 
-	    bool overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
-	                  std::vector<double>& b1orign, std::vector<double>& b2corner,
-	                  std::vector<std::vector<double>>& b2axis, std::vector<double>& b2orign);
+	bool overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
+	             std::vector<double>& b1orign, std::vector<double>& b1ds,
+				 std::vector<double>& b2corner, std::vector<std::vector<double>>& b2axis,
+				 std::vector<double>& b2orign, std::vector<double>& b2ds);
 
 protected:
 	double* deriv;
 	void update_derivative(const double* control);
     std::vector<std::vector<double>> obs_list;
+	double obs_width;
     std::vector<std::vector<std::vector<double>>> obs_axis;
     std::vector<std::vector<double>> obs_ori;
 };

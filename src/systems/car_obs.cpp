@@ -158,14 +158,17 @@ bool car_obs_t::valid_state()
     robot_ori[0]=robot_corner[0][0]*robot_axis[0][0]+ robot_corner[0][1]*robot_axis[0][1];
     robot_ori[1]=robot_corner[0][0]*robot_axis[1][0]+ robot_corner[0][1]*robot_axis[1][1];
 
+    static std::vector<double> car_size{WIDTH, LENGTH};
+    static std::vector<double> obs_size{this->obs_width, this->obs_width};
+
     for (unsigned i=0; i<obs_list.size(); i++)
     {
         bool collision = true;
         // do checking in both direction (b1 -> b2, b2 -> b1). It is only collision if both direcions are collision
-        collision = overlap(robot_corner,robot_axis,robot_ori,std::vector<double>{WIDTH, LENGTH},\
-                            obs_list[i],obs_axis[i],obs_ori[i],std::vector<double>{this->obs_width, this->obs_width});
-        collision = collision&overlap(obs_list[i],obs_axis[i],obs_ori[i],std::vector<double>{this->obs_width, this->obs_width},\
-                                      robot_corner,robot_axis,robot_ori,std::vector<double>{WIDTH, LENGTH});
+        collision = overlap(robot_corner,robot_axis,robot_ori,car_size,\
+                            obs_list[i],obs_axis[i],obs_ori[i],obs_size);
+        collision = collision&overlap(obs_list[i],obs_axis[i],obs_ori[i],obs_size,\
+                                      robot_corner,robot_axis,robot_ori,car_size);
         if (collision)
         {
             return false;  // invalid state

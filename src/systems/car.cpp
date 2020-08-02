@@ -108,7 +108,7 @@ std::vector<std::pair<double, double> > car_t::get_state_bounds() const {
 
 std::vector<std::pair<double, double> > car_t::get_control_bounds() const {
     return {
-            {0, 1},
+            {0, 2},
             {-.5,.5},
     };
 }

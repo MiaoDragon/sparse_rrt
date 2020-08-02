@@ -82,9 +82,9 @@ void car_obs_t::enforce_bounds()
 }
 
 bool car_obs_t::overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
-                              std::vector<double>& b1orign, std::vector<double>& b1ds,
-                              std::vector<double>& b2corner, std::vector<std::vector<double>>& b2axis,
-                              std::vector<double>& b2orign, std::vector<double>& b2ds)
+                        std::vector<double>& b1orign, std::vector<double>& b1ds,
+                        std::vector<std::vector<double>>& b2corner, std::vector<std::vector<double>>& b2axis,
+                        std::vector<double>& b2orign, std::vector<double>& b2ds)
 {
     for (unsigned a = 0; a < 2; a++)
     {

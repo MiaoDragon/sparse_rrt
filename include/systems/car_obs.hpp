@@ -31,7 +31,7 @@ public:
 		for(unsigned i=0;i<_obs_list.size();i++)
         {
             // each obstacle is represented by its middle point
-            std::vector<double> obs(4*2);
+            std::vector<std::vector<double>> obs(4, std::vector<double>(2));
             // calculate the four points representing the rectangle in the order
             // UL, UR, LR, LL
             // the obstacle points are concatenated for efficient calculation
@@ -39,18 +39,18 @@ public:
             double y = _obs_list[i][1];
 			// order: (left-bottom, right-bottom, right-upper, left-upper)
 
-            obs[0] = x - width / 2;  obs[1] = y - width / 2;
-            obs[2] = x + width / 2;  obs[3] = y - width / 2;
-            obs[4] = x + width / 2;  obs[5] = y + width / 2;
-            obs[6] = x - width / 2;  obs[7] = y + width / 2;
+            obs[0][0] = x - width / 2;  obs[0][1] = y - width / 2;
+            obs[1][0] = x + width / 2;  obs[1][1] = y - width / 2;
+            obs[2][0] = x + width / 2;  obs[2][1] = y + width / 2;
+            obs[3][0] = x - width / 2;  obs[3][1] = y + width / 2;
             obs_list.push_back(obs);
 
 			// horizontal axis and vertical
             std::vector<std::vector<double>> obs_axis_i(2, std::vector<double> (2, 0));
-            obs_axis_i[0][0] = obs[2] - obs[0];
-            obs_axis_i[1][0] = obs[6] - obs[0];
-            obs_axis_i[0][1] = obs[3] - obs[1];
-            obs_axis_i[1][1] = obs[7] - obs[1];
+            obs_axis_i[0][0] = obs[1][0] - obs[0][0];
+            obs_axis_i[1][0] = obs[3][0] - obs[0][0];
+            obs_axis_i[0][1] = obs[1][1] - obs[0][1];
+            obs_axis_i[1][1] = obs[3][1] - obs[0][1];
 
             std::vector<double> obs_length;
             obs_length.push_back(sqrt(obs_axis_i[0][0]*obs_axis_i[0][0]+obs_axis_i[0][1]*obs_axis_i[0][1]));
@@ -67,8 +67,8 @@ public:
 
 			// obtain the inner product of the left-bottom corner with the axis to obtain the minimal of projection value
             std::vector<double> obs_ori_i;
-            obs_ori_i.push_back(obs[0]*obs_axis_i[0][0]+ obs[1]*obs_axis_i[0][1]);
-            obs_ori_i.push_back(obs[0]*obs_axis_i[1][0]+ obs[1]*obs_axis_i[1][1]);
+            obs_ori_i.push_back(obs[0][0]*obs_axis_i[0][0]+ obs[0][1]*obs_axis_i[0][1]);
+            obs_ori_i.push_back(obs[0][0]*obs_axis_i[1][0]+ obs[0][1]*obs_axis_i[1][1]);
 
             obs_ori.push_back(obs_ori_i);
         }
@@ -123,13 +123,13 @@ public:
 
 	bool overlap(std::vector<std::vector<double>>& b1corner, std::vector<std::vector<double>>& b1axis,
 	             std::vector<double>& b1orign, std::vector<double>& b1ds,
-				 std::vector<double>& b2corner, std::vector<std::vector<double>>& b2axis,
+				 std::vector<std::vector<double>>& b2corner, std::vector<std::vector<double>>& b2axis,
 				 std::vector<double>& b2orign, std::vector<double>& b2ds);
 
 protected:
 	double* deriv;
 	void update_derivative(const double* control);
-    std::vector<std::vector<double>> obs_list;
+    std::vector<std::vector<std::vector<double>>> obs_list;
 	double obs_width;
     std::vector<std::vector<std::vector<double>>> obs_axis;
     std::vector<std::vector<double>> obs_ori;

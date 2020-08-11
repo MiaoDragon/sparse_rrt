@@ -9,12 +9,21 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #include "systems/car.hpp"
 #include "utilities/random.hpp"
 
+#define WIDTH 2.0
+#define LENGTH 1.0
+#define STATE_X 0
+#define STATE_Y 1
+#define STATE_THETA 2
+#define MIN_X -25
+#define MAX_X 25
+#define MIN_Y -35
+#define MAX_Y 35
 
 #define _USE_MATH_DEFINES
 
@@ -31,10 +40,10 @@ bool car_t::propagate(
 	bool validity = true;
 	for(int i=0;i<num_steps;i++)
 	{
-		double temp2 = temp_state[2];
-		temp_state[0] += integration_step*cos(temp2)*control[0];
-		temp_state[1] += integration_step*sin(temp2)*control[0];
-		temp_state[2] += integration_step*control[1];
+        update_derivative(control);
+        temp_state[0] += integration_step*deriv[0];
+        temp_state[1] += integration_step*deriv[1];
+        temp_state[2] += integration_step*deriv[2];
 		enforce_bounds();
 		validity = validity && valid_state();
 	}
@@ -44,8 +53,18 @@ bool car_t::propagate(
 	return validity;
 }
 
+void car_t::update_derivative(const double* control)
+{
+    // angle: clockwise
+    deriv[0] = cos(temp_state[2]) * control[0];
+    deriv[1] = -sin(temp_state[2]) * control[0];
+    deriv[2] = control[1];
+}
+
+
 void car_t::enforce_bounds()
 {
+    /*
 	if(temp_state[0]<-10)
 		temp_state[0]=-10;
 	else if(temp_state[0]>10)
@@ -55,20 +74,20 @@ void car_t::enforce_bounds()
 		temp_state[1]=-10;
 	else if(temp_state[1]>10)
 		temp_state[1]=10;
-
+    */
 	if(temp_state[2]<-M_PI)
 		temp_state[2]+=2*M_PI;
 	else if(temp_state[2]>M_PI)
 		temp_state[2]-=2*M_PI;
 }
 
-
 bool car_t::valid_state()
 {
-	return 	(temp_state[0]!=-10) &&
-			(temp_state[0]!=10) &&
-			(temp_state[1]!=-10) &&
-			(temp_state[1]!=10);
+    if (temp_state[0] < MIN_X || temp_state[0] > MAX_X || temp_state[1] < MIN_Y || temp_state[1] > MAX_Y)
+    {
+        return false;
+    }
+    return true;
 }
 
 std::tuple<double, double> car_t::visualize_point(const double* state, unsigned int state_dimension) const
@@ -80,8 +99,8 @@ std::tuple<double, double> car_t::visualize_point(const double* state, unsigned 
 
 std::vector<std::pair<double, double> > car_t::get_state_bounds() const {
 	return {
-        {-10,10},
-        {-10,10},
+        {MIN_X,MAX_X},
+        {MIN_Y,MAX_Y},
         {-M_PI,M_PI},
 	};
 }
@@ -89,7 +108,7 @@ std::vector<std::pair<double, double> > car_t::get_state_bounds() const {
 
 std::vector<std::pair<double, double> > car_t::get_control_bounds() const {
     return {
-            {0, 1},
+            {0, 2},
             {-.5,.5},
     };
 }

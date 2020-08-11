@@ -9,7 +9,7 @@
  *
  * Original authors: Zakary Littlefield, Kostas Bekris
  * Modifications by: Oleg Y. Sinyavskiy
- * 
+ *
  */
 
 #ifndef SPARSE_CAR_HPP
@@ -26,6 +26,7 @@ public:
 		state_dimension = 3;
 		control_dimension = 2;
 		temp_state = new double[state_dimension];
+		deriv = new double[state_dimension];
 	}
 	virtual ~car_t(){delete temp_state;}
 
@@ -66,6 +67,9 @@ public:
 	 * @copydoc system_t::is_circular_topology()
 	 */
 	std::vector<bool> is_circular_topology() const override;
+protected:
+	double* deriv;
+	void update_derivative(const double* control);
 
 };
 
